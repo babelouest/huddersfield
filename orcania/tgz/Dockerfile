@@ -4,7 +4,9 @@ FROM babelouest/tgz
 RUN apk add --no-cache \
     jansson-dev
 
-ARG ORCANIA_VERSION=1.2.0-b.3
+ARG DISTRIB
+ARG CODE
+ARG ORCANIA_VERSION
 
 # Build Orcania
 RUN mkdir /opt && \
@@ -18,7 +20,7 @@ RUN mkdir /opt && \
 		cmake .. && \
     make && \
     make package ; \
-		cp liborcania-dev_*.tar.gz /opt/liborcania-dev_${ORCANIA_VERSION}_Alpine-`cat /etc/alpine-release`-`uname -m`.tar.gz
+		cp liborcania-dev_*.tar.gz /opt/liborcania-dev_${ORCANIA_VERSION}_${DISTRIB}_${CODE}_`uname -m`.tar.gz
 
 COPY ["entrypoint.sh", "/"]
 

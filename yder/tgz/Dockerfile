@@ -4,8 +4,10 @@ FROM babelouest/tgz
 RUN apk add --no-cache \
     jansson-dev
 
-ARG ORCANIA_VERSION=1.2.0-b.3
-ARG YDER_VERSION=1.2.0-b.2
+ARG DISTRIB
+ARG CODE
+ARG ORCANIA_VERSION
+ARG YDER_VERSION
 
 # Build Orcania
 RUN mkdir /opt && \
@@ -31,7 +33,7 @@ RUN mkdir /opt && \
 		cmake .. && \
     make && \
     make package ; \
-		cp libyder-dev_*.tar.gz /opt/libyder-dev_${YDER_VERSION}_Alpine-`cat /etc/alpine-release`-`uname -m`.tar.gz
+		cp libyder-dev_*.tar.gz /opt/libyder-dev_${YDER_VERSION}_${DISTRIB}_${CODE}_`uname -m`.tar.gz
 
 COPY ["entrypoint.sh", "/"]
 

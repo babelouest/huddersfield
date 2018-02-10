@@ -5,7 +5,9 @@ RUN apt-get update && \
     apt-get install -y \
     libjansson-dev
 
-ARG ORCANIA_VERSION=1.2.0-b.3
+ARG DISTRIB
+ARG CODE
+ARG ORCANIA_VERSION
 
 # Build Orcania
 RUN cd /opt && \
@@ -18,7 +20,7 @@ RUN cd /opt && \
 		cmake .. && \
     make && \
     make package ; \
-		cp liborcania-dev_*.deb /opt/liborcania-dev_${ORCANIA_VERSION}_`lsb_release -si`-`lsb_release -sc`-`uname -m`.deb
+		cp liborcania-dev_*.deb /opt/liborcania-dev_${ORCANIA_VERSION}_${DISTRIB}_${CODE}_`uname -m`.deb
 
 COPY ["entrypoint.sh", "/"]
 

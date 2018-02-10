@@ -5,8 +5,10 @@ RUN apt-get update && \
     apt-get install -y \
     libjansson-dev
 
-ARG ORCANIA_VERSION=1.2.0-b.3
-ARG YDER_VERSION=1.2.0-b.2
+ARG DISTRIB
+ARG CODE
+ARG ORCANIA_VERSION
+ARG YDER_VERSION
 
 # Build Orcania
 RUN cd /opt && \
@@ -31,7 +33,7 @@ RUN cd /opt && \
 		cmake .. && \
     make && \
     make package ; \
-		cp libyder-dev_*.deb /opt/libyder-dev_${ORCANIA_VERSION}_`lsb_release -si`-`lsb_release -sc`-`uname -m`.deb
+		cp libyder-dev_*.deb /opt/libyder-dev_${YDER_VERSION}_${DISTRIB}_${CODE}_`uname -m`.deb
 
 COPY ["entrypoint.sh", "/"]
 
