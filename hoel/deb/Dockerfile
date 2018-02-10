@@ -4,9 +4,9 @@ FROM babelouest/deb
 RUN apt-get update && \
     apt-get install -y \
     libjansson-dev \
-    libmariadbclient-dev \
     libsqlite-dev \
     libpq-dev \
+    && (apt-get install -y libmariadbclient-dev || apt-get install -y libmysqlclient-dev) \
     && rm -rf /var/lib/apt/lists/*
 
 ARG DISTRIB
