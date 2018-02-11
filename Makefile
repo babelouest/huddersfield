@@ -1,13 +1,33 @@
+#
 # package builder root Makefile
-# build all packages for all environments
+# build packages for all environments for the following projects:
+#
+# - orcania (https://github.com/babelouest/hoel)
+# - yder (https://github.com/babelouest/yder)
+# - ulfius (https://github.com/babelouest/ulfius)
+# - hoel (https://github.com/babelouest/hoel)
+# - glewlwyd (https://github.com/babelouest/glewlwyd)
+# - taliesin (https://github.com/babelouest/taliesin)
+#
+# Copyright 2014-2015 Nicolas Mora <mail@babelouest.org>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the MIT License
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU GENERAL PUBLIC LICENSE for more details.
+#
 
 ORCANIA_VERSION=1.2.0-b.3
 YDER_VERSION=1.2.0-b.2
 ULFIUS_VERSION=2.3.0-b.3
 HOEL_VERSION=1.4.0-b.3
 GLEWLWYD_VERSION=1.3.2-b
-TALIESIN_VERSION=1.0.12
+TALIESIN_VERSION=1.0.12-b
 HUTCH_VERSION=1.1
+LIBJWT_VERSION=1.9.0
 
 CODE_DEBIAN_STABLE=stretch
 CODE_DEBIAN_TESTING=buster
@@ -17,18 +37,20 @@ CODE_ALPINE_STABLE=3.7
 
 all: build-debian-stable build-debian-testing build-ubuntu-latest build-ubuntu-lts build-alpine
 
-build-debian-stable: orcania-debian-stable yder-debian-stable ulfius-debian-stable hoel-debian-stable
+build-debian-stable: orcania-debian-stable yder-debian-stable ulfius-debian-stable hoel-debian-stable glewlwyd-debian-stable taliesin-debian-stable
 
-build-debian-testing: orcania-debian-testing yder-debian-testing ulfius-debian-testing hoel-debian-testing
+build-debian-testing: orcania-debian-testing yder-debian-testing ulfius-debian-testing hoel-debian-testing glewlwyd-debian-testing taliesin-debian-testing
 
-build-ubuntu-latest: orcania-ubuntu-latest yder-ubuntu-latest ulfius-ubuntu-latest hoel-ubuntu-latest
+build-ubuntu-latest: orcania-ubuntu-latest yder-ubuntu-latest ulfius-ubuntu-latest hoel-ubuntu-latest glewlwyd-ubuntu-latest taliesin-ubuntu-latest
 
-build-ubuntu-lts: orcania-ubuntu-lts yder-ubuntu-lts ulfius-ubuntu-lts hoel-ubuntu-lts
+build-ubuntu-lts: orcania-ubuntu-lts yder-ubuntu-lts ulfius-ubuntu-lts hoel-ubuntu-lts glewlwyd-ubuntu-lts taliesin-ubuntu-lts
 
-build-alpine: orcania-alpine yder-alpine ulfius-alpine hoel-alpine
+build-alpine: orcania-alpine yder-alpine ulfius-alpine hoel-alpine glewlwyd-alpine taliesin-alpine
 
-clean: orcania-clean yder-clean ulfius-clean hoel-clean
+clean-base:
 	-docker rmi -f babelouest/deb babelouest/tgz
+
+clean: orcania-clean yder-clean ulfius-clean hoel-clean glewlwyd-clean taliesin-clean clean-base clean-no-tag-images
 
 clean-no-tag-images:
 	-docker rmi -f $(shell docker images -f "dangling=true" -q)
@@ -83,7 +105,7 @@ orcania-build:
 	$(MAKE) orcania-ubuntu-lts
 	$(MAKE) orcania-alpine
 
-orcania-clean:
+orcania-clean: clean-base
 	rm -f orcania/*.tar.gz orcania/*.deb
 	-docker rmi -f babelouest/orcania
 
@@ -122,7 +144,7 @@ yder-build:
 	$(MAKE) yder-ubuntu-lts
 	$(MAKE) yder-alpine
 
-yder-clean:
+yder-clean: clean-base
 	rm -f yder/*.tar.gz yder/*.deb
 	-docker rmi -f babelouest/yder
 
@@ -161,7 +183,7 @@ ulfius-build:
 	$(MAKE) ulfius-ubuntu-lts
 	$(MAKE) ulfius-alpine
 
-ulfius-clean:
+ulfius-clean: clean-base
 	rm -f ulfius/*.tar.gz ulfius/*.deb
 	-docker rmi -f babelouest/ulfius
 
@@ -200,6 +222,79 @@ hoel-build:
 	$(MAKE) hoel-ubuntu-lts
 	$(MAKE) hoel-alpine
 
-hoel-clean:
+hoel-clean: clean-base
 	rm -f hoel/*.tar.gz hoel/*.deb
 	-docker rmi -f babelouest/hoel
+
+glewlwyd-deb:
+	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) glewlwyd/deb/
+	docker run -v $(shell pwd)/glewlwyd/:/share babelouest/glewlwyd
+
+glewlwyd-tgz:
+	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) glewlwyd/tgz/
+	docker run -v $(shell pwd)/glewlwyd/:/share babelouest/glewlwyd
+
+glewlwyd-debian-stable: 
+	$(MAKE) debian-stable
+	$(MAKE) glewlwyd-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
+
+glewlwyd-debian-testing: 
+	$(MAKE) debian-testing
+	$(MAKE) glewlwyd-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
+
+glewlwyd-ubuntu-latest: 
+	$(MAKE) ubuntu-latest
+	$(MAKE) glewlwyd-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
+
+glewlwyd-ubuntu-lts: 
+	$(MAKE) ubuntu-lts
+	$(MAKE) glewlwyd-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LTS)
+
+glewlwyd-alpine: 
+	$(MAKE) alpine
+	$(MAKE) glewlwyd-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
+
+glewlwyd-build:
+	$(MAKE) glewlwyd-debian-stable
+	$(MAKE) glewlwyd-debian-testing
+	$(MAKE) glewlwyd-ubuntu-latest
+	$(MAKE) glewlwyd-ubuntu-lts
+	$(MAKE) glewlwyd-alpine
+
+glewlwyd-clean: clean-base
+	rm -f glewlwyd/*.tar.gz glewlwyd/*.deb
+	-docker rmi -f babelouest/glewlwyd
+
+taliesin-deb:
+	docker build -t babelouest/taliesin --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg TALIESIN_VERSION=$(TALIESIN_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) taliesin/deb/
+	docker run -v $(shell pwd)/taliesin/:/share babelouest/taliesin
+
+taliesin-tgz:
+	docker build -t babelouest/taliesin --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg TALIESIN_VERSION=$(TALIESIN_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) taliesin/tgz/
+	docker run -v $(shell pwd)/taliesin/:/share babelouest/taliesin
+
+taliesin-debian-stable: 
+	$(MAKE) debian-stable
+	$(MAKE) taliesin-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
+
+taliesin-debian-testing: 
+	$(MAKE) debian-testing
+	$(MAKE) taliesin-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
+
+taliesin-ubuntu-latest: 
+	$(MAKE) ubuntu-latest
+	$(MAKE) taliesin-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
+
+taliesin-alpine: 
+	$(MAKE) alpine
+	$(MAKE) taliesin-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
+
+taliesin-build:
+	$(MAKE) taliesin-debian-stable
+	$(MAKE) taliesin-debian-testing
+	$(MAKE) taliesin-ubuntu-latest
+	$(MAKE) taliesin-alpine
+
+taliesin-clean: clean-base
+	rm -f taliesin/*.tar.gz taliesin/*.deb
+	-docker rmi -f babelouest/taliesin
