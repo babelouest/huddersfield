@@ -3,10 +3,10 @@ FROM alpine:3.7
 # Install required packages
 RUN apk add --no-cache \
 		libcurl \
-    curl-dev \
     jansson-dev \
     gnutls-dev \
     libmicrohttpd-dev \
+    curl-dev \
     make \
 		gcc \
 		g++ \

@@ -43,7 +43,7 @@ build-debian-testing: orcania-debian-testing yder-debian-testing ulfius-debian-t
 
 build-ubuntu-latest: orcania-ubuntu-latest yder-ubuntu-latest ulfius-ubuntu-latest hoel-ubuntu-latest glewlwyd-ubuntu-latest taliesin-ubuntu-latest
 
-build-ubuntu-lts: orcania-ubuntu-lts yder-ubuntu-lts ulfius-ubuntu-lts hoel-ubuntu-lts glewlwyd-ubuntu-lts taliesin-ubuntu-lts
+build-ubuntu-lts: orcania-ubuntu-lts yder-ubuntu-lts ulfius-ubuntu-lts hoel-ubuntu-lts glewlwyd-ubuntu-lts
 
 build-alpine: orcania-alpine yder-alpine ulfius-alpine hoel-alpine glewlwyd-alpine taliesin-alpine
 

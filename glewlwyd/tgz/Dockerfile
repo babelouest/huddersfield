@@ -6,7 +6,6 @@ RUN apk add --no-cache \
 		automake \
 		libcurl \
     curl-dev \
-    libcurl4-gnutls-dev \
     libconfig-dev \
     jansson-dev \
     gnutls-dev \
