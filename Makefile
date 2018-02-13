@@ -25,7 +25,7 @@ YDER_VERSION=1.2.0-b.4
 ULFIUS_VERSION=2.3.0-b.5
 HOEL_VERSION=1.4.0-b.6
 GLEWLWYD_VERSION=1.3.2-b.5
-TALIESIN_VERSION=1.0.12-b
+TALIESIN_VERSION=1.0.12-b.2
 HUTCH_VERSION=1.1
 LIBJWT_VERSION=1.9.0
 
@@ -298,3 +298,12 @@ taliesin-build:
 taliesin-clean: clean-base
 	rm -f taliesin/*.tar.gz taliesin/*.deb
 	-docker rmi -f babelouest/taliesin
+
+taliesin-quickstart-src:
+	cd taliesin/quickstart && $(MAKE) build-quickstart-src TALIESIN_VERSION=$(TALIESIN_VERSION) LIBJWT_VERSION=$(LIBJWT_VERSION)
+
+taliesin-quickstart-custom:
+	cd taliesin/quickstart && $(MAKE) build-quickstart-x86_64_custom TALIESIN_VERSION=$(TALIESIN_VERSION) LIBJWT_VERSION=$(LIBJWT_VERSION)
+
+taliesin-quickstart-sqlite-noauth:
+	cd taliesin/quickstart && $(MAKE) build-quickstart-x86_64_sqlite_noauth TALIESIN_VERSION=$(TALIESIN_VERSION) LIBJWT_VERSION=$(LIBJWT_VERSION)
