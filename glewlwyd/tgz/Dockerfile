@@ -127,7 +127,7 @@ RUN mkdir /opt && \
 
 # make an archive based on 3 pckages
     cd /opt && \
-    tar cvz *.tar.gz -f glewlwyd-full_${GLEWLWYD_VERSION}_${DISTRIB}-${CODE}-`uname -m`.tar.gz
+    tar cvz *.tar.gz -f glewlwyd-full_${GLEWLWYD_VERSION}_${DISTRIB}_${CODE}_`uname -m`.tar.gz
 
 COPY ["entrypoint.sh", "/"]
 
