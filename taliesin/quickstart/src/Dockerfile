@@ -38,9 +38,9 @@ RUN mkdir /opt && \
 
 # Download and install Taliesin package
     cd /opt && \
-    wget https://github.com/babelouest/taliesin/releases/download/v${TALIESIN_VERSION}/taliesin-full_${TALIESIN_VERSION}_Alpine-3.7-x86_64.tar.gz && \
-    tar -xf taliesin-full_${TALIESIN_VERSION}_Alpine-3.7-x86_64.tar.gz && \
-    rm taliesin-full_${TALIESIN_VERSION}_Alpine-3.7-x86_64.tar.gz && \
+    wget https://github.com/babelouest/taliesin/releases/download/v${TALIESIN_VERSION}/taliesin-full_${TALIESIN_VERSION}_Alpine_3.7_x86_64.tar.gz && \
+    tar -xf taliesin-full_${TALIESIN_VERSION}_Alpine_3.7_x86_64.tar.gz && \
+    rm taliesin-full_${TALIESIN_VERSION}_Alpine_3.7_x86_64.tar.gz && \
 		tar xf liborcania_*.tar.gz && \
 		mv liborcania_*/lib64/* /usr/lib && \
 		tar xf libyder_*.tar.gz && \
