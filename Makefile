@@ -21,8 +21,8 @@
 #
 
 GITHUB_UPLOAD=0
-GITHUB_USER=my_user
-GITHUB_TOKEN=
+GITHUB_USER=babelouest
+GITHUB_TOKEN=$(shell cat GITHUB_TOKEN)
 
 ifeq (($(GITHUB_TOKEN)),"")
 	AUTH_HEADER=
