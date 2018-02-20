@@ -9,7 +9,9 @@ Package builder for the following projects:
 - Taliesin (https://github.com/babelouest/taliesin)
 - Hutch (https://github.com/babelouest/hutch)
 
-Use to automatically build .deb and .tar.gz packages of those projects, and bundles for projects with dependencies. Except for Raspbian packages which are built for `armv6l` processors (Raspberry PI), all the other packages are built for x86_64 architectures.
+Use to automatically build .deb and .tar.gz packages of those projects, and bundles for projects with dependencies.
+
+Except for Raspbian packages which are built for `armv6l` processors (Raspberry PI), all the other packages are built for `x86_64` architectures.
 
 Uses Docker and Makefile.
 
