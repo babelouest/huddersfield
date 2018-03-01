@@ -38,6 +38,10 @@ HOEL_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelou
 GLEWLWYD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/glewlwyd/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
 TALIESIN_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/taliesin/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
 HUTCH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/hutch/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+ANGHARAD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/angharad/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+BENOIC_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/benoic/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+CARLEON_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/carleon/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+GARETH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/gareth/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
 LIBJWT_VERSION=1.9.0
 
 CODE_DEBIAN_STABLE=stretch
@@ -49,17 +53,17 @@ CODE_RASPBIAN_STABLE=stretch
 
 all: build-debian-stable build-debian-testing build-ubuntu-latest build-ubuntu-lts build-alpine
 
-build-debian-stable: orcania-debian-stable yder-debian-stable ulfius-debian-stable hoel-debian-stable glewlwyd-debian-stable taliesin-debian-stable hutch-debian-stable
+build-debian-stable: orcania-debian-stable yder-debian-stable ulfius-debian-stable hoel-debian-stable glewlwyd-debian-stable taliesin-debian-stable angharad-debian-stable hutch-debian-stable
 
-build-debian-testing: orcania-debian-testing yder-debian-testing ulfius-debian-testing hoel-debian-testing glewlwyd-debian-testing taliesin-debian-testing hutch-debian-testing
+build-debian-testing: orcania-debian-testing yder-debian-testing ulfius-debian-testing hoel-debian-testing glewlwyd-debian-testing taliesin-debian-testing hutch-debian-testing angharad-debian-testing
 
-build-ubuntu-latest: orcania-ubuntu-latest yder-ubuntu-latest ulfius-ubuntu-latest hoel-ubuntu-latest glewlwyd-ubuntu-latest taliesin-ubuntu-latest hutch-ubuntu-latest
+build-ubuntu-latest: orcania-ubuntu-latest yder-ubuntu-latest ulfius-ubuntu-latest hoel-ubuntu-latest glewlwyd-ubuntu-latest taliesin-ubuntu-latest hutch-ubuntu-latest angharad-ubuntu-latest
 
 build-ubuntu-lts: orcania-ubuntu-lts yder-ubuntu-lts ulfius-ubuntu-lts hoel-ubuntu-lts glewlwyd-ubuntu-lts hutch-ubuntu-lts
 
-build-alpine: orcania-alpine yder-alpine ulfius-alpine hoel-alpine glewlwyd-alpine taliesin-alpine hutch-alpine
+build-alpine: orcania-alpine yder-alpine ulfius-alpine hoel-alpine glewlwyd-alpine taliesin-alpine hutch-alpine angharad-alpine
 
-build-raspbian: orcania-raspbian yder-raspbian ulfius-raspbian hoel-raspbian glewlwyd-raspbian taliesin-raspbian hutch-raspbian
+build-raspbian: orcania-raspbian yder-raspbian ulfius-raspbian hoel-raspbian glewlwyd-raspbian taliesin-raspbian hutch-raspbian angharad-raspbian
 
 upload-asset:
 	@if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
@@ -71,7 +75,7 @@ upload-asset:
 clean-base:
 	-docker rmi -f babelouest/deb babelouest/tgz
 
-clean: orcania-clean yder-clean ulfius-clean hoel-clean glewlwyd-clean taliesin-clean hutch-clean clean-base clean-no-tag-images
+clean: orcania-clean yder-clean ulfius-clean hoel-clean glewlwyd-clean taliesin-clean hutch-clean angharad-clean clean-base clean-no-tag-images
 
 clean-no-tag-images:
 	-docker rmi -f $(shell docker images -f "dangling=true" -q)
@@ -744,7 +748,7 @@ hutch-ubuntu-lts:
 hutch-alpine: 
 	$(MAKE) alpine
 	$(MAKE) hutch-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch-full_$(HUTCH_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 
 hutch-raspbian:
@@ -851,3 +855,151 @@ hutch-build:
 hutch-clean: clean-base
 	rm -f hutch/*.tar.gz hutch/*.deb
 	-docker rmi -f babelouest/hutch
+
+angharad-deb:
+	docker build -t babelouest/angharad --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg ANGHARAD_VERSION=$(ANGHARAD_VERSION) --build-arg BENOIC_VERSION=$(BENOIC_VERSION) --build-arg CARLEON_VERSION=$(CARLEON_VERSION) --build-arg GARETH_VERSION=$(GARETH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) angharad/deb/
+	docker run --rm -v $(shell pwd)/angharad/:/share babelouest/angharad
+
+angharad-tgz:
+	docker build -t babelouest/angharad --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg ANGHARAD_VERSION=$(ANGHARAD_VERSION) --build-arg BENOIC_VERSION=$(BENOIC_VERSION) --build-arg CARLEON_VERSION=$(CARLEON_VERSION) --build-arg GARETH_VERSION=$(GARETH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) angharad/tgz/
+	docker run --rm -v $(shell pwd)/angharad/:/share babelouest/angharad
+
+angharad-debian-stable: 
+	$(MAKE) debian-stable
+	$(MAKE) angharad-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.tar.gz
+
+angharad-debian-testing: 
+	$(MAKE) debian-testing
+	$(MAKE) angharad-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.tar.gz
+
+angharad-ubuntu-latest: 
+	$(MAKE) ubuntu-latest
+	$(MAKE) angharad-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.tar.gz
+
+angharad-alpine: 
+	$(MAKE) alpine
+	$(MAKE) angharad-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
+
+angharad-raspbian:
+	# install dependencies
+	sudo apt update && sudo apt upgrade -y
+	sudo apt-get -y install autoconf libtool libmicrohttpd-dev libjansson-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libssl-dev libopenzwave1.5-dev libmpdclient-dev libcurl4-gnutls-dev g++
+	
+	# install libjwt
+	wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O raspbian/v${LIBJWT_VERSION}.tar.gz && \
+	tar -xf raspbian/v${LIBJWT_VERSION}.tar.gz -C raspbian/
+	(cd raspbian/libjwt-${LIBJWT_VERSION}/ && \
+	autoreconf -i && \
+	./configure && \
+	make && \
+	sudo make install )
+	
+	# package orcania
+	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
+	tar xf raspbian/v$(ORCANIA_VERSION).tar.gz -C raspbian/
+	rm -f raspbian/v$(ORCANIA_VERSION).tar.gz
+	( cd raspbian/orcania-$(ORCANIA_VERSION) && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	sudo make install && \
+	rm -rf * && \
+	cmake -DINSTALL_HEADER=off .. && \
+	make && \
+	make package; \
+	cp liborcania_*.deb ../../../angharad/liborcania_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+
+	# package yder
+	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O raspbian/v$(YDER_VERSION).tar.gz
+	tar xf raspbian/v$(YDER_VERSION).tar.gz -C raspbian/
+	rm -f raspbian/v$(YDER_VERSION).tar.gz
+	( cd raspbian/yder-$(YDER_VERSION) && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	sudo make install && \
+	rm -rf * && \
+	cmake -DINSTALL_HEADER=off .. && \
+	make && \
+	make package; \
+	cp libyder_*.deb ../../../angharad/libyder_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+
+	# package ulfius
+	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O raspbian/v$(ULFIUS_VERSION).tar.gz
+	tar xf raspbian/v$(ULFIUS_VERSION).tar.gz -C raspbian/
+	rm -f raspbian/v$(ULFIUS_VERSION).tar.gz
+	( cd raspbian/ulfius-$(ULFIUS_VERSION) && \
+	mkdir build && \
+	cd build && \
+	cmake -DWITH_WEBSOCKET=off .. && \
+	make && \
+	sudo make install && \
+	rm -rf * && \
+	cmake -DWITH_WEBSOCKET=off -DINSTALL_HEADER=off .. && \
+	make && \
+	make package; \
+	cp libulfius_*.deb ../../../angharad/libulfius_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	
+	# package hoel
+	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O raspbian/v$(HOEL_VERSION).tar.gz
+	tar xf raspbian/v$(HOEL_VERSION).tar.gz -C raspbian/
+	rm -f raspbian/v$(HOEL_VERSION).tar.gz
+	( cd raspbian/hoel-$(HOEL_VERSION) && \
+	mkdir build && \
+	cd build && \
+	cmake -DWITH_PGSQL=off .. && \
+	make && \
+	sudo make install && \
+	rm -rf * && \
+	cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
+	make package; \
+	cp libhoel_*.deb ../../../angharad/libhoel_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+
+	# package angharad
+	wget https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).tar.gz -O raspbian/v$(ANGHARAD_VERSION).tar.gz
+	tar -xvf raspbian/v$(ANGHARAD_VERSION).tar.gz -C raspbian/
+	rm raspbian/v$(ANGHARAD_VERSION).tar.gz
+	wget https://github.com/babelouest/benoic/archive/v$(BENOIC_VERSION).tar.gz -O raspbian/v$(BENOIC_VERSION).tar.gz
+	tar -xvf raspbian/v$(BENOIC_VERSION).tar.gz -C raspbian/
+	rm raspbian/v$(BENOIC_VERSION).tar.gz
+	wget https://github.com/babelouest/carleon/archive/v$(CARLEON_VERSION).tar.gz -O raspbian/v$(CARLEON_VERSION).tar.gz
+	tar -xvf raspbian/v$(CARLEON_VERSION).tar.gz -C raspbian/
+	rm raspbian/v$(CARLEON_VERSION).tar.gz
+	wget https://github.com/babelouest/gareth/archive/v$(GARETH_VERSION).tar.gz -O raspbian/v$(GARETH_VERSION).tar.gz
+	tar -xvf raspbian/v$(GARETH_VERSION).tar.gz -C raspbian/
+	rm raspbian/v$(GARETH_VERSION).tar.gz
+	mv raspbian/benoic-$(BENOIC_VERSION)/* raspbian/angharad-$(ANGHARAD_VERSION)/src/benoic/
+	mv raspbian/carleon-$(CARLEON_VERSION)/* raspbian/angharad-$(ANGHARAD_VERSION)/src/carleon/
+	mv raspbian/gareth-$(GARETH_VERSION)/* raspbian/angharad-$(ANGHARAD_VERSION)/src/gareth/
+	(cd raspbian/angharad-$(ANGHARAD_VERSION) && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	make package; \
+	cp angharad_*.deb ../../../angharad/angharad_$(ANGHARAD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+
+	( cd angharad && tar cvz liborcania_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libyder_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb angharad_$(ANGHARAD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb -f angharad-full_$(ANGHARAD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.tar.gz )
+	rm -rf raspbian/*
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.tar.gz
+
+angharad-build:
+	$(MAKE) angharad-debian-stable
+	$(MAKE) angharad-debian-testing
+	$(MAKE) angharad-ubuntu-latest
+	$(MAKE) angharad-alpine
+
+angharad-clean: clean-base
+	rm -f angharad/*.tar.gz angharad/*.deb
+	-docker rmi -f babelouest/angharad
