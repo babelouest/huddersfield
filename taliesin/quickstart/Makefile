@@ -23,6 +23,17 @@ TARGET_SRC=src
 TARGET_X86_64_CUSTOM=x86_64_custom
 TARGET_X86_64_SQLITE3_NOAUTH=x86_64_sqlite3_noauth
 
+GITHUB_TOKEN=$(shell cat ../../GITHUB_TOKEN)
+
+ifeq (($(GITHUB_TOKEN)),"")
+	AUTH_HEADER=
+else
+	AUTH_HEADER=-H "Authorization: token $(GITHUB_TOKEN)"
+endif
+
+TALIESIN_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/taliesin/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+LIBJWT_VERSION=1.9.0
+
 build-quickstart-src:
 	docker build -t babelouest/taliesin_x86_64:src --build-arg TALIESIN_VERSION=$(TALIESIN_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) $(TARGET_SRC)/
 
