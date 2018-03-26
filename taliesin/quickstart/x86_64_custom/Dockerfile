@@ -2,7 +2,7 @@ FROM babelouest/taliesin_x86_64:latest
 
 # Install required packages
 RUN apk add --no-cache \
-    sqlite
+		sqlite
 
 COPY ["taliesin.conf", "/var/taliesin/conf/"]
 COPY ["config.json", "/var/www"]

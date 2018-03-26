@@ -193,7 +193,7 @@ yder-alpine:
 yder-raspbian:
 	# install dependencies
 	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install libjansson-dev
+	sudo apt-get -y install libjansson-dev libsystemd-dev
 	
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
@@ -274,7 +274,7 @@ ulfius-alpine:
 ulfius-raspbian:
 	# install dependencies
 	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install libjansson-dev libmariadbclient-dev libsqlite3-dev libpq-dev
+	sudo apt-get -y install libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libpq-dev
 	
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
@@ -370,7 +370,7 @@ hoel-alpine:
 hoel-raspbian:
 	# install dependencies
 	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install libjansson-dev libmariadbclient-dev libsqlite3-dev libpq-dev
+	sudo apt-get -y install libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libpq-dev
 	
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
@@ -466,7 +466,7 @@ glewlwyd-alpine:
 glewlwyd-raspbian:
 	# install dependencies
 	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install libmicrohttpd-dev libjansson-dev libcurl4-gnutls-dev uuid-dev libldap2-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev libssl-dev
+	sudo apt-get -y install autoconf libtool libmicrohttpd-dev libjansson-dev libsystemd-dev libcurl4-gnutls-dev uuid-dev libldap2-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev libssl-dev
 	
 	# install libjwt
 	wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O raspbian/v${LIBJWT_VERSION}.tar.gz && \
@@ -603,7 +603,7 @@ taliesin-alpine:
 taliesin-raspbian:
 	# install dependencies
 	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install autoconf libconfig-dev libjansson-dev libgnutls28-dev libssl-dev libmicrohttpd-dev libsqlite3-dev libtool libavfilter-dev libavcodec-dev libavformat-dev libavresample-dev libavutil-dev
+	sudo apt-get -y install autoconf libtool libconfig-dev libjansson-dev libsystemd-dev libgnutls28-dev libssl-dev libmicrohttpd-dev libsqlite3-dev libtool libavfilter-dev libavcodec-dev libavformat-dev libavresample-dev libavutil-dev
 
 	# install libjwt
 	wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O raspbian/v${LIBJWT_VERSION}.tar.gz && \
@@ -754,7 +754,7 @@ hutch-alpine:
 hutch-raspbian:
 	# install dependencies
 	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install autoconf libtool libmicrohttpd-dev libjansson-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libssl-dev
+	sudo apt-get -y install autoconf libtool libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libssl-dev
 	
 	# install libjwt
 	wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O raspbian/v${LIBJWT_VERSION}.tar.gz && \
@@ -891,7 +891,7 @@ angharad-alpine:
 angharad-raspbian:
 	# install dependencies
 	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install autoconf libtool libmicrohttpd-dev libjansson-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libssl-dev libopenzwave1.5-dev libmpdclient-dev libcurl4-gnutls-dev g++
+	sudo apt-get -y install autoconf libtool libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libssl-dev libopenzwave1.5-dev libmpdclient-dev libcurl4-gnutls-dev g++
 	
 	# install libjwt
 	wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O raspbian/v${LIBJWT_VERSION}.tar.gz && \
