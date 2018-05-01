@@ -22,8 +22,11 @@
 #
 
 GITHUB_UPLOAD=0
+LOCAL_UPDATE_SYSTEM=1
+LOCAL_INSTALL_LIBJWT=1
 GITHUB_USER=babelouest
 GITHUB_TOKEN=$(shell cat GITHUB_TOKEN)
+LOCAL_ID=$(shell grep -e "^ID=" /etc/os-release |cut -c 4-)
 
 ifeq (($(GITHUB_TOKEN)),"")
 	AUTH_HEADER=
@@ -49,7 +52,6 @@ CODE_DEBIAN_TESTING=buster
 CODE_UBUNTU_LATEST=artful
 CODE_UBUNTU_LTS=xenial
 CODE_ALPINE_STABLE=3.7
-CODE_RASPBIAN_STABLE=stretch
 
 all: build-debian-stable build-debian-testing build-ubuntu-latest build-ubuntu-lts build-alpine
 
@@ -63,7 +65,7 @@ build-ubuntu-lts: orcania-ubuntu-lts yder-ubuntu-lts ulfius-ubuntu-lts hoel-ubun
 
 build-alpine: orcania-alpine yder-alpine ulfius-alpine hoel-alpine glewlwyd-alpine taliesin-alpine hutch-alpine angharad-alpine
 
-build-raspbian: orcania-raspbian yder-raspbian ulfius-raspbian hoel-raspbian glewlwyd-raspbian taliesin-raspbian hutch-raspbian angharad-raspbian
+build-local: orcania-local yder-local ulfius-local hoel-local glewlwyd-local taliesin-local hutch-local angharad-local
 
 upload-asset:
 	@if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
@@ -74,6 +76,7 @@ upload-asset:
 
 clean-base:
 	-docker rmi -f babelouest/deb babelouest/tgz
+	/bin/rm -rf build/*
 
 clean: orcania-clean yder-clean ulfius-clean hoel-clean glewlwyd-clean taliesin-clean hutch-clean angharad-clean clean-base clean-no-tag-images
 
@@ -94,6 +97,22 @@ ubuntu-lts:
 
 alpine:
 	docker build -t babelouest/tgz docker-base/alpine-current/
+
+local-install-libjwt:
+	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
+		# install dependencies \
+		sudo apt-get install -y autoconf automake libtool libssl-dev; \
+	fi
+	@if [ "$(LOCAL_INSTALL_LIBJWT)" = "1" ]; then \
+		# install libjwt \
+		wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O build/v${LIBJWT_VERSION}.tar.gz && \
+		tar -xf build/v${LIBJWT_VERSION}.tar.gz -C build/; \
+		( cd build/libjwt-${LIBJWT_VERSION}/ && \
+		autoreconf -i && \
+		(./configure --without-openssl || ./configure) && \
+		make && \
+		sudo make install ); \
+	fi
 
 orcania-deb:
 	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) orcania/deb/
@@ -128,23 +147,26 @@ orcania-alpine:
 	$(MAKE) orcania-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/liborcania-dev_$(ORCANIA_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 
-orcania-raspbian:
-	# install dependencies
-	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install libjansson-dev
-	
+orcania-install-dependencies:
+	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
+		# install dependencies \
+		sudo apt update && sudo apt upgrade -y; \
+		sudo apt-get install -y libjansson-dev; \
+	fi
+
+orcania-local: orcania-install-dependencies
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
-	tar xf raspbian/v$(ORCANIA_VERSION).tar.gz -C raspbian/
-	( cd raspbian/orcania-$(ORCANIA_VERSION) && \
+	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
+	( cd build/orcania-$(ORCANIA_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make && \
-	make package; \
-	cp liborcania-dev_*.deb ../../../orcania/liborcania-dev_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
-	rm -rf raspbian/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/liborcania-dev_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.deb
+	make package && \
+	cp liborcania-dev_*.deb ../../../orcania/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	rm -rf build/*
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/liborcania-dev_$(ORCANIA_VERSION)_Debian_`lsb_release -c -s`_*.deb
 
 orcania-build:
 	$(MAKE) orcania-debian-stable
@@ -190,16 +212,19 @@ yder-alpine:
 	$(MAKE) yder-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/libyder-dev_$(YDER_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 
-yder-raspbian:
-	# install dependencies
-	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install libjansson-dev libsystemd-dev
-	
+yder-install-dependencies:
+	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
+		# install dependencies \
+		sudo apt update && sudo apt upgrade -y; \
+		sudo apt-get install -y libjansson-dev libsystemd-dev; \
+	fi
+
+yder-local: yder-install-dependencies
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
-	tar xf raspbian/v$(ORCANIA_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ORCANIA_VERSION).tar.gz
-	( cd raspbian/orcania-$(ORCANIA_VERSION) && \
+	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
+	rm -f build/v$(ORCANIA_VERSION).tar.gz
+	( cd build/orcania-$(ORCANIA_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -207,20 +232,20 @@ yder-raspbian:
 	sudo make install )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O raspbian/v$(YDER_VERSION).tar.gz
-	tar xf raspbian/v$(YDER_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(YDER_VERSION).tar.gz
-	( cd raspbian/yder-$(YDER_VERSION) && \
+	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
+	tar xf build/v$(YDER_VERSION).tar.gz -C build/
+	rm -f build/v$(YDER_VERSION).tar.gz
+	( cd build/yder-$(YDER_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make && \
 	make package; \
 	sudo make install && \
-	cp libyder-dev_*.deb ../../../yder/libyder-dev_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libyder-dev_*.deb ../../../yder/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
-	rm -rf raspbian/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/libyder-dev_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.deb
+	rm -rf build/*
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
 
 yder-build:
 	$(MAKE) yder-debian-stable
@@ -271,52 +296,55 @@ ulfius-alpine:
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/libulfius-dev_$(ULFIUS_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/ulfius-dev-full_$(ULFIUS_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 
-ulfius-raspbian:
-	# install dependencies
-	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libpq-dev
-	
+ulfius-install-dependencies:
+	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
+		# install dependencies \
+		sudo apt update && sudo apt upgrade -y; \
+		sudo apt-get install -y libjansson-dev libsystemd-dev libsystemd-dev libgnutls28-dev libmicrohttpd-dev libgnutls28-dev; \
+	fi
+
+ulfius-local:
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
-	tar xf raspbian/v$(ORCANIA_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ORCANIA_VERSION).tar.gz
-	( cd raspbian/orcania-$(ORCANIA_VERSION) && \
+	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
+	rm -f build/v$(ORCANIA_VERSION).tar.gz
+	( cd build/orcania-$(ORCANIA_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make && \
 	make package; \
 	sudo make install && \
-	cp liborcania-dev_*.deb ../../../ulfius/liborcania-dev_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp liborcania-dev_*.deb ../../../ulfius/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O raspbian/v$(YDER_VERSION).tar.gz
-	tar xf raspbian/v$(YDER_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(YDER_VERSION).tar.gz
-	( cd raspbian/yder-$(YDER_VERSION) && \
+	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
+	tar xf build/v$(YDER_VERSION).tar.gz -C build/
+	rm -f build/v$(YDER_VERSION).tar.gz
+	( cd build/yder-$(YDER_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make && \
 	make package; \
 	sudo make install && \
-	cp libyder-dev_*.deb ../../../ulfius/libyder-dev_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libyder-dev_*.deb ../../../ulfius/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package ulfius
-	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O raspbian/v$(ULFIUS_VERSION).tar.gz
-	tar xf raspbian/v$(ULFIUS_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ULFIUS_VERSION).tar.gz
-	( cd raspbian/ulfius-$(ULFIUS_VERSION) && \
+	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
+	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
+	rm -f build/v$(ULFIUS_VERSION).tar.gz
+	( cd build/ulfius-$(ULFIUS_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make package; \
-	cp libulfius-dev_*.deb ../../../ulfius/libulfius-dev_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libulfius-dev_*.deb ../../../ulfius/libulfius-dev_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
-	( cd ulfius && tar cvz liborcania-dev_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libyder-dev_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libulfius-dev_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb -f ulfius-full_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.tar.gz )
-	rm -rf raspbian/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/libulfius-dev_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/ulfius-full_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.tar.gz
+	( cd ulfius && tar cvz liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libulfius-dev_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f ulfius-full_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	rm -rf build/*
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/libulfius-dev_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/ulfius-full_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
 
 ulfius-build:
 	$(MAKE) ulfius-debian-stable
@@ -367,52 +395,55 @@ hoel-alpine:
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/libhoel-dev_$(HOEL_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/hoel-dev-full_$(HOEL_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 
-hoel-raspbian:
-	# install dependencies
-	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libpq-dev
-	
+hoel-install-dependencies:
+	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
+		# install dependencies \
+		sudo apt update && sudo apt upgrade -y; \
+		sudo apt-get install -y libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libpq-dev; \
+	fi
+
+hoel-local: hoel-install-dependencies
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
-	tar xf raspbian/v$(ORCANIA_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ORCANIA_VERSION).tar.gz
-	( cd raspbian/orcania-$(ORCANIA_VERSION) && \
+	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
+	rm -f build/v$(ORCANIA_VERSION).tar.gz
+	( cd build/orcania-$(ORCANIA_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make && \
 	make package; \
 	sudo make install && \
-	cp liborcania-dev_*.deb ../../../hoel/liborcania-dev_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp liborcania-dev_*.deb ../../../hoel/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O raspbian/v$(YDER_VERSION).tar.gz
-	tar xf raspbian/v$(YDER_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(YDER_VERSION).tar.gz
-	( cd raspbian/yder-$(YDER_VERSION) && \
+	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
+	tar xf build/v$(YDER_VERSION).tar.gz -C build/
+	rm -f build/v$(YDER_VERSION).tar.gz
+	( cd build/yder-$(YDER_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make && \
 	make package; \
 	sudo make install && \
-	cp libyder-dev_*.deb ../../../hoel/libyder-dev_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libyder-dev_*.deb ../../../hoel/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package hoel
-	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O raspbian/v$(HOEL_VERSION).tar.gz
-	tar xf raspbian/v$(HOEL_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(HOEL_VERSION).tar.gz
-	( cd raspbian/hoel-$(HOEL_VERSION) && \
+	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
+	tar xf build/v$(HOEL_VERSION).tar.gz -C build/
+	rm -f build/v$(HOEL_VERSION).tar.gz
+	( cd build/hoel-$(HOEL_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make package; \
-	cp libhoel-dev_*.deb ../../../hoel/libhoel-dev_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libhoel-dev_*.deb ../../../hoel/libhoel-dev_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
-	( cd hoel && tar cvz liborcania-dev_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libyder-dev_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libhoel-dev_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb -f hoel-full_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.tar.gz )
-	rm -rf raspbian/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/libhoel-dev_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/hoel-full_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.tar.gz
+	( cd hoel && tar cvz liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libhoel-dev_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f hoel-full_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	rm -rf build/*
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/libhoel-dev_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/hoel-full_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
 
 hoel-build:
 	$(MAKE) hoel-debian-stable
@@ -463,25 +494,19 @@ glewlwyd-alpine:
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd-full_$(GLEWLWYD_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 
-glewlwyd-raspbian:
-	# install dependencies
-	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install autoconf libtool libmicrohttpd-dev libjansson-dev libsystemd-dev libcurl4-gnutls-dev uuid-dev libldap2-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev libssl-dev
-	
-	# install libjwt
-	wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O raspbian/v${LIBJWT_VERSION}.tar.gz && \
-	tar -xf raspbian/v${LIBJWT_VERSION}.tar.gz -C raspbian/
-	(cd raspbian/libjwt-${LIBJWT_VERSION}/ && \
-	autoreconf -i && \
-	(./configure --without-openssl || ./configure) && \
-	make && \
-	sudo make install )
-	
+glewlwyd-install-dependencies:
+	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
+		# install dependencies \
+		sudo apt update && sudo apt upgrade -y; \
+		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev uuid-dev libldap2-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev libcurl4-gnutls-dev libssl-dev; \
+	fi
+
+glewlwyd-local: glewlwyd-install-dependencies local-install-libjwt
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
-	tar xf raspbian/v$(ORCANIA_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ORCANIA_VERSION).tar.gz
-	( cd raspbian/orcania-$(ORCANIA_VERSION) && \
+	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
+	rm -f build/v$(ORCANIA_VERSION).tar.gz
+	( cd build/orcania-$(ORCANIA_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -491,13 +516,13 @@ glewlwyd-raspbian:
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp liborcania_*.deb ../../../glewlwyd/liborcania_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp liborcania_*.deb ../../../glewlwyd/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O raspbian/v$(YDER_VERSION).tar.gz
-	tar xf raspbian/v$(YDER_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(YDER_VERSION).tar.gz
-	( cd raspbian/yder-$(YDER_VERSION) && \
+	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
+	tar xf build/v$(YDER_VERSION).tar.gz -C build/
+	rm -f build/v$(YDER_VERSION).tar.gz
+	( cd build/yder-$(YDER_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -507,13 +532,13 @@ glewlwyd-raspbian:
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libyder_*.deb ../../../glewlwyd/libyder_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libyder_*.deb ../../../glewlwyd/libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package ulfius
-	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O raspbian/v$(ULFIUS_VERSION).tar.gz
-	tar xf raspbian/v$(ULFIUS_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ULFIUS_VERSION).tar.gz
-	( cd raspbian/ulfius-$(ULFIUS_VERSION) && \
+	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
+	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
+	rm -f build/v$(ULFIUS_VERSION).tar.gz
+	( cd build/ulfius-$(ULFIUS_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_WEBSOCKET=off .. && \
@@ -523,13 +548,13 @@ glewlwyd-raspbian:
 	cmake -DWITH_WEBSOCKET=off -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libulfius_*.deb ../../../glewlwyd/libulfius_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libulfius_*.deb ../../../glewlwyd/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 	
 	# package hoel
-	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O raspbian/v$(HOEL_VERSION).tar.gz
-	tar xf raspbian/v$(HOEL_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(HOEL_VERSION).tar.gz
-	( cd raspbian/hoel-$(HOEL_VERSION) && \
+	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
+	tar xf build/v$(HOEL_VERSION).tar.gz -C build/
+	rm -f build/v$(HOEL_VERSION).tar.gz
+	( cd build/hoel-$(HOEL_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_PGSQL=off .. && \
@@ -538,24 +563,24 @@ glewlwyd-raspbian:
 	rm -rf * && \
 	cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp libhoel_*.deb ../../../glewlwyd/libhoel_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libhoel_*.deb ../../../glewlwyd/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package glewlwyd
-	wget https://github.com/babelouest/glewlwyd/archive/v$(GLEWLWYD_VERSION).tar.gz -O raspbian/v$(GLEWLWYD_VERSION).tar.gz
-	tar xf raspbian/v$(GLEWLWYD_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(GLEWLWYD_VERSION).tar.gz
-	( cd raspbian/glewlwyd-$(GLEWLWYD_VERSION) && \
+	wget https://github.com/babelouest/glewlwyd/archive/v$(GLEWLWYD_VERSION).tar.gz -O build/v$(GLEWLWYD_VERSION).tar.gz
+	tar xf build/v$(GLEWLWYD_VERSION).tar.gz -C build/
+	rm -f build/v$(GLEWLWYD_VERSION).tar.gz
+	( cd build/glewlwyd-$(GLEWLWYD_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make && \
 	make package; \
-	cp glewlwyd_*.deb ../../../glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp glewlwyd_*.deb ../../../glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
-	( cd glewlwyd && tar cvz liborcania_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libyder_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb glewlwyd_$(GLEWLWYD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb -f glewlwyd-full_$(GLEWLWYD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.tar.gz )
-	rm -rf raspbian/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd-full_$(GLEWLWYD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.tar.gz
+	( cd glewlwyd && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb glewlwyd_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f glewlwyd-full_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	rm -rf build/*
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd-full_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
 
 glewlwyd-build:
 	$(MAKE) glewlwyd-debian-stable
@@ -600,25 +625,19 @@ taliesin-alpine:
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin_$(TALIESIN_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin-full_$(TALIESIN_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 
-taliesin-raspbian:
-	# install dependencies
-	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install autoconf libtool libconfig-dev libjansson-dev libsystemd-dev libgnutls28-dev libssl-dev libmicrohttpd-dev libsqlite3-dev libtool libavfilter-dev libavcodec-dev libavformat-dev libavresample-dev libavutil-dev
+taliesin-install-dependencies:
+	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
+		# install dependencies \
+		sudo apt update && sudo apt upgrade -y; \
+		sudo apt-get install -y libconfig-dev libjansson-dev libsystemd-dev libgnutls28-dev libssl-dev libmicrohttpd-dev libmariadbclient-dev libsqlite3-dev libtool libavfilter-dev libavcodec-dev libavformat-dev libavresample-dev libavutil-dev; \
+	fi
 
-	# install libjwt
-	wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O raspbian/v${LIBJWT_VERSION}.tar.gz && \
-	tar -xf raspbian/v${LIBJWT_VERSION}.tar.gz -C raspbian/
-	(cd raspbian/libjwt-${LIBJWT_VERSION}/ && \
-	autoreconf -i && \
-	(./configure --without-openssl || ./configure) && \
-	make && \
-	sudo make install )
-	
+taliesin-local: taliesin-install-dependencies local-install-libjwt
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
-	tar xf raspbian/v$(ORCANIA_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ORCANIA_VERSION).tar.gz
-	( cd raspbian/orcania-$(ORCANIA_VERSION) && \
+	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
+	rm -f build/v$(ORCANIA_VERSION).tar.gz
+	( cd build/orcania-$(ORCANIA_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -628,13 +647,13 @@ taliesin-raspbian:
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp liborcania_*.deb ../../../taliesin/liborcania_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp liborcania_*.deb ../../../taliesin/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O raspbian/v$(YDER_VERSION).tar.gz
-	tar xf raspbian/v$(YDER_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(YDER_VERSION).tar.gz
-	( cd raspbian/yder-$(YDER_VERSION) && \
+	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
+	tar xf build/v$(YDER_VERSION).tar.gz -C build/
+	rm -f build/v$(YDER_VERSION).tar.gz
+	( cd build/yder-$(YDER_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -644,29 +663,29 @@ taliesin-raspbian:
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libyder_*.deb ../../../taliesin/libyder_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libyder_*.deb ../../../taliesin/libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package ulfius
-	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O raspbian/v$(ULFIUS_VERSION).tar.gz
-	tar xf raspbian/v$(ULFIUS_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ULFIUS_VERSION).tar.gz
-	( cd raspbian/ulfius-$(ULFIUS_VERSION) && \
+	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
+	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
+	rm -f build/v$(ULFIUS_VERSION).tar.gz
+	( cd build/ulfius-$(ULFIUS_VERSION) && \
 	mkdir build && \
 	cd build && \
-	cmake -DWITH_WEBSOCKET=off .. && \
+	cmake .. && \
 	make && \
 	sudo make install && \
 	rm -rf * && \
-	cmake -DWITH_WEBSOCKET=off -DINSTALL_HEADER=off .. && \
+	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libulfius_*.deb ../../../taliesin/libulfius_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libulfius_*.deb ../../../taliesin/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 	
 	# package hoel
-	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O raspbian/v$(HOEL_VERSION).tar.gz
-	tar xf raspbian/v$(HOEL_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(HOEL_VERSION).tar.gz
-	( cd raspbian/hoel-$(HOEL_VERSION) && \
+	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
+	tar xf build/v$(HOEL_VERSION).tar.gz -C build/
+	rm -f build/v$(HOEL_VERSION).tar.gz
+	( cd build/hoel-$(HOEL_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_PGSQL=off .. && \
@@ -675,24 +694,24 @@ taliesin-raspbian:
 	rm -rf * && \
 	cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp libhoel_*.deb ../../../taliesin/libhoel_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libhoel_*.deb ../../../taliesin/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package taliesin
-	wget https://github.com/babelouest/taliesin/archive/v$(TALIESIN_VERSION).tar.gz -O raspbian/v$(TALIESIN_VERSION).tar.gz
-	tar xf raspbian/v$(TALIESIN_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(TALIESIN_VERSION).tar.gz
-	( cd raspbian/taliesin-$(TALIESIN_VERSION) && \
+	wget https://github.com/babelouest/taliesin/archive/v$(TALIESIN_VERSION).tar.gz -O build/v$(TALIESIN_VERSION).tar.gz
+	tar xf build/v$(TALIESIN_VERSION).tar.gz -C build/
+	rm -f build/v$(TALIESIN_VERSION).tar.gz
+	( cd build/taliesin-$(TALIESIN_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make && \
 	make package; \
-	cp taliesin_*.deb ../../../taliesin/taliesin_$(TALIESIN_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp taliesin_*.deb ../../../taliesin/taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
-	( cd taliesin && tar cvz liborcania_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libyder_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb taliesin_$(TALIESIN_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb -f taliesin-full_$(TALIESIN_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.tar.gz )
-	rm -rf raspbian/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin_$(TALIESIN_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin-full_$(TALIESIN_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.tar.gz
+	( cd taliesin && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f taliesin-full_$(TALIESIN_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	rm -rf build/*
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin-full_$(TALIESIN_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
 
 taliesin-build:
 	$(MAKE) taliesin-debian-stable
@@ -751,25 +770,19 @@ hutch-alpine:
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch-full_$(HUTCH_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 
-hutch-raspbian:
-	# install dependencies
-	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install autoconf libtool libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libssl-dev
-	
-	# install libjwt
-	wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O raspbian/v${LIBJWT_VERSION}.tar.gz && \
-	tar -xf raspbian/v${LIBJWT_VERSION}.tar.gz -C raspbian/
-	(cd raspbian/libjwt-${LIBJWT_VERSION}/ && \
-	autoreconf -i && \
-	./configure && \
-	make && \
-	sudo make install )
-	
+hutch-install-dependencies:
+	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
+		# install dependencies \
+		sudo apt update && sudo apt upgrade -y; \
+		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev; \
+	fi
+
+hutch-local: hutch-install-dependencies local-install-libjwt
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
-	tar xf raspbian/v$(ORCANIA_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ORCANIA_VERSION).tar.gz
-	( cd raspbian/orcania-$(ORCANIA_VERSION) && \
+	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
+	rm -f build/v$(ORCANIA_VERSION).tar.gz
+	( cd build/orcania-$(ORCANIA_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -779,13 +792,13 @@ hutch-raspbian:
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp liborcania_*.deb ../../../hutch/liborcania_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp liborcania_*.deb ../../../hutch/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O raspbian/v$(YDER_VERSION).tar.gz
-	tar xf raspbian/v$(YDER_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(YDER_VERSION).tar.gz
-	( cd raspbian/yder-$(YDER_VERSION) && \
+	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
+	tar xf build/v$(YDER_VERSION).tar.gz -C build/
+	rm -f build/v$(YDER_VERSION).tar.gz
+	( cd build/yder-$(YDER_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -795,13 +808,13 @@ hutch-raspbian:
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libyder_*.deb ../../../hutch/libyder_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libyder_*.deb ../../../hutch/libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package ulfius
-	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O raspbian/v$(ULFIUS_VERSION).tar.gz
-	tar xf raspbian/v$(ULFIUS_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ULFIUS_VERSION).tar.gz
-	( cd raspbian/ulfius-$(ULFIUS_VERSION) && \
+	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
+	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
+	rm -f build/v$(ULFIUS_VERSION).tar.gz
+	( cd build/ulfius-$(ULFIUS_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_WEBSOCKET=off -DWITH_CURL=off .. && \
@@ -811,13 +824,13 @@ hutch-raspbian:
 	cmake -DWITH_WEBSOCKET=off -DWITH_CURL=off -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libulfius_*.deb ../../../hutch/libulfius_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libulfius_*.deb ../../../hutch/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 	
 	# package hoel
-	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O raspbian/v$(HOEL_VERSION).tar.gz
-	tar xf raspbian/v$(HOEL_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(HOEL_VERSION).tar.gz
-	( cd raspbian/hoel-$(HOEL_VERSION) && \
+	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
+	tar xf build/v$(HOEL_VERSION).tar.gz -C build/
+	rm -f build/v$(HOEL_VERSION).tar.gz
+	( cd build/hoel-$(HOEL_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_PGSQL=off .. && \
@@ -826,24 +839,24 @@ hutch-raspbian:
 	rm -rf * && \
 	cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp libhoel_*.deb ../../../hutch/libhoel_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libhoel_*.deb ../../../hutch/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package hutch
-	wget https://github.com/babelouest/hutch/archive/v$(HUTCH_VERSION).tar.gz -O raspbian/v$(HUTCH_VERSION).tar.gz
-	tar xf raspbian/v$(HUTCH_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(HUTCH_VERSION).tar.gz
-	( cd raspbian/hutch-$(HUTCH_VERSION) && \
+	wget https://github.com/babelouest/hutch/archive/v$(HUTCH_VERSION).tar.gz -O build/v$(HUTCH_VERSION).tar.gz
+	tar xf build/v$(HUTCH_VERSION).tar.gz -C build/
+	rm -f build/v$(HUTCH_VERSION).tar.gz
+	( cd build/hutch-$(HUTCH_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make && \
 	make package; \
-	cp hutch_*.deb ../../../hutch/hutch_$(HUTCH_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp hutch_*.deb ../../../hutch/hutch_$(HUTCH_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
-	( cd hutch && tar cvz liborcania_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libyder_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb hutch_$(HUTCH_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb -f hutch-full_$(HUTCH_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.tar.gz )
-	rm -rf raspbian/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch-full_$(HUTCH_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.tar.gz
+	( cd hutch && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb hutch_$(HUTCH_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f hutch-full_$(HUTCH_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	rm -rf build/*
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch-full_$(HUTCH_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
 
 hutch-build:
 	$(MAKE) hutch-debian-stable
@@ -888,25 +901,19 @@ angharad-alpine:
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
 
-angharad-raspbian:
-	# install dependencies
-	sudo apt update && sudo apt upgrade -y
-	sudo apt-get -y install autoconf libtool libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libssl-dev libopenzwave1.5-dev libmpdclient-dev libcurl4-gnutls-dev g++
-	
-	# install libjwt
-	wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O raspbian/v${LIBJWT_VERSION}.tar.gz && \
-	tar -xf raspbian/v${LIBJWT_VERSION}.tar.gz -C raspbian/
-	(cd raspbian/libjwt-${LIBJWT_VERSION}/ && \
-	autoreconf -i && \
-	./configure && \
-	make && \
-	sudo make install )
-	
+angharad-install-dependencies:
+	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
+		# install dependencies \
+		sudo apt update && sudo apt upgrade -y; \
+		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libopenzwave1.5-dev libmpdclient-dev libcurl4-gnutls-dev g++; \
+	fi
+
+angharad-local: angharad-install-dependencies local-install-libjwt
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O raspbian/v$(ORCANIA_VERSION).tar.gz
-	tar xf raspbian/v$(ORCANIA_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ORCANIA_VERSION).tar.gz
-	( cd raspbian/orcania-$(ORCANIA_VERSION) && \
+	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
+	rm -f build/v$(ORCANIA_VERSION).tar.gz
+	( cd build/orcania-$(ORCANIA_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -916,13 +923,13 @@ angharad-raspbian:
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp liborcania_*.deb ../../../angharad/liborcania_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp liborcania_*.deb ../../../angharad/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O raspbian/v$(YDER_VERSION).tar.gz
-	tar xf raspbian/v$(YDER_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(YDER_VERSION).tar.gz
-	( cd raspbian/yder-$(YDER_VERSION) && \
+	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
+	tar xf build/v$(YDER_VERSION).tar.gz -C build/
+	rm -f build/v$(YDER_VERSION).tar.gz
+	( cd build/yder-$(YDER_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -932,13 +939,13 @@ angharad-raspbian:
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libyder_*.deb ../../../angharad/libyder_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libyder_*.deb ../../../angharad/libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package ulfius
-	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O raspbian/v$(ULFIUS_VERSION).tar.gz
-	tar xf raspbian/v$(ULFIUS_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(ULFIUS_VERSION).tar.gz
-	( cd raspbian/ulfius-$(ULFIUS_VERSION) && \
+	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
+	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
+	rm -f build/v$(ULFIUS_VERSION).tar.gz
+	( cd build/ulfius-$(ULFIUS_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_WEBSOCKET=off .. && \
@@ -948,13 +955,13 @@ angharad-raspbian:
 	cmake -DWITH_WEBSOCKET=off -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libulfius_*.deb ../../../angharad/libulfius_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libulfius_*.deb ../../../angharad/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 	
 	# package hoel
-	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O raspbian/v$(HOEL_VERSION).tar.gz
-	tar xf raspbian/v$(HOEL_VERSION).tar.gz -C raspbian/
-	rm -f raspbian/v$(HOEL_VERSION).tar.gz
-	( cd raspbian/hoel-$(HOEL_VERSION) && \
+	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
+	tar xf build/v$(HOEL_VERSION).tar.gz -C build/
+	rm -f build/v$(HOEL_VERSION).tar.gz
+	( cd build/hoel-$(HOEL_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_PGSQL=off .. && \
@@ -963,36 +970,36 @@ angharad-raspbian:
 	rm -rf * && \
 	cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp libhoel_*.deb ../../../angharad/libhoel_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp libhoel_*.deb ../../../angharad/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
 	# package angharad
-	wget https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).tar.gz -O raspbian/v$(ANGHARAD_VERSION).tar.gz
-	tar -xvf raspbian/v$(ANGHARAD_VERSION).tar.gz -C raspbian/
-	rm raspbian/v$(ANGHARAD_VERSION).tar.gz
-	wget https://github.com/babelouest/benoic/archive/v$(BENOIC_VERSION).tar.gz -O raspbian/v$(BENOIC_VERSION).tar.gz
-	tar -xvf raspbian/v$(BENOIC_VERSION).tar.gz -C raspbian/
-	rm raspbian/v$(BENOIC_VERSION).tar.gz
-	wget https://github.com/babelouest/carleon/archive/v$(CARLEON_VERSION).tar.gz -O raspbian/v$(CARLEON_VERSION).tar.gz
-	tar -xvf raspbian/v$(CARLEON_VERSION).tar.gz -C raspbian/
-	rm raspbian/v$(CARLEON_VERSION).tar.gz
-	wget https://github.com/babelouest/gareth/archive/v$(GARETH_VERSION).tar.gz -O raspbian/v$(GARETH_VERSION).tar.gz
-	tar -xvf raspbian/v$(GARETH_VERSION).tar.gz -C raspbian/
-	rm raspbian/v$(GARETH_VERSION).tar.gz
-	mv raspbian/benoic-$(BENOIC_VERSION)/* raspbian/angharad-$(ANGHARAD_VERSION)/src/benoic/
-	mv raspbian/carleon-$(CARLEON_VERSION)/* raspbian/angharad-$(ANGHARAD_VERSION)/src/carleon/
-	mv raspbian/gareth-$(GARETH_VERSION)/* raspbian/angharad-$(ANGHARAD_VERSION)/src/gareth/
-	(cd raspbian/angharad-$(ANGHARAD_VERSION) && \
+	wget https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).tar.gz -O build/v$(ANGHARAD_VERSION).tar.gz
+	tar -xvf build/v$(ANGHARAD_VERSION).tar.gz -C build/
+	rm build/v$(ANGHARAD_VERSION).tar.gz
+	wget https://github.com/babelouest/benoic/archive/v$(BENOIC_VERSION).tar.gz -O build/v$(BENOIC_VERSION).tar.gz
+	tar -xvf build/v$(BENOIC_VERSION).tar.gz -C build/
+	rm build/v$(BENOIC_VERSION).tar.gz
+	wget https://github.com/babelouest/carleon/archive/v$(CARLEON_VERSION).tar.gz -O build/v$(CARLEON_VERSION).tar.gz
+	tar -xvf build/v$(CARLEON_VERSION).tar.gz -C build/
+	rm build/v$(CARLEON_VERSION).tar.gz
+	wget https://github.com/babelouest/gareth/archive/v$(GARETH_VERSION).tar.gz -O build/v$(GARETH_VERSION).tar.gz
+	tar -xvf build/v$(GARETH_VERSION).tar.gz -C build/
+	rm build/v$(GARETH_VERSION).tar.gz
+	mv build/benoic-$(BENOIC_VERSION)/* build/angharad-$(ANGHARAD_VERSION)/src/benoic/
+	mv build/carleon-$(CARLEON_VERSION)/* build/angharad-$(ANGHARAD_VERSION)/src/carleon/
+	mv build/gareth-$(GARETH_VERSION)/* build/angharad-$(ANGHARAD_VERSION)/src/gareth/
+	(cd build/angharad-$(ANGHARAD_VERSION) && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
 	make && \
 	make package; \
-	cp angharad_*.deb ../../../angharad/angharad_$(ANGHARAD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb )
+	cp angharad_*.deb ../../../angharad/angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
 
-	( cd angharad && tar cvz liborcania_$(ORCANIA_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libyder_$(YDER_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb angharad_$(ANGHARAD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.deb -f angharad-full_$(ANGHARAD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_`uname -m`.tar.gz )
-	rm -rf raspbian/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Raspbian_$(CODE_RASPBIAN_STABLE)_*.tar.gz
+	( cd angharad && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f angharad-full_$(ANGHARAD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	rm -rf build/*
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
+	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
 
 angharad-build:
 	$(MAKE) angharad-debian-stable
