@@ -4,8 +4,6 @@ FROM babelouest/tgz
 RUN apk add --no-cache \
 		jansson-dev
 
-ARG DISTRIB
-ARG CODE
 ARG ORCANIA_VERSION
 
 # Build Orcania
@@ -20,7 +18,8 @@ RUN mkdir /opt && \
 		cmake .. && \
 		make && \
 		make package ; \
-		cp liborcania-dev_*.tar.gz /opt/liborcania-dev_${ORCANIA_VERSION}_${DISTRIB}_${CODE}_`uname -m`.tar.gz
+		cp liborcania-dev_*.tar.gz /opt/liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
+    echo liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz >> /opt/packages
 
 COPY ["entrypoint.sh", "/"]
 

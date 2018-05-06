@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:latest
 
 # Install required packages
 RUN apk add --no-cache \

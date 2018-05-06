@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:testing-slim
 
 # Install required packages
 RUN apt-get update && \

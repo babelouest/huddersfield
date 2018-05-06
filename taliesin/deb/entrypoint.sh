@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cp /opt/taliesin_*.deb /opt/taliesin-full_*.tar.gz /share
+cp /opt/packages /opt/taliesin_*.deb /opt/taliesin-full_*.tar.gz /share

@@ -6,8 +6,6 @@ RUN apt-get update && \
 		libjansson-dev \
 		libsystemd-dev
 
-ARG DISTRIB
-ARG CODE
 ARG ORCANIA_VERSION
 ARG YDER_VERSION
 
@@ -34,7 +32,8 @@ RUN cd /opt && \
 		cmake .. && \
 		make && \
 		make package ; \
-		cp libyder-dev_*.deb /opt/libyder-dev_${YDER_VERSION}_${DISTRIB}_${CODE}_`uname -m`.deb
+		cp libyder-dev_*.deb /opt/libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
+    echo libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb >> /opt/packages
 
 COPY ["entrypoint.sh", "/"]
 

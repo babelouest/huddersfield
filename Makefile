@@ -9,6 +9,7 @@
 # - glewlwyd (https://github.com/babelouest/glewlwyd)
 # - taliesin (https://github.com/babelouest/taliesin)
 # - hutch (https://github.com/babelouest/hutch)
+# - angharad (https://github.com/babelouest/angharad)
 #
 # Copyright 2018 Nicolas Mora <mail@babelouest.org>
 #
@@ -27,6 +28,7 @@ LOCAL_INSTALL_LIBJWT=1
 GITHUB_USER=babelouest
 GITHUB_TOKEN=$(shell cat GITHUB_TOKEN)
 LOCAL_ID=$(shell grep -e "^ID=" /etc/os-release |cut -c 4-)
+LOCAL_RELEASE=$(shell lsb_release -c -s)
 
 ifeq (($(GITHUB_TOKEN)),"")
 	AUTH_HEADER=
@@ -47,25 +49,22 @@ CARLEON_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babe
 GARETH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/gareth/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
 LIBJWT_VERSION=1.9.0
 
-CODE_DEBIAN_STABLE=stretch
-CODE_DEBIAN_TESTING=buster
-CODE_UBUNTU_LATEST=artful
-CODE_UBUNTU_LTS=xenial
-CODE_ALPINE_STABLE=3.7
+all: debian-stable-build debian-testing-build ubuntu-latest-build ubuntu-lts-build alpine-build
 
-all: build-debian-stable build-debian-testing build-ubuntu-latest build-ubuntu-lts build-alpine
+debian-stable-build: orcania-debian-stable yder-debian-stable ulfius-debian-stable hoel-debian-stable glewlwyd-debian-stable taliesin-debian-stable angharad-debian-stable hutch-debian-stable
 
-build-debian-stable: orcania-debian-stable yder-debian-stable ulfius-debian-stable hoel-debian-stable glewlwyd-debian-stable taliesin-debian-stable angharad-debian-stable hutch-debian-stable
+debian-testing-build: orcania-debian-testing yder-debian-testing ulfius-debian-testing hoel-debian-testing glewlwyd-debian-testing taliesin-debian-testing hutch-debian-testing angharad-debian-testing
 
-build-debian-testing: orcania-debian-testing yder-debian-testing ulfius-debian-testing hoel-debian-testing glewlwyd-debian-testing taliesin-debian-testing hutch-debian-testing angharad-debian-testing
+ubuntu-latest-build: orcania-ubuntu-latest yder-ubuntu-latest ulfius-ubuntu-latest hoel-ubuntu-latest glewlwyd-ubuntu-latest taliesin-ubuntu-latest hutch-ubuntu-latest angharad-ubuntu-latest
 
-build-ubuntu-latest: orcania-ubuntu-latest yder-ubuntu-latest ulfius-ubuntu-latest hoel-ubuntu-latest glewlwyd-ubuntu-latest taliesin-ubuntu-latest hutch-ubuntu-latest angharad-ubuntu-latest
+ubuntu-lts-build: orcania-ubuntu-lts yder-ubuntu-lts ulfius-ubuntu-lts hoel-ubuntu-lts glewlwyd-ubuntu-lts taliesin-ubuntu-lts hutch-ubuntu-lts angharad-ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" = "$(shell docker images -q ubuntu:rolling)" ]; then \
+		echo "Current Ubuntu LTS release is the same than latest release, ignore ubuntu-lts-build target"; \
+	fi
 
-build-ubuntu-lts: orcania-ubuntu-lts yder-ubuntu-lts ulfius-ubuntu-lts hoel-ubuntu-lts glewlwyd-ubuntu-lts hutch-ubuntu-lts
+alpine-build: orcania-alpine yder-alpine ulfius-alpine hoel-alpine glewlwyd-alpine taliesin-alpine hutch-alpine angharad-alpine
 
-build-alpine: orcania-alpine yder-alpine ulfius-alpine hoel-alpine glewlwyd-alpine taliesin-alpine hutch-alpine angharad-alpine
-
-build-local: orcania-local yder-local ulfius-local hoel-local glewlwyd-local taliesin-local hutch-local angharad-local
+local-build: orcania-local yder-local ulfius-local hoel-local glewlwyd-local taliesin-local hutch-local angharad-local
 
 upload-asset:
 	@if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
@@ -115,37 +114,40 @@ local-install-libjwt:
 	fi
 
 orcania-deb:
-	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) orcania/deb/
+	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/deb/
 	docker run --rm -v $(shell pwd)/orcania/:/share babelouest/orcania
 
 orcania-tgz:
-	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) orcania/tgz/
+	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/tgz/
 	docker run --rm -v $(shell pwd)/orcania/:/share babelouest/orcania
 
 orcania-debian-stable: 
 	$(MAKE) debian-stable
-	$(MAKE) orcania-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/liborcania-dev_$(ORCANIA_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.deb
+	$(MAKE) orcania-deb
+	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
 orcania-debian-testing: 
 	$(MAKE) debian-testing
-	$(MAKE) orcania-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/liborcania-dev_$(ORCANIA_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.deb
+	$(MAKE) orcania-deb
+	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
 orcania-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
-	$(MAKE) orcania-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/liborcania-dev_$(ORCANIA_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.deb
+	$(MAKE) orcania-deb
+	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
 orcania-ubuntu-lts: 
 	$(MAKE) ubuntu-lts
-	$(MAKE) orcania-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LTS)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/liborcania-dev_$(ORCANIA_VERSION)_Ubuntu_$(CODE_UBUNTU_LTS)_*.deb
-
+	$(MAKE) ubuntu-latest
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) orcania-deb; \
+		xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania #TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%; \
+	fi
+	
 orcania-alpine: 
 	$(MAKE) alpine
-	$(MAKE) orcania-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/liborcania-dev_$(ORCANIA_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
+	$(MAKE) orcania-tgz
+	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
 orcania-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -164,9 +166,9 @@ orcania-local: orcania-install-dependencies
 	cmake .. && \
 	make && \
 	make package && \
-	cp liborcania-dev_*.deb ../../../orcania/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp liborcania-dev_*.deb ../../../orcania/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	rm -rf build/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/liborcania-dev_$(ORCANIA_VERSION)_Debian_`lsb_release -c -s`_*.deb
+	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
 orcania-build:
 	$(MAKE) orcania-debian-stable
@@ -176,41 +178,44 @@ orcania-build:
 	$(MAKE) orcania-alpine
 
 orcania-clean: clean-base
-	rm -f orcania/*.tar.gz orcania/*.deb
+	rm -f orcania/*.tar.gz orcania/*.deb orcania/packages
 	-docker rmi -f babelouest/orcania
 
 yder-deb:
-	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) yder/deb/
+	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/deb/
 	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder
 
 yder-tgz:
-	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) yder/tgz/
+	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/tgz/
 	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder
 
 yder-debian-stable: 
 	$(MAKE) debian-stable
-	$(MAKE) yder-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/libyder-dev_$(YDER_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.deb
+	$(MAKE) yder-deb
+	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
 yder-debian-testing: 
 	$(MAKE) debian-testing
-	$(MAKE) yder-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/libyder-dev_$(YDER_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.deb
+	$(MAKE) yder-deb
+	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
 yder-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
-	$(MAKE) yder-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/libyder-dev_$(YDER_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.deb
+	$(MAKE) yder-deb
+	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
 yder-ubuntu-lts: 
 	$(MAKE) ubuntu-lts
-	$(MAKE) yder-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LTS)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/libyder-dev_$(YDER_VERSION)_Ubuntu_$(CODE_UBUNTU_LTS)_*.deb
+	$(MAKE) ubuntu-latest
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) yder-deb; \
+		xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%; \
+	fi
 
 yder-alpine: 
 	$(MAKE) alpine
-	$(MAKE) yder-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/libyder-dev_$(YDER_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
+	$(MAKE) yder-tgz
+	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
 yder-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -242,10 +247,10 @@ yder-local: yder-install-dependencies
 	make && \
 	make package; \
 	sudo make install && \
-	cp libyder-dev_*.deb ../../../yder/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libyder-dev_*.deb ../../../yder/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	rm -rf build/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
+	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
 yder-build:
 	$(MAKE) yder-debian-stable
@@ -255,46 +260,44 @@ yder-build:
 	$(MAKE) yder-alpine
 
 yder-clean: clean-base
-	rm -f yder/*.tar.gz yder/*.deb
+	rm -f yder/*.tar.gz yder/*.deb yder/packages
 	-docker rmi -f babelouest/yder
 
 ulfius-deb:
-	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) ulfius/deb/
+	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/deb/
 	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius
 
 ulfius-tgz:
-	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) ulfius/tgz/
+	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/tgz/
 	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius
 
 ulfius-debian-stable: 
 	$(MAKE) debian-stable
-	$(MAKE) ulfius-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/libulfius-dev_$(ULFIUS_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/ulfius-dev-full_$(ULFIUS_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.tar.gz
+	$(MAKE) ulfius-deb
+	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
 ulfius-debian-testing: 
 	$(MAKE) debian-testing
-	$(MAKE) ulfius-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/libulfius-dev_$(ULFIUS_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/ulfius-dev-full_$(ULFIUS_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.tar.gz
+	$(MAKE) ulfius-deb
+	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
 ulfius-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
-	$(MAKE) ulfius-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/libulfius-dev_$(ULFIUS_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/ulfius-dev-full_$(ULFIUS_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.tar.gz
+	$(MAKE) ulfius-deb
+	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
 ulfius-ubuntu-lts: 
 	$(MAKE) ubuntu-lts
-	$(MAKE) ulfius-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LTS)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/libulfius-dev_$(ULFIUS_VERSION)_Ubuntu_$(CODE_UBUNTU_LTS)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/ulfius-dev-full_$(ULFIUS_VERSION)_Ubuntu_$(CODE_UBUNTU_LTS)_*.tar.gz
+	$(MAKE) ubuntu-latest
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) ulfius-deb; \
+		xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%; \
+	fi
 
 ulfius-alpine: 
 	$(MAKE) alpine
-	$(MAKE) ulfius-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/libulfius-dev_$(ULFIUS_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/ulfius-dev-full_$(ULFIUS_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
+	$(MAKE) ulfius-tgz
+	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
 ulfius-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -315,7 +318,7 @@ ulfius-local:
 	make && \
 	make package; \
 	sudo make install && \
-	cp liborcania-dev_*.deb ../../../ulfius/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp liborcania-dev_*.deb ../../../ulfius/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package yder
 	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
@@ -328,7 +331,7 @@ ulfius-local:
 	make && \
 	make package; \
 	sudo make install && \
-	cp libyder-dev_*.deb ../../../ulfius/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libyder-dev_*.deb ../../../ulfius/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package ulfius
 	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
@@ -339,12 +342,11 @@ ulfius-local:
 	cd build && \
 	cmake .. && \
 	make package; \
-	cp libulfius-dev_*.deb ../../../ulfius/libulfius-dev_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libulfius-dev_*.deb ../../../ulfius/libulfius-dev_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
-	( cd ulfius && tar cvz liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libulfius-dev_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f ulfius-full_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	( cd ulfius && tar cvz liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius-dev_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f ulfius-full_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/libulfius-dev_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/ulfius-full_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
+	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
 ulfius-build:
 	$(MAKE) ulfius-debian-stable
@@ -354,46 +356,44 @@ ulfius-build:
 	$(MAKE) ulfius-alpine
 
 ulfius-clean: clean-base
-	rm -f ulfius/*.tar.gz ulfius/*.deb
+	rm -f ulfius/*.tar.gz ulfius/*.deb ulfius/packages
 	-docker rmi -f babelouest/ulfius
 
 hoel-deb:
-	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) hoel/deb/
+	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/deb/
 	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel
 
 hoel-tgz:
-	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) hoel/tgz/
+	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/tgz/
 	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel
 
 hoel-debian-stable: 
 	$(MAKE) debian-stable
-	$(MAKE) hoel-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/libhoel-dev_$(HOEL_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/hoel-dev-full_$(HOEL_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.tar.gz
+	$(MAKE) hoel-deb
+	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
 hoel-debian-testing: 
 	$(MAKE) debian-testing
-	$(MAKE) hoel-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/libhoel-dev_$(HOEL_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/hoel-dev-full_$(HOEL_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.tar.gz
+	$(MAKE) hoel-deb
+	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
 hoel-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
-	$(MAKE) hoel-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/libhoel-dev_$(HOEL_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/hoel-dev-full_$(HOEL_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.tar.gz
+	$(MAKE) hoel-deb
+	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
 hoel-ubuntu-lts: 
 	$(MAKE) ubuntu-lts
-	$(MAKE) hoel-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LTS)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/libhoel-dev_$(HOEL_VERSION)_Ubuntu_$(CODE_UBUNTU_LTS)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/hoel-dev-full_$(HOEL_VERSION)_Ubuntu_$(CODE_UBUNTU_LTS)_*.tar.gz
+	$(MAKE) ubuntu-latest
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) hoel-deb; \
+		xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%; \
+	fi
 
 hoel-alpine: 
 	$(MAKE) alpine
-	$(MAKE) hoel-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/libhoel-dev_$(HOEL_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/hoel-dev-full_$(HOEL_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
+	$(MAKE) hoel-tgz
+	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
 hoel-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -414,7 +414,7 @@ hoel-local: hoel-install-dependencies
 	make && \
 	make package; \
 	sudo make install && \
-	cp liborcania-dev_*.deb ../../../hoel/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp liborcania-dev_*.deb ../../../hoel/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package yder
 	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
@@ -427,7 +427,7 @@ hoel-local: hoel-install-dependencies
 	make && \
 	make package; \
 	sudo make install && \
-	cp libyder-dev_*.deb ../../../hoel/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libyder-dev_*.deb ../../../hoel/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package hoel
 	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
@@ -438,12 +438,11 @@ hoel-local: hoel-install-dependencies
 	cd build && \
 	cmake .. && \
 	make package; \
-	cp libhoel-dev_*.deb ../../../hoel/libhoel-dev_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libhoel-dev_*.deb ../../../hoel/libhoel-dev_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
-	( cd hoel && tar cvz liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libhoel-dev_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f hoel-full_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	( cd hoel && tar cvz liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel-dev_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f hoel-full_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/libhoel-dev_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/hoel-full_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
+	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
 hoel-build:
 	$(MAKE) hoel-debian-stable
@@ -453,46 +452,44 @@ hoel-build:
 	$(MAKE) hoel-alpine
 
 hoel-clean: clean-base
-	rm -f hoel/*.tar.gz hoel/*.deb
+	rm -f hoel/*.tar.gz hoel/*.deb hoel/packages
 	-docker rmi -f babelouest/hoel
 
 glewlwyd-deb:
-	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) glewlwyd/deb/
+	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) glewlwyd/deb/
 	docker run --rm -v $(shell pwd)/glewlwyd/:/share babelouest/glewlwyd
 
 glewlwyd-tgz:
-	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) glewlwyd/tgz/
+	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) glewlwyd/tgz/
 	docker run --rm -v $(shell pwd)/glewlwyd/:/share babelouest/glewlwyd
 
 glewlwyd-debian-stable: 
 	$(MAKE) debian-stable
-	$(MAKE) glewlwyd-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd-full_$(GLEWLWYD_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.tar.gz
+	$(MAKE) glewlwyd-deb
+	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-debian-testing: 
 	$(MAKE) debian-testing
-	$(MAKE) glewlwyd-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd-full_$(GLEWLWYD_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.tar.gz
+	$(MAKE) glewlwyd-deb
+	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
-	$(MAKE) glewlwyd-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd-full_$(GLEWLWYD_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.tar.gz
+	$(MAKE) glewlwyd-deb
+	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-ubuntu-lts: 
 	$(MAKE) ubuntu-lts
-	$(MAKE) glewlwyd-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LTS)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_Ubuntu_$(CODE_UBUNTU_LTS)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd-full_$(GLEWLWYD_VERSION)_Ubuntu_$(CODE_UBUNTU_LTS)_*.tar.gz
+	$(MAKE) ubuntu-latest
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) glewlwyd-deb; \
+		xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%; \
+	fi
 
 glewlwyd-alpine: 
 	$(MAKE) alpine
-	$(MAKE) glewlwyd-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd-full_$(GLEWLWYD_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
+	$(MAKE) glewlwyd-tgz
+	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -516,7 +513,7 @@ glewlwyd-local: glewlwyd-install-dependencies local-install-libjwt
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp liborcania_*.deb ../../../glewlwyd/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp liborcania_*.deb ../../../glewlwyd/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package yder
 	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
@@ -532,7 +529,7 @@ glewlwyd-local: glewlwyd-install-dependencies local-install-libjwt
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libyder_*.deb ../../../glewlwyd/libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libyder_*.deb ../../../glewlwyd/libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package ulfius
 	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
@@ -548,7 +545,7 @@ glewlwyd-local: glewlwyd-install-dependencies local-install-libjwt
 	cmake -DWITH_WEBSOCKET=off -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libulfius_*.deb ../../../glewlwyd/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libulfius_*.deb ../../../glewlwyd/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	
 	# package hoel
 	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
@@ -563,7 +560,7 @@ glewlwyd-local: glewlwyd-install-dependencies local-install-libjwt
 	rm -rf * && \
 	cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp libhoel_*.deb ../../../glewlwyd/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libhoel_*.deb ../../../glewlwyd/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package glewlwyd
 	wget https://github.com/babelouest/glewlwyd/archive/v$(GLEWLWYD_VERSION).tar.gz -O build/v$(GLEWLWYD_VERSION).tar.gz
@@ -575,12 +572,11 @@ glewlwyd-local: glewlwyd-install-dependencies local-install-libjwt
 	cmake .. && \
 	make && \
 	make package; \
-	cp glewlwyd_*.deb ../../../glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp glewlwyd_*.deb ../../../glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
-	( cd glewlwyd && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb glewlwyd_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f glewlwyd-full_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	( cd glewlwyd && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb glewlwyd_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f glewlwyd-full_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/glewlwyd-full_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
+	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-build:
 	$(MAKE) glewlwyd-debian-stable
@@ -590,40 +586,44 @@ glewlwyd-build:
 	$(MAKE) glewlwyd-alpine
 
 glewlwyd-clean: clean-base
-	rm -f glewlwyd/*.tar.gz glewlwyd/*.deb
+	rm -f glewlwyd/*.tar.gz glewlwyd/*.deb glewlwyd/packages
 	-docker rmi -f babelouest/glewlwyd
 
 taliesin-deb:
-	docker build -t babelouest/taliesin --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg TALIESIN_VERSION=$(TALIESIN_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) taliesin/deb/
+	docker build -t babelouest/taliesin --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg TALIESIN_VERSION=$(TALIESIN_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) taliesin/deb/
 	docker run --rm -v $(shell pwd)/taliesin/:/share babelouest/taliesin
 
 taliesin-tgz:
-	docker build -t babelouest/taliesin --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg TALIESIN_VERSION=$(TALIESIN_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) taliesin/tgz/
+	docker build -t babelouest/taliesin --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg TALIESIN_VERSION=$(TALIESIN_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) taliesin/tgz/
 	docker run --rm -v $(shell pwd)/taliesin/:/share babelouest/taliesin
 
 taliesin-debian-stable: 
 	$(MAKE) debian-stable
-	$(MAKE) taliesin-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin_$(TALIESIN_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin-full_$(TALIESIN_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.tar.gz
+	$(MAKE) taliesin-deb
+	xargs -a ./taliesin/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/%
 
 taliesin-debian-testing: 
 	$(MAKE) debian-testing
-	$(MAKE) taliesin-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin_$(TALIESIN_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin-full_$(TALIESIN_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.tar.gz
+	$(MAKE) taliesin-deb
+	xargs -a ./taliesin/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/%
 
 taliesin-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
-	$(MAKE) taliesin-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin_$(TALIESIN_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin-full_$(TALIESIN_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.tar.gz
+	$(MAKE) taliesin-deb
+	xargs -a ./taliesin/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/%
+
+taliesin-ubuntu-lts: 
+	$(MAKE) ubuntu-lts
+	$(MAKE) ubuntu-latest
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) taliesin-deb; \
+		xargs -a ./taliesin/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/%; \
+	fi
 
 taliesin-alpine: 
 	$(MAKE) alpine
-	$(MAKE) taliesin-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin_$(TALIESIN_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin-full_$(TALIESIN_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
+	$(MAKE) taliesin-tgz
+	xargs -a ./taliesin/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/%
 
 taliesin-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -647,7 +647,7 @@ taliesin-local: taliesin-install-dependencies local-install-libjwt
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp liborcania_*.deb ../../../taliesin/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp liborcania_*.deb ../../../taliesin/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package yder
 	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
@@ -663,7 +663,7 @@ taliesin-local: taliesin-install-dependencies local-install-libjwt
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libyder_*.deb ../../../taliesin/libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libyder_*.deb ../../../taliesin/libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package ulfius
 	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
@@ -679,7 +679,7 @@ taliesin-local: taliesin-install-dependencies local-install-libjwt
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libulfius_*.deb ../../../taliesin/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libulfius_*.deb ../../../taliesin/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	
 	# package hoel
 	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
@@ -694,7 +694,7 @@ taliesin-local: taliesin-install-dependencies local-install-libjwt
 	rm -rf * && \
 	cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp libhoel_*.deb ../../../taliesin/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libhoel_*.deb ../../../taliesin/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package taliesin
 	wget https://github.com/babelouest/taliesin/archive/v$(TALIESIN_VERSION).tar.gz -O build/v$(TALIESIN_VERSION).tar.gz
@@ -706,21 +706,21 @@ taliesin-local: taliesin-install-dependencies local-install-libjwt
 	cmake .. && \
 	make && \
 	make package; \
-	cp taliesin_*.deb ../../../taliesin/taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp taliesin_*.deb ../../../taliesin/taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
-	( cd taliesin && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f taliesin-full_$(TALIESIN_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	( cd taliesin && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f taliesin-full_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/taliesin-full_$(TALIESIN_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
+	xargs -a ./taliesin/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/%
 
 taliesin-build:
 	$(MAKE) taliesin-debian-stable
 	$(MAKE) taliesin-debian-testing
 	$(MAKE) taliesin-ubuntu-latest
+	$(MAKE) taliesin-ubuntu-lts
 	$(MAKE) taliesin-alpine
 
 taliesin-clean: clean-base
-	rm -f taliesin/*.tar.gz taliesin/*.deb
+	rm -f taliesin/*.tar.gz taliesin/*.deb taliesin/packages
 	-docker rmi -f babelouest/taliesin
 
 taliesin-quickstart-src:
@@ -733,42 +733,40 @@ taliesin-quickstart-sqlite-noauth:
 	cd taliesin/quickstart && $(MAKE) build-quickstart-x86_64_sqlite_noauth TALIESIN_VERSION=$(TALIESIN_VERSION) LIBJWT_VERSION=$(LIBJWT_VERSION)
 
 hutch-deb:
-	docker build -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) hutch/deb/
+	docker build -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) hutch/deb/
 	docker run --rm -v $(shell pwd)/hutch/:/share babelouest/hutch
 
 hutch-tgz:
-	docker build -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) hutch/tgz/
+	docker build -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) hutch/tgz/
 	docker run --rm -v $(shell pwd)/hutch/:/share babelouest/hutch
 
 hutch-debian-stable: 
 	$(MAKE) debian-stable
-	$(MAKE) hutch-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch-full_$(HUTCH_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.tar.gz
+	$(MAKE) hutch-deb
+	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
 hutch-debian-testing: 
 	$(MAKE) debian-testing
-	$(MAKE) hutch-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch-full_$(HUTCH_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.tar.gz
+	$(MAKE) hutch-deb
+	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
 hutch-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
-	$(MAKE) hutch-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch-full_$(HUTCH_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.tar.gz
+	$(MAKE) hutch-deb
+	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
 hutch-ubuntu-lts: 
 	$(MAKE) ubuntu-lts
-	$(MAKE) hutch-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LTS)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_Ubuntu_$(CODE_UBUNTU_LTS)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch-full_$(HUTCH_VERSION)_Ubuntu_$(CODE_UBUNTU_LTS)_*.tar.gz
+	$(MAKE) ubuntu-latest
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) hutch-deb; \
+		xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%; \
+	fi
 
 hutch-alpine: 
 	$(MAKE) alpine
-	$(MAKE) hutch-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch-full_$(HUTCH_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
+	$(MAKE) hutch-tgz
+	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
 hutch-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -792,7 +790,7 @@ hutch-local: hutch-install-dependencies local-install-libjwt
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp liborcania_*.deb ../../../hutch/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp liborcania_*.deb ../../../hutch/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package yder
 	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
@@ -808,7 +806,7 @@ hutch-local: hutch-install-dependencies local-install-libjwt
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libyder_*.deb ../../../hutch/libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libyder_*.deb ../../../hutch/libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package ulfius
 	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
@@ -824,7 +822,7 @@ hutch-local: hutch-install-dependencies local-install-libjwt
 	cmake -DWITH_WEBSOCKET=off -DWITH_CURL=off -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libulfius_*.deb ../../../hutch/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libulfius_*.deb ../../../hutch/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	
 	# package hoel
 	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
@@ -839,7 +837,7 @@ hutch-local: hutch-install-dependencies local-install-libjwt
 	rm -rf * && \
 	cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp libhoel_*.deb ../../../hutch/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libhoel_*.deb ../../../hutch/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package hutch
 	wget https://github.com/babelouest/hutch/archive/v$(HUTCH_VERSION).tar.gz -O build/v$(HUTCH_VERSION).tar.gz
@@ -851,12 +849,11 @@ hutch-local: hutch-install-dependencies local-install-libjwt
 	cmake .. && \
 	make && \
 	make package; \
-	cp hutch_*.deb ../../../hutch/hutch_$(HUTCH_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp hutch_*.deb ../../../hutch/hutch_$(HUTCH_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
-	( cd hutch && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb hutch_$(HUTCH_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f hutch-full_$(HUTCH_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	( cd hutch && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb hutch_$(HUTCH_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f hutch-full_$(HUTCH_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch_$(HUTCH_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/hutch-full_$(HUTCH_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
+	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
 hutch-build:
 	$(MAKE) hutch-debian-stable
@@ -866,40 +863,44 @@ hutch-build:
 	$(MAKE) hutch-alpine
 
 hutch-clean: clean-base
-	rm -f hutch/*.tar.gz hutch/*.deb
+	rm -f hutch/*.tar.gz hutch/*.deb hutch/packages
 	-docker rmi -f babelouest/hutch
 
 angharad-deb:
-	docker build -t babelouest/angharad --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg ANGHARAD_VERSION=$(ANGHARAD_VERSION) --build-arg BENOIC_VERSION=$(BENOIC_VERSION) --build-arg CARLEON_VERSION=$(CARLEON_VERSION) --build-arg GARETH_VERSION=$(GARETH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) angharad/deb/
+	docker build -t babelouest/angharad --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg ANGHARAD_VERSION=$(ANGHARAD_VERSION) --build-arg BENOIC_VERSION=$(BENOIC_VERSION) --build-arg CARLEON_VERSION=$(CARLEON_VERSION) --build-arg GARETH_VERSION=$(GARETH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) angharad/deb/
 	docker run --rm -v $(shell pwd)/angharad/:/share babelouest/angharad
 
 angharad-tgz:
-	docker build -t babelouest/angharad --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg ANGHARAD_VERSION=$(ANGHARAD_VERSION) --build-arg BENOIC_VERSION=$(BENOIC_VERSION) --build-arg CARLEON_VERSION=$(CARLEON_VERSION) --build-arg GARETH_VERSION=$(GARETH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg DISTRIB=$(DISTRIB) --build-arg CODE=$(CODE) angharad/tgz/
+	docker build -t babelouest/angharad --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg ANGHARAD_VERSION=$(ANGHARAD_VERSION) --build-arg BENOIC_VERSION=$(BENOIC_VERSION) --build-arg CARLEON_VERSION=$(CARLEON_VERSION) --build-arg GARETH_VERSION=$(GARETH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) angharad/tgz/
 	docker run --rm -v $(shell pwd)/angharad/:/share babelouest/angharad
 
 angharad-debian-stable: 
 	$(MAKE) debian-stable
-	$(MAKE) angharad-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Debian_$(CODE_DEBIAN_STABLE)_*.tar.gz
+	$(MAKE) angharad-deb
+	xargs -a ./angharad/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/%
 
 angharad-debian-testing: 
 	$(MAKE) debian-testing
-	$(MAKE) angharad-deb DISTRIB=Debian CODE=$(CODE_DEBIAN_TESTING)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Debian_$(CODE_DEBIAN_TESTING)_*.tar.gz
+	$(MAKE) angharad-deb
+	xargs -a ./angharad/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/%
 
 angharad-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
-	$(MAKE) angharad-deb DISTRIB=Ubuntu CODE=$(CODE_UBUNTU_LATEST)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Ubuntu_$(CODE_UBUNTU_LATEST)_*.tar.gz
+	$(MAKE) angharad-deb
+	xargs -a ./angharad/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/%
+
+angharad-ubuntu-lts: 
+	$(MAKE) ubuntu-lts
+	$(MAKE) ubuntu-latest
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) angharad-deb; \
+		xargs -a ./angharad/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/%; \
+	fi
 
 angharad-alpine: 
 	$(MAKE) alpine
-	$(MAKE) angharad-tgz DISTRIB=Alpine CODE=$(CODE_ALPINE_STABLE)
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_Alpine_$(CODE_ALPINE_STABLE)_*.tar.gz
+	$(MAKE) angharad-tgz
+	xargs -a ./angharad/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/%
 
 angharad-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -923,7 +924,7 @@ angharad-local: angharad-install-dependencies local-install-libjwt
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp liborcania_*.deb ../../../angharad/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp liborcania_*.deb ../../../angharad/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package yder
 	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
@@ -939,7 +940,7 @@ angharad-local: angharad-install-dependencies local-install-libjwt
 	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libyder_*.deb ../../../angharad/libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libyder_*.deb ../../../angharad/libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package ulfius
 	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
@@ -955,7 +956,7 @@ angharad-local: angharad-install-dependencies local-install-libjwt
 	cmake -DWITH_WEBSOCKET=off -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libulfius_*.deb ../../../angharad/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libulfius_*.deb ../../../angharad/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	
 	# package hoel
 	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
@@ -970,7 +971,7 @@ angharad-local: angharad-install-dependencies local-install-libjwt
 	rm -rf * && \
 	cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp libhoel_*.deb ../../../angharad/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp libhoel_*.deb ../../../angharad/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package angharad
 	wget https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).tar.gz -O build/v$(ANGHARAD_VERSION).tar.gz
@@ -994,19 +995,19 @@ angharad-local: angharad-install-dependencies local-install-libjwt
 	cmake .. && \
 	make && \
 	make package; \
-	cp angharad_*.deb ../../../angharad/angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb )
+	cp angharad_*.deb ../../../angharad/angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
-	( cd angharad && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.deb -f angharad-full_$(ANGHARAD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_`uname -m`.tar.gz )
+	( cd angharad && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f angharad-full_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.deb
-	$(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/angharad-full_$(ANGHARAD_VERSION)_$(LOCAL_ID)_`lsb_release -c -s`_*.tar.gz
+	xargs -a ./angharad/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/%
 
 angharad-build:
 	$(MAKE) angharad-debian-stable
 	$(MAKE) angharad-debian-testing
 	$(MAKE) angharad-ubuntu-latest
+	$(MAKE) angharad-ubuntu-lts
 	$(MAKE) angharad-alpine
 
 angharad-clean: clean-base
-	rm -f angharad/*.tar.gz angharad/*.deb
+	rm -f angharad/*.tar.gz angharad/*.deb angharad/packages
 	-docker rmi -f babelouest/angharad

@@ -4,8 +4,6 @@ FROM babelouest/tgz
 RUN apk add --no-cache \
 		jansson-dev
 
-ARG DISTRIB
-ARG CODE
 ARG ORCANIA_VERSION
 ARG YDER_VERSION
 
@@ -33,7 +31,8 @@ RUN mkdir /opt && \
 		cmake -DWITH_JOURNALD=off .. && \
 		make && \
 		make package ; \
-		cp libyder-dev_*.tar.gz /opt/libyder-dev_${YDER_VERSION}_${DISTRIB}_${CODE}_`uname -m`.tar.gz
+		cp libyder-dev_*.tar.gz /opt/libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
+    echo libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz >> /opt/packages
 
 COPY ["entrypoint.sh", "/"]
 

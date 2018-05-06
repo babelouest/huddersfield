@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cp /opt/liborcania-dev*.tar.gz /share
+cp /opt/packages /opt/liborcania-dev*.tar.gz /share

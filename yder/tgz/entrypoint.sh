@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cp /opt/libyder-dev*.tar.gz /share
+cp /opt/packages /opt/libyder-dev*.tar.gz /share

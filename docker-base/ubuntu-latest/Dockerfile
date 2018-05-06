@@ -1,4 +1,4 @@
-FROM ubuntu:artful
+FROM ubuntu:rolling
 
 # Install required packages
 RUN apt-get update && \

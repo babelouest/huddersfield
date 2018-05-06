@@ -19,11 +19,8 @@ RUN apt-get update && \
 		libavutil-dev \
 		make \
 		wget \
-		&& (apt-get install -y libmariadbclient-dev || apt-get install -y libmysqlclient-dev) \
-		&& rm -rf /var/lib/apt/lists/*
+		&& (apt-get install -y libmariadbclient-dev || apt-get install -y libmysqlclient-dev)
 
-ARG DISTRIB
-ARG CODE
 ARG ORCANIA_VERSION
 ARG YDER_VERSION
 ARG ULFIUS_VERSION
@@ -57,7 +54,7 @@ RUN cd /opt && \
 		cmake -DINSTALL_HEADER=off .. && \
 		make && \
 		make package ; \
-		cp liborcania_*.deb /opt/liborcania_${ORCANIA_VERSION}_${DISTRIB}_${CODE}_`uname -m`.deb && \
+		cp liborcania_*.deb /opt/liborcania_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
 
 # Build Yder
 		cd /opt && \
@@ -74,7 +71,7 @@ RUN cd /opt && \
 		cmake -DINSTALL_HEADER=off .. && \
 		make && \
 		make package ; \
-		cp libyder_*.deb /opt/libyder_${YDER_VERSION}_${DISTRIB}_${CODE}_`uname -m`.deb && \
+		cp libyder_*.deb /opt/libyder_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
 
 # Build Hoel
 		cd /opt && \
@@ -91,7 +88,7 @@ RUN cd /opt && \
 		cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
 		make && \
 		make package ; \
-		cp libhoel_*.deb /opt/libhoel_${HOEL_VERSION}_${DISTRIB}_${CODE}_`uname -m`.deb && \
+		cp libhoel_*.deb /opt/libhoel_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
 
 # Build Ulfius
 		cd /opt && \
@@ -108,7 +105,7 @@ RUN cd /opt && \
 		cmake -DWITH_CURL=off -DINSTALL_HEADER=off .. && \
 		make && \
 		make package ; \
-		cp libulfius_*.deb /opt/libulfius_${ULFIUS_VERSION}_${DISTRIB}_${CODE}_`uname -m`.deb && \
+		cp libulfius_*.deb /opt/libulfius_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
 
 # Build Taliesin
 		cd /opt && \
@@ -121,11 +118,13 @@ RUN cd /opt && \
 		cmake .. && \
 		make && \
 		make package ; \
-		cp taliesin_*.deb /opt/taliesin_${TALIESIN_VERSION}_${DISTRIB}_${CODE}_`uname -m`.deb && \
+		cp taliesin_*.deb /opt/taliesin_${TALIESIN_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
+    echo taliesin_${TALIESIN_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb >> /opt/packages && \
 
 # make an archive based on 3 pckages
 		cd /opt && \
-		tar cvz *.deb -f taliesin-full_${TALIESIN_VERSION}_${DISTRIB}_${CODE}_`uname -m`.tar.gz
+		tar cvz *.deb -f taliesin-full_${TALIESIN_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.tar.gz && \
+    echo taliesin-full_${TALIESIN_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.tar.gz >> /opt/packages
 
 COPY ["entrypoint.sh", "/"]
 

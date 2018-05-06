@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cp /opt/libyder-dev*.deb /share
+cp /opt/packages /opt/libyder-dev*.deb /share

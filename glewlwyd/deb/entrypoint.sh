@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cp /opt/glewlwyd_*.deb /opt/glewlwyd-full_*.tar.gz /share
+cp /opt/packages /opt/glewlwyd_*.deb /opt/glewlwyd-full_*.tar.gz /share
