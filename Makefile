@@ -168,6 +168,7 @@ orcania-local: orcania-install-dependencies
 	make package && \
 	cp liborcania-dev_*.deb ../../../orcania/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	rm -rf build/*
+	echo liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./orcania/packages
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
 orcania-build:
@@ -248,8 +249,8 @@ yder-local: yder-install-dependencies
 	make package; \
 	sudo make install && \
 	cp libyder-dev_*.deb ../../../yder/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
-
 	rm -rf build/*
+	echo libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./yder/packages
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
 yder-build:
@@ -346,6 +347,8 @@ ulfius-local:
 
 	( cd ulfius && tar cvz liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius-dev_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f ulfius-full_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
+	echo libulfius-dev_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./ulfius/packages
+	echo ulfius-full_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz >> ./ulfius/packages
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
 ulfius-build:
@@ -442,6 +445,8 @@ hoel-local: hoel-install-dependencies
 
 	( cd hoel && tar cvz liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel-dev_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f hoel-full_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
+	echo libhoel-dev_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./hoel/packages
+	echo hoel-full_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz >> ./hoel/packages
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
 hoel-build:
@@ -576,6 +581,8 @@ glewlwyd-local: glewlwyd-install-dependencies local-install-libjwt
 
 	( cd glewlwyd && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb glewlwyd_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f glewlwyd-full_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
+	echo glewlwyd_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./glewlwyd/packages
+	echo glewlwyd-full_$(GLEWLWYD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz >> ./glewlwyd/packages
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-build:
@@ -710,6 +717,8 @@ taliesin-local: taliesin-install-dependencies local-install-libjwt
 
 	( cd taliesin && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f taliesin-full_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
+	echo taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./taliesin/packages
+	echo taliesin-full_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz >> ./taliesin/packages
 	xargs -a ./taliesin/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/%
 
 taliesin-build:
@@ -853,6 +862,8 @@ hutch-local: hutch-install-dependencies local-install-libjwt
 
 	( cd hutch && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb hutch_$(HUTCH_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f hutch-full_$(HUTCH_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
+	echo hutch_$(HUTCH_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./hutch/packages
+	echo hutch-full_$(HUTCH_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz >> ./hutch/packages
 	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
 hutch-build:
@@ -999,6 +1010,8 @@ angharad-local: angharad-install-dependencies local-install-libjwt
 
 	( cd angharad && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f angharad-full_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
+	echo angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./angharad/packages
+	echo angharad-full_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz >> ./angharad/packages
 	xargs -a ./angharad/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/%
 
 angharad-build:
