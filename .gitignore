@@ -1,3 +1,4 @@
 *.deb
 *.tar.gz
 GITHUB_TOKEN
+packages
