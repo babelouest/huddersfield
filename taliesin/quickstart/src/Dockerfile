@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:latest
 
 # Install required packages
 RUN apk add --no-cache \
@@ -38,9 +38,9 @@ RUN mkdir /opt && \
 
 # Download and install Taliesin package
 		cd /opt && \
-		wget https://github.com/babelouest/taliesin/releases/download/v${TALIESIN_VERSION}/taliesin-full_${TALIESIN_VERSION}_Alpine_3.7_x86_64.tar.gz && \
-		tar -xf taliesin-full_${TALIESIN_VERSION}_Alpine_3.7_x86_64.tar.gz && \
-		rm taliesin-full_${TALIESIN_VERSION}_Alpine_3.7_x86_64.tar.gz && \
+		wget https://github.com/babelouest/taliesin/releases/download/v${TALIESIN_VERSION}/taliesin-full_${TALIESIN_VERSION}_alpine_3.7.0_x86_64.tar.gz && \
+		tar -xf taliesin-full_${TALIESIN_VERSION}_alpine_3.7.0_x86_64.tar.gz && \
+		rm taliesin-full_${TALIESIN_VERSION}_alpine_3.7.0_x86_64.tar.gz && \
 		tar xf liborcania_*.tar.gz && \
 		mv liborcania_*/lib64/* /usr/lib && \
 		tar xf libyder_*.tar.gz && \
