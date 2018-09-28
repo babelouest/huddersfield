@@ -15,7 +15,7 @@ RUN apt-get update && \
 		libavfilter-dev \
 		libavcodec-dev \
 		libavformat-dev \
-		libavresample-dev \
+		libswresample-dev \
 		libavutil-dev \
 		make \
 		wget \

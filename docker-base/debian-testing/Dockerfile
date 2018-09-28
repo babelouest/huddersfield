@@ -8,4 +8,5 @@ RUN apt-get update && \
 		make \
 		cmake \
 		wget \
+		pkg-config \
 		lsb-release

@@ -153,7 +153,7 @@ orcania-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libjansson-dev; \
+		sudo apt-get install -y libjansson-dev pkg-config; \
 	fi
 
 orcania-local: orcania-install-dependencies
@@ -222,7 +222,7 @@ yder-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libjansson-dev libsystemd-dev; \
+		sudo apt-get install -y libjansson-dev libsystemd-dev pkg-config; \
 	fi
 
 yder-local: yder-install-dependencies
@@ -304,7 +304,7 @@ ulfius-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libjansson-dev libsystemd-dev libsystemd-dev libgnutls28-dev libmicrohttpd-dev libgnutls28-dev; \
+		sudo apt-get install -y libjansson-dev libsystemd-dev libsystemd-dev libgnutls28-dev libmicrohttpd-dev libgnutls28-dev pkg-config; \
 	fi
 
 ulfius-local:
@@ -402,7 +402,7 @@ hoel-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libpq-dev; \
+		sudo apt-get install -y libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libpq-dev pkg-config; \
 	fi
 
 hoel-local: hoel-install-dependencies
@@ -500,7 +500,7 @@ glewlwyd-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev uuid-dev libldap2-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev libcurl4-gnutls-dev libssl-dev; \
+		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev uuid-dev libldap2-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev libcurl4-gnutls-dev libssl-dev pkg-config; \
 	fi
 
 glewlwyd-local: glewlwyd-install-dependencies local-install-libjwt
@@ -636,7 +636,7 @@ taliesin-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libconfig-dev libjansson-dev libsystemd-dev libgnutls28-dev libssl-dev libmicrohttpd-dev libmariadbclient-dev libsqlite3-dev libtool libavfilter-dev libavcodec-dev libavformat-dev libavresample-dev libavutil-dev; \
+		sudo apt-get install -y libconfig-dev libjansson-dev libsystemd-dev libgnutls28-dev libssl-dev libmicrohttpd-dev libmariadbclient-dev libsqlite3-dev libtool libavfilter-dev libavcodec-dev libavformat-dev libswresample-dev libavutil-dev pkg-config; \
 	fi
 
 taliesin-local: taliesin-install-dependencies local-install-libjwt
@@ -781,7 +781,7 @@ hutch-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev; \
+		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev pkg-config; \
 	fi
 
 hutch-local: hutch-install-dependencies local-install-libjwt
@@ -917,7 +917,7 @@ angharad-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libopenzwave1.5-dev libmpdclient-dev libcurl4-gnutls-dev g++; \
+		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libopenzwave1.5-dev libmpdclient-dev libcurl4-gnutls-dev g++ pkg-config; \
 	fi
 
 angharad-local: angharad-install-dependencies local-install-libjwt
