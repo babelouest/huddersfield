@@ -20,7 +20,6 @@ RUN cd /opt && \
 		cmake .. && \
 		make && \
 		make install && \
-
 # Build Yder
 		cd /opt && \
 		wget https://github.com/babelouest/yder/archive/v${YDER_VERSION}.tar.gz && \

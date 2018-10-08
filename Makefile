@@ -49,7 +49,7 @@ CARLEON_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babe
 GARETH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/gareth/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
 LIBJWT_VERSION=1.9.0
 
-all: debian-stable-build debian-testing-build ubuntu-latest-build ubuntu-lts-build alpine-build
+all: debian-stable-build debian-testing-build ubuntu-latest-build ubuntu-lts-build alpine-build fedora-build
 
 debian-stable-build: orcania-debian-stable yder-debian-stable ulfius-debian-stable hoel-debian-stable glewlwyd-debian-stable taliesin-debian-stable angharad-debian-stable hutch-debian-stable
 
@@ -64,7 +64,9 @@ ubuntu-lts-build: orcania-ubuntu-lts yder-ubuntu-lts ulfius-ubuntu-lts hoel-ubun
 
 alpine-build: orcania-alpine yder-alpine ulfius-alpine hoel-alpine glewlwyd-alpine taliesin-alpine hutch-alpine angharad-alpine
 
-local-build: orcania-local yder-local ulfius-local hoel-local glewlwyd-local taliesin-local hutch-local angharad-local
+fedora-build: orcania-fedora yder-fedora ulfius-fedora hoel-fedora
+
+local-deb-build: orcania-deb-local yder-deb-local ulfius-deb-local hoel-deb-local glewlwyd-deb-local taliesin-deb-local hutch-deb-local angharad-deb-local
 
 upload-asset:
 	@if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
@@ -97,7 +99,10 @@ ubuntu-lts:
 alpine:
 	docker build -t babelouest/tgz docker-base/alpine-current/
 
-local-install-libjwt:
+fedora:
+	docker build -t babelouest/rpm docker-base/fedora-latest/
+
+local-deb-install-libjwt:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt-get install -y autoconf automake libtool libssl-dev; \
@@ -119,6 +124,10 @@ orcania-deb:
 
 orcania-tgz:
 	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/tgz/
+	docker run --rm -v $(shell pwd)/orcania/:/share babelouest/orcania
+
+orcania-rpm:
+	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/rpm/
 	docker run --rm -v $(shell pwd)/orcania/:/share babelouest/orcania
 
 orcania-debian-stable: 
@@ -143,10 +152,15 @@ orcania-ubuntu-lts:
 		$(MAKE) orcania-deb; \
 		xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania #TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%; \
 	fi
-	
+
 orcania-alpine: 
 	$(MAKE) alpine
 	$(MAKE) orcania-tgz
+	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
+
+orcania-fedora: 
+	$(MAKE) fedora
+	$(MAKE) orcania-rpm
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
 orcania-install-dependencies:
@@ -156,7 +170,7 @@ orcania-install-dependencies:
 		sudo apt-get install -y libjansson-dev pkg-config; \
 	fi
 
-orcania-local: orcania-install-dependencies
+orcania-local-deb: orcania-install-dependencies
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -177,9 +191,10 @@ orcania-build:
 	$(MAKE) orcania-ubuntu-latest
 	$(MAKE) orcania-ubuntu-lts
 	$(MAKE) orcania-alpine
+	$(MAKE) orcania-fedora
 
 orcania-clean: clean-base
-	rm -f orcania/*.tar.gz orcania/*.deb orcania/packages
+	rm -f orcania/*.tar.gz orcania/*.deb orcania/*.rpm orcania/packages
 	-docker rmi -f babelouest/orcania
 
 yder-deb:
@@ -188,6 +203,10 @@ yder-deb:
 
 yder-tgz:
 	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/tgz/
+	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder
+
+yder-rpm:
+	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/rpm/
 	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder
 
 yder-debian-stable: 
@@ -218,6 +237,11 @@ yder-alpine:
 	$(MAKE) yder-tgz
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
+yder-fedora: 
+	$(MAKE) fedora
+	$(MAKE) yder-rpm
+	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
+
 yder-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
@@ -225,7 +249,7 @@ yder-install-dependencies:
 		sudo apt-get install -y libjansson-dev libsystemd-dev pkg-config; \
 	fi
 
-yder-local: yder-install-dependencies
+yder-local-deb: yder-install-dependencies
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -259,9 +283,10 @@ yder-build:
 	$(MAKE) yder-ubuntu-latest
 	$(MAKE) yder-ubuntu-lts
 	$(MAKE) yder-alpine
+	$(MAKE) yder-fedora
 
 yder-clean: clean-base
-	rm -f yder/*.tar.gz yder/*.deb yder/packages
+	rm -f yder/*.tar.gz yder/*.deb yder/*.rpm yder/packages
 	-docker rmi -f babelouest/yder
 
 ulfius-deb:
@@ -270,6 +295,10 @@ ulfius-deb:
 
 ulfius-tgz:
 	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/tgz/
+	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius
+
+ulfius-rpm:
+	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/rpm/
 	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius
 
 ulfius-debian-stable: 
@@ -300,6 +329,11 @@ ulfius-alpine:
 	$(MAKE) ulfius-tgz
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
+ulfius-fedora: 
+	$(MAKE) fedora
+	$(MAKE) ulfius-rpm
+	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
+
 ulfius-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
@@ -307,7 +341,7 @@ ulfius-install-dependencies:
 		sudo apt-get install -y libjansson-dev libsystemd-dev libsystemd-dev libgnutls28-dev libmicrohttpd-dev libgnutls28-dev pkg-config; \
 	fi
 
-ulfius-local:
+ulfius-local-deb:
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -357,9 +391,10 @@ ulfius-build:
 	$(MAKE) ulfius-ubuntu-latest
 	$(MAKE) ulfius-ubuntu-lts
 	$(MAKE) ulfius-alpine
+	$(MAKE) ulfius-fedora
 
 ulfius-clean: clean-base
-	rm -f ulfius/*.tar.gz ulfius/*.deb ulfius/packages
+	rm -f ulfius/*.tar.gz ulfius/*.deb ulfius/*.rpm ulfius/packages
 	-docker rmi -f babelouest/ulfius
 
 hoel-deb:
@@ -368,6 +403,10 @@ hoel-deb:
 
 hoel-tgz:
 	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/tgz/
+	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel
+
+hoel-rpm:
+	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/rpm/
 	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel
 
 hoel-debian-stable: 
@@ -398,6 +437,11 @@ hoel-alpine:
 	$(MAKE) hoel-tgz
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
+hoel-fedora: 
+	$(MAKE) fedora
+	$(MAKE) hoel-rpm
+	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
+
 hoel-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
@@ -405,7 +449,7 @@ hoel-install-dependencies:
 		sudo apt-get install -y libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libpq-dev pkg-config; \
 	fi
 
-hoel-local: hoel-install-dependencies
+hoel-local-deb: hoel-install-dependencies
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -455,9 +499,10 @@ hoel-build:
 	$(MAKE) hoel-ubuntu-latest
 	$(MAKE) hoel-ubuntu-lts
 	$(MAKE) hoel-alpine
+	$(MAKE) hoel-fedora
 
 hoel-clean: clean-base
-	rm -f hoel/*.tar.gz hoel/*.deb hoel/packages
+	rm -f hoel/*.tar.gz hoel/*.deb hoel/*.rpm hoel/packages
 	-docker rmi -f babelouest/hoel
 
 glewlwyd-deb:
@@ -503,7 +548,7 @@ glewlwyd-install-dependencies:
 		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev uuid-dev libldap2-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev libcurl4-gnutls-dev libssl-dev pkg-config; \
 	fi
 
-glewlwyd-local: glewlwyd-install-dependencies local-install-libjwt
+glewlwyd-local-deb: glewlwyd-install-dependencies local-deb-install-libjwt
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -639,7 +684,7 @@ taliesin-install-dependencies:
 		sudo apt-get install -y libconfig-dev libjansson-dev libsystemd-dev libgnutls28-dev libssl-dev libmicrohttpd-dev libmariadbclient-dev libsqlite3-dev libtool libavfilter-dev libavcodec-dev libavformat-dev libswresample-dev libavutil-dev pkg-config; \
 	fi
 
-taliesin-local: taliesin-install-dependencies local-install-libjwt
+taliesin-local-deb: taliesin-install-dependencies local-deb-install-libjwt
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -784,7 +829,7 @@ hutch-install-dependencies:
 		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev pkg-config; \
 	fi
 
-hutch-local: hutch-install-dependencies local-install-libjwt
+hutch-local-deb: hutch-install-dependencies local-deb-install-libjwt
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -920,7 +965,7 @@ angharad-install-dependencies:
 		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libopenzwave1.5-dev libmpdclient-dev libcurl4-gnutls-dev g++ pkg-config; \
 	fi
 
-angharad-local: angharad-install-dependencies local-install-libjwt
+angharad-local-deb: angharad-install-dependencies local-deb-install-libjwt
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
