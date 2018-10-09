@@ -6,7 +6,6 @@ RUN apk add --no-cache \
 		automake \
 		libconfig-dev \
 		jansson-dev \
-		gnutls-dev \
 		libgcrypt-dev \
 		libmicrohttpd-dev \
 		sqlite-dev \
@@ -38,7 +37,6 @@ RUN mkdir /opt && \
 		./configure --without-openssl && \
 		make && \
 		make install && \
-
 # Build Orcania
 		cd /opt && \
 		wget https://github.com/babelouest/orcania/archive/v${ORCANIA_VERSION}.tar.gz && \
@@ -55,7 +53,6 @@ RUN mkdir /opt && \
 		make && \
 		make package ; \
 		cp liborcania_*.tar.gz /opt/liborcania_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
-
 # Build Yder
 		cd /opt && \
 		wget https://github.com/babelouest/yder/archive/v${YDER_VERSION}.tar.gz && \
@@ -72,7 +69,6 @@ RUN mkdir /opt && \
 		make && \
 		make package ; \
 		cp libyder_*.tar.gz /opt/libyder_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
-
 # Build Hoel
 		cd /opt && \
 		wget https://github.com/babelouest/hoel/archive/v${HOEL_VERSION}.tar.gz && \
@@ -89,7 +85,6 @@ RUN mkdir /opt && \
 		make && \
 		make package ; \
 		cp libhoel_*.tar.gz /opt/libhoel_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
-
 # Build Ulfius
 		cd /opt && \
 		wget https://github.com/babelouest/ulfius/archive/v${ULFIUS_VERSION}.tar.gz && \
@@ -106,7 +101,6 @@ RUN mkdir /opt && \
 		make && \
 		make package ; \
 		cp libulfius_*.tar.gz /opt/libulfius_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
-
 # Build Hutch
 		cd /opt && \
 		wget https://github.com/babelouest/hutch/archive/v${HUTCH_VERSION}.tar.gz && \
@@ -120,7 +114,6 @@ RUN mkdir /opt && \
 		make package ; \
 		cp hutch_*.tar.gz /opt/hutch_${HUTCH_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
     echo hutch_${HUTCH_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz >> /opt/packages && \
-
 # make an archive based on 3 pckages
 		cd /opt && \
 		tar cvz *.tar.gz -f hutch-full_${HUTCH_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \

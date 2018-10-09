@@ -26,7 +26,6 @@ RUN cd /opt && \
 		make install && \
 		make package ; \
 		cp liborcania-dev_*.deb /opt/liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
-
 # Build Yder
 		cd /opt && \
 		wget https://github.com/babelouest/yder/archive/v${YDER_VERSION}.tar.gz && \
@@ -40,7 +39,6 @@ RUN cd /opt && \
 		make install && \
 		make package ; \
 		cp libyder-dev_*.deb /opt/libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
-
 # Build Ulfius
 		cd /opt && \
 		wget https://github.com/babelouest/ulfius/archive/v${ULFIUS_VERSION}.tar.gz && \
@@ -55,7 +53,6 @@ RUN cd /opt && \
 		make package ; \
 		cp libulfius-dev_*.deb /opt/libulfius-dev_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
     echo libulfius-dev_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb >> /opt/packages && \
-
 # make an archive based on 3 pckages
 		cd /opt && \
 		tar cvz *.deb -f ulfius-dev-full_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.tar.gz && \

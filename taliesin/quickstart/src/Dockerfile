@@ -35,7 +35,6 @@ RUN mkdir /opt && \
 		./configure --without-openssl && \
 		make && \
 		make install && \
-
 # Download and install Taliesin package
 		cd /opt && \
 		wget https://github.com/babelouest/taliesin/releases/download/v${TALIESIN_VERSION}/taliesin-full_${TALIESIN_VERSION}_alpine_3.7.0_x86_64.tar.gz && \

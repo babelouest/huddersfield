@@ -44,7 +44,6 @@ RUN mkdir /opt && \
 		./configure --without-openssl && \
 		make && \
 		make install && \
-
 # Build Orcania
 		cd /opt && \
 		wget https://github.com/babelouest/orcania/archive/v${ORCANIA_VERSION}.tar.gz && \
@@ -62,7 +61,6 @@ RUN mkdir /opt && \
 		make package ; \
 		cp liborcania_*.tar.gz /opt/liborcania_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
     echo  >> /opt/packages && \
-
 # Build Yder
 		cd /opt && \
 		wget https://github.com/babelouest/yder/archive/v${YDER_VERSION}.tar.gz && \
@@ -80,7 +78,6 @@ RUN mkdir /opt && \
 		make package ; \
 		cp libyder_*.tar.gz /opt/libyder_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
     echo  >> /opt/packages && \
-
 # Build Hoel
 		cd /opt && \
 		wget https://github.com/babelouest/hoel/archive/v${HOEL_VERSION}.tar.gz && \
@@ -98,7 +95,6 @@ RUN mkdir /opt && \
 		make package ; \
 		cp libhoel_*.tar.gz /opt/libhoel_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
     echo  >> /opt/packages && \
-
 # Build Ulfius
 		cd /opt && \
 		wget https://github.com/babelouest/ulfius/archive/v${ULFIUS_VERSION}.tar.gz && \
@@ -116,7 +112,6 @@ RUN mkdir /opt && \
 		make package ; \
 		cp libulfius_*.tar.gz /opt/libulfius_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
     echo  >> /opt/packages && \
-
 # Build Angharad
 		cd /opt && \
 		wget https://github.com/babelouest/angharad/archive/v${ANGHARAD_VERSION}.tar.gz -O v${ANGHARAD_VERSION}.tar.gz && \
@@ -142,7 +137,6 @@ RUN mkdir /opt && \
 		make package; \
 		cp angharad_*.tar.gz /opt/angharad_${ANGHARAD_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
     echo angharad_${ANGHARAD_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz >> /opt/packages && \
-
 # make an archive based on 3 pckages
 		cd /opt && \
 		tar cvz *.tar.gz -f angharad-full_${ANGHARAD_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \

@@ -7,7 +7,6 @@ RUN apt-get update && \
 		libconfig-dev \
 		libjansson-dev \
 		libsystemd-dev \
-		libgnutls28-dev \
 		libssl-dev \
 		libmicrohttpd-dev \
 		libsqlite3-dev \
@@ -33,7 +32,6 @@ RUN cd /opt && \
 		(./configure --without-openssl || ./configure) && \
 		make && \
 		make install && \
-
 # Build Orcania
 		cd /opt && \
 		wget https://github.com/babelouest/orcania/archive/v${ORCANIA_VERSION}.tar.gz && \
@@ -50,7 +48,6 @@ RUN cd /opt && \
 		make && \
 		make package ; \
 		cp liborcania_*.deb /opt/liborcania_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
-
 # Build Yder
 		cd /opt && \
 		wget https://github.com/babelouest/yder/archive/v${YDER_VERSION}.tar.gz && \
@@ -67,7 +64,6 @@ RUN cd /opt && \
 		make && \
 		make package ; \
 		cp libyder_*.deb /opt/libyder_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
-
 # Build Hoel
 		cd /opt && \
 		wget https://github.com/babelouest/hoel/archive/v${HOEL_VERSION}.tar.gz && \
@@ -84,7 +80,6 @@ RUN cd /opt && \
 		make && \
 		make package ; \
 		cp libhoel_*.deb /opt/libhoel_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
-
 # Build Ulfius
 		cd /opt && \
 		wget https://github.com/babelouest/ulfius/archive/v${ULFIUS_VERSION}.tar.gz && \
@@ -101,7 +96,6 @@ RUN cd /opt && \
 		make && \
 		make package ; \
 		cp libulfius_*.deb /opt/libulfius_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
-
 # Build Hutch
 		cd /opt && \
 		wget https://github.com/babelouest/hutch/archive/v${HUTCH_VERSION}.tar.gz && \
@@ -115,7 +109,6 @@ RUN cd /opt && \
 		make package ; \
 		cp hutch_*.deb /opt/hutch_${HUTCH_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
     echo hutch_${HUTCH_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb >> /opt/packages && \
-
 # make an archive based on 3 pckages
 		cd /opt && \
 		tar cvz *.deb -f hutch-full_${HUTCH_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.tar.gz && \
