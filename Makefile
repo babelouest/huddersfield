@@ -66,7 +66,7 @@ alpine-build: orcania-alpine yder-alpine ulfius-alpine hoel-alpine glewlwyd-alpi
 
 fedora-build: orcania-fedora yder-fedora ulfius-fedora hoel-fedora
 
-local-deb-build: orcania-deb-local yder-deb-local ulfius-deb-local hoel-deb-local glewlwyd-deb-local taliesin-deb-local hutch-deb-local angharad-deb-local
+local-build-deb: orcania-local-deb yder-local-deb ulfius-local-deb hoel-local-deb glewlwyd-local-deb taliesin-local-deb hutch-local-deb angharad-local-deb
 
 upload-asset:
 	@if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
