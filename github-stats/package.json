@@ -1,0 +1,19 @@
+{
+  "name": "github-stats",
+  "version": "1.0.0",
+  "description": "Gather the stats from my github repos",
+  "main": "index.js",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "lodash": "^4.17.11",
+    "moment": "^2.22.2",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicolas Mora <mail@babelouest.org>",
+  "license": "MIT"
+}

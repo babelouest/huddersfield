@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>GitHub Repo stats</title>
+
+    <!-- JQuery -->
+    <script src="js/jquery.min.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="js/bootstrap.bundle.min.js" rel="stylesheet">
+
+    <!-- Graphs -->
+    <script src="js/Chart.bundle.min.js"></script>
+
+    <!-- Custom styles for this template -->
+    <link href="css/dashboard.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">My GitHub Repositories Statistics</a>
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+        </li>
+      </ul>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <div class="dropdown">
+                  <select id="repoSelect" class="form-control">
+                  </select>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="#" id="navGeneral">
+                  <span data-feather="bar-chart"></span>
+                  General
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" id="navViews">
+                  <span data-feather="eye"></span>
+                  Views
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" id="navClones">
+                  <span data-feather="git-branch"></span>
+                  Clones
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" id="navReleases">
+                  <span data-feather="download-cloud"></span>
+                  Releases downloads
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2" id="graphTitle"></h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+            </div>
+          </div>
+
+          <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+
+    </div>
+
+    <!-- Icons -->
+    <script src="js/feather.min.js"></script>
+    <script>
+      feather.replace()
+    </script>
+
+    <script>
+      var ctx = document.getElementById("myChart");
+      var repos = {};
+      var currentRepo = false;
+      var currentNav = false;
+      var myChart = false;
+
+      $.get("data/index.json", function(indexFiles) {
+        for (var i = 0; i < indexFiles.length; i++) {
+          $("#repoSelect").append('<option value="' + indexFiles[i] + '">' + indexFiles[i] + '</option>');
+          getRepo(indexFiles[i], (i===0));
+        }
+      });
+
+      $("#navGeneral").click(() => { navGeneralFunc(); });
+      $("#navViews").click(() => { navViewsFunc(); });
+      $("#navClones").click(() => { navClonesFunc(); });
+      $("#navReleases").click(() => { navReleasesFunc(); });
+      
+      $("#repoSelect").change((evt) => {
+        currentRepo = $("#repoSelect").val();
+        currentNav(currentRepo);
+      });
+
+      function getRandomColor() {
+        var letters = '0123456789ABCDEF'.split('');
+        var color = '#';
+        for (var i = 0; i < 6; i++ ) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+      
+      function getRepo(repoName, choose) {
+        $.get("data/repo-" + repoName + ".json", function(repo) {
+          repos[repoName] = repo;
+          if (choose) {
+            currentRepo = repoName;
+            navGeneralFunc();
+          }
+        });
+      }
+
+      var navGeneralFunc = function navGeneral() {
+        currentNav = navGeneralFunc;
+        $("#navGeneral").addClass("active");
+        $("#navViews").removeClass("active");
+        $("#navClones").removeClass("active");
+        $("#navReleases").removeClass("active");
+        
+        $("#graphTitle").text("Dashboard for " + currentRepo);
+        var data = {
+          labels: [],
+          datasets:
+          [{
+            label: "Stargazers",
+            borderColor: "red",
+            data: []
+          },
+          {
+            label: "Watchers",
+            borderColor: "blue",
+            data: []
+          },
+          {
+            label: "Forks",
+             borderColor: "green",
+             data: []
+          }]
+        };
+        console.log(repos[currentRepo].general);
+        for (var i = 0; i < repos[currentRepo].general.length; i++) {
+          var current = repos[currentRepo].general[i];
+          console.log(i, current);
+          data.labels.push(current.date);
+          data.datasets[0].data.push(current.stargazers);
+          data.datasets[1].data.push(current.watchers);
+          data.datasets[2].data.push(current.forks);
+        }
+
+        myChart && myChart.destroy();
+        myChart = new Chart(ctx, {
+          type: 'line',
+          data: data
+        });
+      }
+
+      var navViewsFunc = function navViews() {
+        currentNav = navViewsFunc;
+        $("#navGeneral").removeClass("active");
+        $("#navViews").addClass("active");
+        $("#navClones").removeClass("active");
+        $("#navReleases").removeClass("active");
+        
+        $("#graphTitle").text("Views for " + currentRepo);
+        var data = {
+          labels: [],
+          datasets:
+          [{
+            label: "Total",
+            borderColor: "red",
+            data: []
+          },
+          {
+            label: "Uniques",
+            borderColor: "blue",
+            data: []
+          }]
+        };
+        for (var i = 0; i < repos[currentRepo].views.views.length; i++) {
+          var current = repos[currentRepo].views.views[i];
+          var currentDate = new Date(current.timestamp);
+          data.labels.push(currentDate.toLocaleDateString());
+          data.datasets[0].data.push(current.count);
+          data.datasets[1].data.push(current.uniques);
+        }
+
+        myChart && myChart.destroy();
+        myChart = new Chart(ctx, {
+          type: 'line',
+          data: data,
+          options: {
+            scales : {
+              yAxes : [{
+                ticks : {
+                  beginAtZero : true
+                }   
+              }]
+            }
+          }
+        });
+      }
+
+      var navClonesFunc = function navClones() {
+        currentNav = navClonesFunc;
+        $("#navGeneral").removeClass("active");
+        $("#navViews").removeClass("active");
+        $("#navClones").addClass("active");
+        $("#navReleases").removeClass("active");
+        
+        $("#graphTitle").text("Clones for " + currentRepo);
+        var data = {
+          labels: [],
+          datasets:
+          [{
+            label: "Total",
+            borderColor: "red",
+            data: []
+          },
+          {
+            label: "Uniques",
+            borderColor: "blue",
+            data: []
+          }]
+        };
+        for (var i = 0; i < repos[currentRepo].clones.clones.length; i++) {
+          var current = repos[currentRepo].clones.clones[i];
+          var currentDate = new Date(current.timestamp);
+          data.labels.push(currentDate.toLocaleDateString());
+          data.datasets[0].data.push(current.count);
+          data.datasets[1].data.push(current.uniques);
+        }
+
+        myChart && myChart.destroy();
+        myChart = new Chart(ctx, {
+          type: 'line',
+          data: data,
+          options: {
+            scales : {
+              yAxes : [{
+                ticks : {
+                  beginAtZero : true
+                }   
+              }]
+            }
+          }
+        });
+      }
+
+      var navReleasesFunc = function navReleases() {
+        currentNav = navReleasesFunc;
+        $("#navGeneral").removeClass("active");
+        $("#navViews").removeClass("active");
+        $("#navClones").removeClass("active");
+        $("#navReleases").addClass("active");
+        
+        $("#graphTitle").text("Releases downloads for " + currentRepo);
+        var data = {
+          labels: [],
+          datasets: []
+        };
+        for (var i = 0; i < repos[currentRepo].releases.length; i++) {
+          var currentRelease = repos[currentRepo].releases[i];
+          if (currentRelease.assets.length > 0) {
+            data.labels.push(currentRelease.name);
+            for (var j = 0; j < currentRelease.assets.length; j++) {
+              var currDowndloadCount = currentRelease.assets[j].download_count;
+              if (data.datasets[i]) {
+                data.datasets[i].data.push(currDowndloadCount[currDowndloadCount.length - 1].count);
+              } else {
+                data.datasets.push({
+                  label: '',
+                  backgroundColor: getRandomColor(),
+                  data: [currDowndloadCount[currDowndloadCount.length - 1].count]
+                });
+              }
+            }
+          }
+        }
+        myChart && myChart.destroy();
+        myChart = new Chart(ctx, {
+          type: 'bar',
+          data: data,
+          options: {
+            tooltips: {
+              mode: 'index',
+              intersect: false
+            },
+            responsive: true,
+            scales: {
+              xAxes: [{
+                stacked: true,
+              }],
+              yAxes: [{
+                stacked: true,
+                ticks : {
+                  beginAtZero : true
+                }
+              }]
+            }
+          }
+        });
+      }
+
+    </script>
+  </body>
+</html>
