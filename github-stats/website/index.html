@@ -200,6 +200,7 @@
         for (var i = 0; i < repos[currentRepo].views.views.length; i++) {
           var current = repos[currentRepo].views.views[i];
           var currentDate = new Date(current.timestamp);
+          currentDate.setDate(currentDate.getDate() + 1);
           data.labels.push(currentDate.toLocaleDateString());
           data.datasets[0].data.push(current.count);
           data.datasets[1].data.push(current.uniques);
@@ -246,6 +247,7 @@
         for (var i = 0; i < repos[currentRepo].clones.clones.length; i++) {
           var current = repos[currentRepo].clones.clones[i];
           var currentDate = new Date(current.timestamp);
+          currentDate.setDate(currentDate.getDate() + 1);
           data.labels.push(currentDate.toLocaleDateString());
           data.datasets[0].data.push(current.count);
           data.datasets[1].data.push(current.uniques);
