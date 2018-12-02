@@ -1,3 +1,4 @@
+process.chdir( __dirname );
 const fs = require('fs');
 var RepoCompulse = require('./repo-compulse');
 
