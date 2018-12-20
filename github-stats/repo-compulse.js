@@ -94,6 +94,7 @@ exports.compulseStats = (user, repo, token, path) => {
     // Compulse releases
     _.forEach(stats.releases, release => {
       var curRelease = _.find(repoCompulsedStats.releases, (myRelease) => { return (myRelease.tag_name === release.tag_name); });
+      var newReleases = [];
       if (curRelease) {
         _.forEach(release.assets, (asset) => {
           var curAsset = _.find(curRelease.assets, (curAsset) => { return (curAsset.name === asset.name); });
@@ -104,8 +105,9 @@ exports.compulseStats = (user, repo, token, path) => {
         _.forEach(curRelease.assets, (asset) => {
           asset.download_count = [{date: nowDay, count: asset.download_count}];
         });
-        repoCompulsedStats.releases.push(curRelease);
+        newReleases.push(curRelease);
       }
+      repoCompulsedStats.releases = newReleases.concat(repoCompulsedStats.releases);
     });
 
     fs.writeFileSync(outputFile, JSON.stringify(repoCompulsedStats), "utf8");
