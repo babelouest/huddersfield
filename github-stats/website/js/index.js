@@ -50,6 +50,7 @@ $(function() {
     $("#navViews").parent().removeClass("active");
     $("#navClones").parent().removeClass("active");
     $("#navReleases").parent().removeClass("active");
+    $("#tableRow").hide();
     
     $("#graphTitle").text("Dashboard for " + currentRepo);
     var data = {
@@ -95,6 +96,7 @@ $(function() {
     $("#navViews").parent().addClass("active");
     $("#navClones").parent().removeClass("active");
     $("#navReleases").parent().removeClass("active");
+    $("#tableRow").show();
     
     $("#graphTitle").text("Views for " + currentRepo);
     var maxValue = 0;
@@ -137,6 +139,18 @@ $(function() {
       maxValue = maxValue<current.count?current.count:maxValue;
     }
 
+    $("#tableReferrersBody").empty();
+    for (var i = 0; i < repos[currentRepo].views.referrers.length; i++) {
+      var referrer = repos[currentRepo].views.referrers[i];
+      $("#tableReferrersBody").append("<tr><td>" + referrer.referrer + "</td><td>" + referrer.count + "</td><td>" + referrer.uniques + "</td></tr>");
+    }
+
+    $("#tablePathsBody").empty();
+    for (var i = 0; i < repos[currentRepo].views.paths.length; i++) {
+      var path = repos[currentRepo].views.paths[i];
+      $("#tablePathsBody").append("<tr><td><a href=\"https://github.com" + path.path + "\" title=\"" + path.title + "\">" + path.title + "</a></td><td>" + path.count + "</td><td>" + path.uniques + "</td></tr>");
+    }
+
     myChart && myChart.destroy();
     myChart = new Chart(ctx, {
       type: 'line',
@@ -172,6 +186,7 @@ $(function() {
     $("#navViews").parent().removeClass("active");
     $("#navClones").parent().addClass("active");
     $("#navReleases").parent().removeClass("active");
+    $("#tableRow").hide();
     
     $("#graphTitle").text("Clones for " + currentRepo);
     var maxValue = 0;
@@ -249,6 +264,7 @@ $(function() {
     $("#navViews").parent().removeClass("active");
     $("#navClones").parent().removeClass("active");
     $("#navReleases").parent().addClass("active");
+    $("#tableRow").hide();
     
     $("#graphTitle").text("Releases downloads for " + currentRepo);
     var data = {
@@ -278,6 +294,9 @@ $(function() {
       type: 'bar',
       data: data,
       options: {
+        legend: {
+          display: false
+        },
         tooltips: {
           mode: 'index',
           intersect: false
@@ -287,6 +306,47 @@ $(function() {
           xAxes: [{
             stacked: true,
           }],
+          yAxes: [{
+            stacked: true,
+            ticks : {
+              beginAtZero : true
+            }
+          }]
+        },
+        onClick: function (evt) {
+          var activeElement = myChart.getElementAtEvent(evt);
+          navOneRelease(repos[currentRepo].releases[activeElement[0]._index]);
+        }
+      }
+    });
+  }
+
+  var navOneRelease = function(release) {
+    $("#graphTitle").text("Download assets for " + release.name);
+    var data = {
+      labels: [],
+      datasets: []
+    };
+
+    for (var i=0; i<release.assets.length; i++) {
+      var curAsset = release.assets[i];
+      var dataset = {label: curAsset.name, lineTension: 0, data: [], backgroundColor: getRandomColor()};
+
+      for (var j=0; j<curAsset.download_count.length; j++) {
+        dataset.data.push(curAsset.download_count[j].count);
+        if (!i) {
+          data.labels.push(curAsset.download_count[j].date);
+        }
+      }
+      data.datasets.push(dataset);
+    }
+
+    myChart && myChart.destroy();
+    myChart = new Chart(ctx, {
+      type: 'line',
+      data: data,
+      options: {
+        scales: {
           yAxes: [{
             stacked: true,
             ticks : {

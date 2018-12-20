@@ -14,7 +14,9 @@ exports.compulseStats = (user, repo, token, path) => {
       count: 0,
       uniques: 0,
       views: [
-      ]
+      ],
+      referrers: [],
+      paths: [],
     },
     clones: {
       count: 0,
@@ -72,6 +74,38 @@ exports.compulseStats = (user, repo, token, path) => {
         if (storedView.count !== view.count || storedView.uniques !== view.uniques) {
           storedView.count = view.count;
           storedView.uniques = view.uniques;
+        }
+      }
+    });
+
+    // Compulse referrers
+    _.forEach(stats.referrers, (referrer) => {
+      var storedReferrer = _.find(repoCompulsedStats.views.referrers, (storedRefferer) => {return (storedRefferer.referrer === referrer.referrer);});
+      if (!storedReferrer) {
+        referrer.date = nowDay;
+        repoCompulsedStats.views.referrers.push(referrer);
+      } else {
+        var dateRefferer = moment(storedReferrer.date);
+        if (moment(nowDay).diff(moment(storedReferrer.date), 'days') > 14) {
+          storedReferrer.count += referrer.count;
+          storedReferrer.uniques += referrer.uniques;
+          storedReferrer.date = nowDay;
+        }
+      }
+    });
+
+    // Compulse paths
+    _.forEach(stats.paths, (path) => {
+      var storedPath = _.find(repoCompulsedStats.views.Paths, (storedPath) => {return (storedPath.referrer === path.path);});
+      if (!storedPath) {
+        path.date = nowDay;
+        repoCompulsedStats.views.paths.push(path);
+      } else {
+        var datePath = moment(storedPath.date);
+        if (moment(nowDay).diff(moment(storedPath.date), 'days') > 14) {
+          storedPath.count += path.count;
+          storedPath.uniques += path.uniques;
+          storedPath.date = nowDay;
         }
       }
     });
