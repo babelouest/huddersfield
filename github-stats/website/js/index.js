@@ -273,7 +273,7 @@ $(function() {
       datasets: []
     };
     var firstParse = 1;
-    for (var i = repos[currentRepo].releases.length - 1; i; i--) {
+    for (var i = 0; i < repos[currentRepo].releases.length; i++) {
       var currentRelease = repos[currentRepo].releases[i];
       if (currentRelease.assets.length > 0 && currentRelease.assets_download > 0) {
         data.labels.push(currentRelease.name);
