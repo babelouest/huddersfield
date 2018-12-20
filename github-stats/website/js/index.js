@@ -58,16 +58,19 @@ $(function() {
       [{
         label: "Stargazers",
         borderColor: "red",
+        lineTension: 0,
         data: []
       },
       {
         label: "Watchers",
         borderColor: "blue",
+        lineTension: 0,
         data: []
       },
       {
         label: "Forks",
          borderColor: "green",
+         lineTension: 0,
          data: []
       }]
     };
@@ -94,27 +97,44 @@ $(function() {
     $("#navReleases").parent().removeClass("active");
     
     $("#graphTitle").text("Views for " + currentRepo);
+    var maxValue = 0;
     var data = {
       labels: [],
       datasets:
       [{
         label: "Total",
+        yAxisID: 'total',
         borderColor: "red",
+        lineTension: 0,
         data: []
       },
       {
         label: "Uniques",
+        yAxisID: 'uniques',
         borderColor: "blue",
+        lineTension: 0,
         data: []
       }]
     };
+    var dateCounter = repos[currentRepo].views.views.length?new Date(repos[currentRepo].views.views[0].timestamp):null;
+    if (dateCounter) {
+      dateCounter.setDate(dateCounter.getDate() + 1);
+    }
     for (var i = 0; i < repos[currentRepo].views.views.length; i++) {
       var current = repos[currentRepo].views.views[i];
       var currentDate = new Date(current.timestamp);
       currentDate.setDate(currentDate.getDate() + 1);
+      while (dateCounter.getTime() < currentDate.getTime()) {
+        data.labels.push(dateCounter.toLocaleDateString());
+        data.datasets[0].data.push(0);
+        data.datasets[1].data.push(0);
+        dateCounter.setDate(dateCounter.getDate() + 1);
+      }
       data.labels.push(currentDate.toLocaleDateString());
       data.datasets[0].data.push(current.count);
       data.datasets[1].data.push(current.uniques);
+      dateCounter.setDate(dateCounter.getDate() + 1);
+      maxValue = maxValue<current.count?current.count:maxValue;
     }
 
     myChart && myChart.destroy();
@@ -124,8 +144,21 @@ $(function() {
       options: {
         scales : {
           yAxes : [{
+            id: 'total',
+            position: 'left',
             ticks : {
-              beginAtZero : true
+              beginAtZero : true,
+              fontColor: 'red',
+              suggestedMax: maxValue
+            }
+          },
+          {
+            id: 'uniques',
+            position: 'right',
+            ticks : {
+              beginAtZero : true,
+              fontColor: 'blue',
+              suggestedMax: maxValue
             }   
           }]
         }
@@ -141,27 +174,44 @@ $(function() {
     $("#navReleases").parent().removeClass("active");
     
     $("#graphTitle").text("Clones for " + currentRepo);
+    var maxValue = 0;
     var data = {
       labels: [],
       datasets:
       [{
         label: "Total",
+        yAxisID: 'total',
         borderColor: "red",
+        lineTension: 0,
         data: []
       },
       {
         label: "Uniques",
+        yAxisID: 'uniques',
         borderColor: "blue",
+        lineTension: 0,
         data: []
       }]
     };
+    var dateCounter = repos[currentRepo].views.views.length?new Date(repos[currentRepo].views.views[0].timestamp):null;
+    if (dateCounter) {
+      dateCounter.setDate(dateCounter.getDate() + 1);
+    }
     for (var i = 0; i < repos[currentRepo].clones.clones.length; i++) {
       var current = repos[currentRepo].clones.clones[i];
       var currentDate = new Date(current.timestamp);
       currentDate.setDate(currentDate.getDate() + 1);
+      while (dateCounter.getTime() < currentDate.getTime()) {
+        data.labels.push(dateCounter.toLocaleDateString());
+        data.datasets[0].data.push(0);
+        data.datasets[1].data.push(0);
+        dateCounter.setDate(dateCounter.getDate() + 1);
+      }
       data.labels.push(currentDate.toLocaleDateString());
       data.datasets[0].data.push(current.count);
       data.datasets[1].data.push(current.uniques);
+      dateCounter.setDate(dateCounter.getDate() + 1);
+      maxValue = maxValue<current.count?current.count:maxValue;
     }
 
     myChart && myChart.destroy();
@@ -171,8 +221,21 @@ $(function() {
       options: {
         scales : {
           yAxes : [{
+            position: 'left',
+            id: 'total',
             ticks : {
-              beginAtZero : true
+              beginAtZero : true,
+              fontColor: 'red',
+              suggestedMax: maxValue
+            }   
+          },
+          {
+            position: 'right',
+            id: 'uniques',
+            ticks : {
+              beginAtZero : true,
+              fontColor: 'blue',
+              suggestedMax: maxValue
             }   
           }]
         }
