@@ -15,6 +15,7 @@ $(function() {
   $("#navViews").click(() => { navViewsFunc(); });
   $("#navClones").click(() => { navClonesFunc(); });
   $("#navReleases").click(() => { navReleasesFunc(); });
+  $("#navRefresh").click(() => { navRefreshFunc(); });
 
   function fillDropdown(repo, first) {
     $("#repoDropdown").append('<a class="dropdown-item" href="#" id="repoDropdown-' + repo + '">' + repo + '</a>');
@@ -371,6 +372,15 @@ $(function() {
             }
           }]
         }
+      }
+    });
+  }
+
+  var navRefreshFunc = function() {
+    $("#repoDropdown").empty();
+    $.get("data/index.json", function(indexFiles) {
+      for (var i = 0; i < indexFiles.length; i++) {
+        fillDropdown(indexFiles[i], (i===0));
       }
     });
   }
