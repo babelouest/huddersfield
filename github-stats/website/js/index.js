@@ -58,7 +58,7 @@ $(function() {
       datasets:
       [{
         label: "Stargazers",
-        borderColor: "red",
+        borderColor: "green",
         lineTension: 0,
         data: []
       },
@@ -106,7 +106,7 @@ $(function() {
       [{
         label: "Total",
         yAxisID: 'total',
-        borderColor: "red",
+        borderColor: "green",
         lineTension: 0,
         data: []
       },
@@ -162,7 +162,7 @@ $(function() {
             position: 'left',
             ticks : {
               beginAtZero : true,
-              fontColor: 'red',
+              fontColor: 'green',
               suggestedMax: maxValue
             }
           },
@@ -196,7 +196,7 @@ $(function() {
       [{
         label: "Total",
         yAxisID: 'total',
-        borderColor: "red",
+        borderColor: "green",
         lineTension: 0,
         data: []
       },
@@ -240,7 +240,7 @@ $(function() {
             id: 'total',
             ticks : {
               beginAtZero : true,
-              fontColor: 'red',
+              fontColor: 'green',
               suggestedMax: maxValue
             }   
           },
@@ -271,22 +271,35 @@ $(function() {
       labels: [],
       datasets: []
     };
-    for (var i = 0; i < repos[currentRepo].releases.length; i++) {
+    var firstParse = 1;
+    for (var i = repos[currentRepo].releases.length - 1; i; i--) {
       var currentRelease = repos[currentRepo].releases[i];
-      if (currentRelease.assets.length > 0) {
+      if (currentRelease.assets.length > 0 && currentRelease.assets_download > 0) {
         data.labels.push(currentRelease.name);
         for (var j = 0; j < currentRelease.assets.length; j++) {
-          var currDowndloadCount = currentRelease.assets[j].download_count;
-          if (data.datasets[i]) {
-            data.datasets[i].data.push(currDowndloadCount[currDowndloadCount.length - 1].count);
+          var currDownloadCount = currentRelease.assets[j].download_count;
+          if (!firstParse) {
+            if (data.datasets[j]) {
+              data.datasets[j].data.push(currDownloadCount[currDownloadCount.length - 1].count);
+            }
           } else {
+            var datasetName = currentRelease.assets[j].name;
+            var assetName = datasetName.substring(0, datasetName.indexOf("_")+1);
+            datasetName = datasetName.substring(datasetName.indexOf("_")+1);
+            datasetName = datasetName.substring(datasetName.indexOf("_")+1);
+            if (datasetName.indexOf(".tar.gz") > 0) {
+              datasetName = datasetName.substring(0, datasetName.indexOf(".tar.gz"));
+            } else {
+              datasetName = datasetName.substring(0, datasetName.lastIndexOf("."));
+            }
             data.datasets.push({
-              label: '',
+              label: (assetName + datasetName),
               backgroundColor: getRandomColor(),
-              data: [currDowndloadCount[currDowndloadCount.length - 1].count]
+              data: [currDownloadCount[currDownloadCount.length - 1].count]
             });
           }
         }
+        firstParse = 0;
       }
     }
     myChart && myChart.destroy();
@@ -294,9 +307,6 @@ $(function() {
       type: 'bar',
       data: data,
       options: {
-        legend: {
-          display: false
-        },
         tooltips: {
           mode: 'index',
           intersect: false
@@ -315,7 +325,14 @@ $(function() {
         },
         onClick: function (evt) {
           var activeElement = myChart.getElementAtEvent(evt);
-          navOneRelease(repos[currentRepo].releases[activeElement[0]._index]);
+          if (activeElement.length) {
+            for (var i=0; i<repos[currentRepo].releases.length; i++) {
+              if (repos[currentRepo].releases[i].name === activeElement[0]._model.label) {
+                myChart.destroy();
+                navOneRelease(repos[currentRepo].releases[i]);
+              }
+            }
+          }
         }
       }
     });
