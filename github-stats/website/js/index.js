@@ -71,7 +71,7 @@ $(function() {
       },
       {
         label: "Forks",
-         borderColor: "green",
+         borderColor: "red",
          lineTension: 0,
          data: []
       }]
