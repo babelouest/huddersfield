@@ -4,6 +4,13 @@ $(function() {
   var currentRepo = false;
   var currentNav = false;
   var myChart = false;
+  var debianColorCounter = 0xD80150;
+  var alpineColorCounter = 0x0D597F;
+  var raspbianColorCOunter = 0xC31C4A;
+  var ubuntuColorCounter = 0xE95420;
+  var fedoraColorCounter = 0x294172;
+  var defaultColorCounter = 0xDBDBDB;
+  var counterIncrement = 0x010101;
 
   $.get("data/index.json", function(indexFiles) {
     for (var i = 0; i < indexFiles.length; i++) {
@@ -17,6 +24,39 @@ $(function() {
   $("#navReleases").click(() => { navReleasesFunc(); });
   $("#navRefresh").click(() => { navRefreshFunc(); });
 
+  function getColorForAsset(asset) {
+    var color = "#";
+    if (asset.indexOf('ebian') > 0) {
+      color += ('' + debianColorCounter);
+      debianColorCounter += counterIncrement;
+    } else if (asset.indexOf('lpine') > 0) {
+      color += ('' + alpineColorCounter);
+      alpineColorCounter += counterIncrement;
+    } else if (asset.indexOf('aspbian') > 0) {
+      color += ('' + raspbianColorCOunter);
+      raspbianColorCOunter += counterIncrement;
+    } else if (asset.indexOf('buntu') > 0) {
+      color += ('' + ubuntuColorCounter);
+      ubuntuColorCounter += counterIncrement;
+    } else if (asset.indexOf('edora') > 0) {
+      color += ('' + fedoraColorCounter);
+      fedoraColorCounter += counterIncrement;
+    } else {
+      color += ('' + defaultColorCounter);
+      defaultColorCounter += counterIncrement;
+    }
+    return color;
+  }
+  
+  function resetColorForAsset() {
+    debianColorCounter = 0xD80150;
+    alpineColorCounter = 0x0D597F;
+    raspbianColorCOunter = 0xC31C4A;
+    ubuntuColorCounter = 0xE95420;
+    fedoraColorCounter = 0x294172;
+    defaultColorCounter = 0xDBDBDB;
+  }
+  
   function fillDropdown(repo, first) {
     $("#repoDropdown").append('<a class="dropdown-item" href="#" id="repoDropdown-' + repo + '">' + repo + '</a>');
     $("#repoDropdown-" + repo).click(() => {
@@ -26,15 +66,6 @@ $(function() {
     getRepo(repo, first);
   }
   
-  function getRandomColor() {
-    var letters = '0123456789ABCDEF'.split('');
-    var color = '#';
-    for (var i = 0; i < 6; i++ ) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
-
   function getRepo(repoName, choose) {
     $.get("data/repo-" + repoName + ".json", function(repo) {
       repos[repoName] = repo;
@@ -266,6 +297,7 @@ $(function() {
     $("#navClones").parent().removeClass("active");
     $("#navReleases").parent().addClass("active");
     $("#tableRow").hide();
+    resetColorForAsset();
     
     $("#graphTitle").text("Releases downloads for " + currentRepo);
     var data = {
@@ -295,7 +327,7 @@ $(function() {
             }
             data.datasets.push({
               label: (assetName + datasetName),
-              backgroundColor: getRandomColor(),
+              backgroundColor: getColorForAsset(currentRelease.assets[j].name),
               data: [currDownloadCount[currDownloadCount.length - 1].count]
             });
           }
@@ -341,6 +373,7 @@ $(function() {
 
   var navOneRelease = function(release) {
     $("#graphTitle").text("Download assets for " + release.name);
+    resetColorForAsset();
     var data = {
       labels: [],
       datasets: []
@@ -348,7 +381,7 @@ $(function() {
 
     for (var i=0; i<release.assets.length; i++) {
       var curAsset = release.assets[i];
-      var dataset = {label: curAsset.name, lineTension: 0, data: [], backgroundColor: getRandomColor()};
+      var dataset = {label: curAsset.name, lineTension: 0, data: [], backgroundColor: getColorForAsset(curAsset.name)};
 
       for (var j=0; j<curAsset.download_count.length; j++) {
         dataset.data.push(curAsset.download_count[j].count);
