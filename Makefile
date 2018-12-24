@@ -47,7 +47,7 @@ ANGHARAD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/bab
 BENOIC_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/benoic/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
 CARLEON_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/carleon/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
 GARETH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/gareth/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-LIBJWT_VERSION=1.9.0
+LIBJWT_VERSION=1.10.0
 
 all: debian-stable-build debian-testing-build ubuntu-latest-build ubuntu-lts-build alpine-build fedora-build
 
