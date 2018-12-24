@@ -275,7 +275,7 @@ $(function() {
     var firstParse = 1;
     for (var i = 0; i < repos[currentRepo].releases.length; i++) {
       var currentRelease = repos[currentRepo].releases[i];
-      if (currentRelease.assets.length > 0) {
+      if (currentRelease.assets.length > 0 && currentRelease.assets_download > 0) {
         data.labels.push(currentRelease.name);
         for (var j = 0; j < currentRelease.assets.length; j++) {
           var currDownloadCount = currentRelease.assets[j].download_count;
