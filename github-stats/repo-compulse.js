@@ -96,7 +96,7 @@ exports.compulseStats = (user, repo, token, path) => {
 
     // Compulse paths
     _.forEach(stats.paths, (path) => {
-      var storedPath = _.find(repoCompulsedStats.views.Paths, (storedPath) => {return (storedPath.path === path.path);});
+      var storedPath = _.find(repoCompulsedStats.views.paths, (storedPath) => {return (storedPath.path === path.path);});
       if (!storedPath) {
         path.date = nowDay;
         repoCompulsedStats.views.paths.push(path);
