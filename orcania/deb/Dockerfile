@@ -1,10 +1,5 @@
 FROM babelouest/deb
 
-# Install required packages
-RUN apt-get update && \
-		apt-get install -y \
-		libjansson-dev
-
 ARG ORCANIA_VERSION
 
 # Build Orcania

@@ -19,7 +19,7 @@ RUN apt-get update && \
 		libavutil-dev \
 		make \
 		wget \
-		&& (apt-get install -y libmariadbclient-dev || apt-get install -y libmysqlclient-dev)
+		default-libmysqlclient-dev
 
 ARG ORCANIA_VERSION
 ARG YDER_VERSION

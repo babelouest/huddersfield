@@ -34,8 +34,7 @@ ARG GARETH_VERSION
 ARG LIBJWT_VERSION
 
 # libtool and autoconf may be required, install them with 'sudo apt-get install libtool autoconf'
-RUN mkdir /opt && \
-		cd /opt && \
+RUN cd /opt && \
 		wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz && \
 		tar -zxvf v${LIBJWT_VERSION}.tar.gz && \
 		rm v${LIBJWT_VERSION}.tar.gz && \

@@ -1,9 +1,5 @@
 FROM babelouest/rpm
 
-# Install required packages
-RUN yum install -y \
-		jansson-devel
-
 ARG ORCANIA_VERSION
 
 # Build Orcania

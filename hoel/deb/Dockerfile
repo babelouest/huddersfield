@@ -5,9 +5,9 @@ RUN apt-get update && \
 		apt-get install -y \
 		libjansson-dev \
 		libsystemd-dev \
-		libsqlite-dev \
+		libsqlite3-dev \
 		libpq-dev \
-		&& (apt-get install -y libmariadbclient-dev || apt-get install -y libmysqlclient-dev)
+    default-libmysqlclient-dev
 
 ARG ORCANIA_VERSION
 ARG YDER_VERSION

@@ -20,8 +20,7 @@ ARG YDER_VERSION
 ARG ULFIUS_VERSION
 
 # Build Orcania
-RUN mkdir /opt && \
-		cd /opt && \
+RUN cd /opt && \
 		wget https://github.com/babelouest/orcania/archive/v${ORCANIA_VERSION}.tar.gz && \
 		tar -zxvf v${ORCANIA_VERSION}.tar.gz && \
 		rm v${ORCANIA_VERSION}.tar.gz && \

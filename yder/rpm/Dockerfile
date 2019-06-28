@@ -2,7 +2,6 @@ FROM babelouest/rpm
 
 # Install required packages
 RUN yum install -y \
-		jansson-devel \
 		systemd-devel
 
 ARG ORCANIA_VERSION
