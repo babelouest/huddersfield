@@ -122,13 +122,31 @@ orcania-deb:
 	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/deb/
 	docker run --rm -v $(shell pwd)/orcania/:/share babelouest/orcania
 
+orcania-deb-test:
+	cp orcania/*.deb orcania/test/deb/
+	docker build -t babelouest/orcania-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/test/deb/
+	rm -f orcania/test/deb/*.deb
+	docker run --rm babelouest/orcania-test
+
 orcania-tgz:
 	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/tgz/
 	docker run --rm -v $(shell pwd)/orcania/:/share babelouest/orcania
 
+orcania-tgz-test:
+	cp orcania/*.tar.gz orcania/test/tgz/
+	docker build -t babelouest/orcania-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/test/tgz/
+	rm -f orcania/test/tgz/*.tar.gz
+	docker run --rm babelouest/orcania-test
+
 orcania-rpm:
 	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/rpm/
 	docker run --rm -v $(shell pwd)/orcania/:/share babelouest/orcania
+
+orcania-rpm-test:
+	cp orcania/*.rpm orcania/test/rpm/
+	docker build -t babelouest/orcania-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/test/rpm/
+	rm -f orcania/test/rpm/*.rpm
+	docker run --rm babelouest/orcania-test
 
 orcania-debian-stable: 
 	$(MAKE) debian-stable
@@ -153,15 +171,42 @@ orcania-ubuntu-lts:
 		xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%; \
 	fi
 
+orcania-debian-stable-test: orcania-debian-stable
+	$(MAKE) debian-stable
+	$(MAKE) orcania-deb-test
+
+orcania-debian-testing-test: orcania-debian-testing
+	$(MAKE) debian-testing
+	$(MAKE) orcania-deb-test
+
+orcania-ubuntu-latest-test: orcania-ubuntu-latest
+	$(MAKE) ubuntu-latest
+	$(MAKE) orcania-deb-test
+
+orcania-ubuntu-lts-test: orcania-ubuntu-lts
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) orcania-deb-test; \
+	fi
+
 orcania-alpine: 
 	$(MAKE) alpine
 	$(MAKE) orcania-tgz
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
+orcania-alpine-test: orcania-alpine
+	$(MAKE) alpine
+	$(MAKE) orcania-tgz-test
+
 orcania-fedora: 
 	$(MAKE) fedora
 	$(MAKE) orcania-rpm
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
+
+orcania-fedora-test: orcania-fedora
+	$(MAKE) fedora
+	$(MAKE) orcania-rpm-test
 
 orcania-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -192,6 +237,12 @@ orcania-build:
 	$(MAKE) orcania-ubuntu-lts
 	$(MAKE) orcania-alpine
 	$(MAKE) orcania-fedora
+
+orcania-test:
+	$(MAKE) orcania-debian-stable-test
+	$(MAKE) orcania-debian-testing-test
+	$(MAKE) orcania-ubuntu-latest-test
+	$(MAKE) orcania-ubuntu-lts-test
 
 orcania-clean: clean-base
 	rm -f orcania/*.tar.gz orcania/*.deb orcania/*.rpm orcania/packages
