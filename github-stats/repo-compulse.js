@@ -133,7 +133,9 @@ exports.compulseStats = (user, repo, token, path) => {
         curRelease.assets_download = release.assets_download;
         _.forEach(release.assets, (asset) => {
           var curAsset = _.find(curRelease.assets, (curAsset) => { return (curAsset.name === asset.name); });
-          curAsset.download_count.push({date: nowDay, count: asset.download_count});
+          if (curAsset) {
+            curAsset.download_count.push({date: nowDay, count: asset.download_count});
+          }
         });
       } else {
         var curRelease = release;
