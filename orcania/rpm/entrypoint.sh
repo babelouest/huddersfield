@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cp /opt/packages /opt/liborcania*.rpm /share
+cp /opt/packages /opt/liborcania-dev*.rpm /share

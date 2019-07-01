@@ -76,7 +76,7 @@ upload-asset:
 	fi
 
 clean-base:
-	-docker rmi -f babelouest/deb babelouest/tgz
+	-docker rmi -f babelouest/deb babelouest/tgz babelouest/rpm
 	/bin/rm -rf build/*
 
 clean: orcania-clean yder-clean ulfius-clean hoel-clean glewlwyd-clean taliesin-clean hutch-clean angharad-clean clean-base clean-no-tag-images
@@ -243,37 +243,73 @@ orcania-test:
 	$(MAKE) orcania-debian-testing-test
 	$(MAKE) orcania-ubuntu-latest-test
 	$(MAKE) orcania-ubuntu-lts-test
+	$(MAKE) orcania-alpine-test
+	$(MAKE) orcania-fedora-test
+	@echo "#############################################"
+	@echo "#          ORCANIA TESTS COMPLETE           #"
+	@echo "#############################################"
 
 orcania-clean: clean-base
 	rm -f orcania/*.tar.gz orcania/*.deb orcania/*.rpm orcania/packages
 	-docker rmi -f babelouest/orcania
+	-docker rmi -f babelouest/orcania-test
 
 yder-deb:
 	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/deb/
 	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder
 
+yder-deb-test:
+	cp yder/*.deb yder/test/deb/
+	docker build -t babelouest/yder-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/test/deb/
+	rm -f yder/test/deb/*.deb
+	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder-test
+
 yder-tgz:
 	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/tgz/
 	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder
 
+yder-tgz-test:
+	cp yder/*.tar.gz yder/test/tgz/
+	docker build -t babelouest/yder-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/test/tgz/
+	rm -f yder/test/tgz/*.tar.gz
+	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder-test
+
 yder-rpm:
 	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/rpm/
 	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder
+
+yder-rpm-test:
+	cp yder/*.rpm yder/test/rpm/
+	docker build -t babelouest/yder-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/test/rpm/
+	rm -f yder/test/rpm/*.rpm
+	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder-test
 
 yder-debian-stable: 
 	$(MAKE) debian-stable
 	$(MAKE) yder-deb
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
+yder-debian-stable-test: yder-debian-stable
+	$(MAKE) debian-stable
+	$(MAKE) yder-deb-test
+
 yder-debian-testing: 
 	$(MAKE) debian-testing
 	$(MAKE) yder-deb
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
+yder-debian-testing-test: yder-debian-testing
+	$(MAKE) debian-testing
+	$(MAKE) yder-deb-test
+
 yder-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
 	$(MAKE) yder-deb
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
+
+yder-ubuntu-latest-test: yder-ubuntu-latest
+	$(MAKE) ubuntu-latest
+	$(MAKE) yder-deb-test
 
 yder-ubuntu-lts: 
 	$(MAKE) ubuntu-latest
@@ -283,15 +319,30 @@ yder-ubuntu-lts:
 		xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%; \
 	fi
 
+yder-ubuntu-lts-test: yder-ubuntu-lts
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) yder-deb-test; \
+	fi
+
 yder-alpine: 
 	$(MAKE) alpine
 	$(MAKE) yder-tgz
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
+yder-alpine-test: yder-alpine
+	$(MAKE) alpine
+	$(MAKE) yder-tgz-test
+
 yder-fedora: 
 	$(MAKE) fedora
 	$(MAKE) yder-rpm
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
+
+yder-fedora-test: yder-fedora
+	$(MAKE) fedora
+	$(MAKE) yder-rpm-test
 
 yder-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -336,43 +387,90 @@ yder-build:
 	$(MAKE) yder-alpine
 	$(MAKE) yder-fedora
 
+yder-test:
+	$(MAKE) yder-debian-stable-test
+	$(MAKE) yder-debian-testing-test
+	#$(MAKE) yder-ubuntu-latest-test # TODO Disabled until I make it work
+	#$(MAKE) yder-ubuntu-lts-test # TODO Disabled until I make it work
+	#$(MAKE) yder-alpine-test # TODO Disabled until I make it work
+	$(MAKE) yder-fedora-test
+	@echo "#############################################"
+	@echo "#           YDER TESTS COMPLETE             #"
+	@echo "#############################################"
+
 yder-clean: clean-base
 	rm -f yder/*.tar.gz yder/*.deb yder/*.rpm yder/packages
 	-docker rmi -f babelouest/yder
+	-docker rmi -f babelouest/yder-test
 
 ulfius-deb:
 	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/deb/
 	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius
 
+ulfius-deb-test:
+	cp ulfius/*.tar.gz ulfius/test/deb/
+	docker build -t babelouest/ulfius-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/test/deb/
+	rm -f ulfius/test/deb/*.tar.gz
+	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius-test
+
 ulfius-tgz:
 	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/tgz/
 	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius
 
+ulfius-tgz-test:
+	cp ulfius/*.tar.gz ulfius/test/tgz/
+	docker build -t babelouest/ulfius-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/test/tgz/
+	rm -f ulfius/test/tgz/*.tar.gz
+	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius-test
+
 ulfius-rpm:
 	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/rpm/
 	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius
+
+ulfius-rpm-test:
+	cp ulfius/*.tar.gz ulfius/test/rpm/
+	docker build -t babelouest/ulfius-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/test/rpm/
+	rm -f ulfius/test/rpm/*.tar.gz
+	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius-test
 
 ulfius-debian-stable: 
 	$(MAKE) debian-stable
 	$(MAKE) ulfius-deb
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
+ulfius-debian-stable-test: ulfius-debian-stable
+	$(MAKE) debian-stable
+	$(MAKE) ulfius-deb-test
+
 ulfius-debian-testing: 
 	$(MAKE) debian-testing
 	$(MAKE) ulfius-deb
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
+
+ulfius-debian-testing-test: ulfius-debian-testing
+	$(MAKE) debian-testing
+	$(MAKE) ulfius-deb-test
 
 ulfius-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
 	$(MAKE) ulfius-deb
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
-ulfius-ubuntu-lts: 
+ulfius-ubuntu-latest-test: ulfius-ubuntu-latest
 	$(MAKE) ubuntu-latest
+	$(MAKE) ulfius-deb-test
+
+ulfius-ubuntu-lts: 
 	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
 		$(MAKE) ulfius-deb; \
 		xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%; \
+	fi
+
+ulfius-ubuntu-lts-test: ulfius-ubuntu-lts
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) ulfius-deb-test; \
 	fi
 
 ulfius-alpine: 
@@ -380,10 +478,18 @@ ulfius-alpine:
 	$(MAKE) ulfius-tgz
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
+ulfius-alpine-test: ulfius-alpine
+	$(MAKE) alpine
+	$(MAKE) ulfius-tgz-test
+
 ulfius-fedora: 
 	$(MAKE) fedora
 	$(MAKE) ulfius-rpm
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
+
+ulfius-fedora-test: ulfius-fedora
+	$(MAKE) fedora
+	$(MAKE) ulfius-rpm-test
 
 ulfius-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -444,36 +550,78 @@ ulfius-build:
 	$(MAKE) ulfius-alpine
 	$(MAKE) ulfius-fedora
 
+ulfius-test:
+	$(MAKE) ulfius-debian-stable-test
+	$(MAKE) ulfius-debian-testing-test
+	$(MAKE) ulfius-ubuntu-latest-test
+	$(MAKE) ulfius-ubuntu-lts-test
+	$(MAKE) ulfius-alpine-test
+	$(MAKE) ulfius-fedora-test
+	@echo "#############################################"
+	@echo "#          ULFIUS TESTS COMPLETE            #"
+	@echo "#############################################"
+
 ulfius-clean: clean-base
 	rm -f ulfius/*.tar.gz ulfius/*.deb ulfius/*.rpm ulfius/packages
 	-docker rmi -f babelouest/ulfius
+	-docker rmi -f babelouest/ulfius-test
 
 hoel-deb:
 	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/deb/
 	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel
 
+hoel-deb-test:
+	cp hoel/*.tar.gz hoel/test/deb/
+	docker build -t babelouest/hoel-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/test/deb/
+	rm -f hoel/test/deb/*.tar.gz
+	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel-test
+
 hoel-tgz:
 	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/tgz/
 	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel
 
+hoel-tgz-test:
+	cp hoel/*.tar.gz hoel/test/tgz/
+	docker build -t babelouest/hoel-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/test/tgz/
+	rm -f hoel/test/tgz/*.tar.gz
+	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel-test
+
 hoel-rpm:
 	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/rpm/
 	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel
+
+hoel-rpm-test:
+	cp hoel/*.tar.gz hoel/test/rpm/
+	docker build -t babelouest/hoel-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/test/rpm/
+	rm -f hoel/test/rpm/*.tar.gz
+	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel-test
 
 hoel-debian-stable: 
 	$(MAKE) debian-stable
 	$(MAKE) hoel-deb
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
+hoel-debian-stable-test: hoel-debian-stable
+	$(MAKE) debian-stable
+	$(MAKE) hoel-deb-test
+
 hoel-debian-testing: 
 	$(MAKE) debian-testing
 	$(MAKE) hoel-deb
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
+hoel-debian-testing-test: hoel-debian-testing
+	$(MAKE) debian-testing
+	$(MAKE) hoel-deb-test
+
 hoel-ubuntu-latest: 
 	$(MAKE) ubuntu-latest
 	$(MAKE) hoel-deb
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
+
+hoel-ubuntu-latest-test: hoel-ubuntu-latest
+	$(MAKE) ubuntu-latest
+	$(MAKE) hoel-deb-test
 
 hoel-ubuntu-lts: 
 	$(MAKE) ubuntu-latest
@@ -483,15 +631,30 @@ hoel-ubuntu-lts:
 		xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%; \
 	fi
 
+hoel-ubuntu-lts-test: hoel-ubuntu-lts
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) hoel-deb-test; \
+	fi
+
 hoel-alpine: 
 	$(MAKE) alpine
 	$(MAKE) hoel-tgz
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
+hoel-alpine-test: hoel-alpine
+	$(MAKE) alpine
+	$(MAKE) hoel-tgz-test
+
 hoel-fedora: 
 	$(MAKE) fedora
 	$(MAKE) hoel-rpm
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
+
+hoel-fedora-test: hoel-fedora
+	$(MAKE) fedora
+	$(MAKE) hoel-rpm-test
 
 hoel-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -552,9 +715,21 @@ hoel-build:
 	$(MAKE) hoel-alpine
 	$(MAKE) hoel-fedora
 
+hoel-test:
+	$(MAKE) hoel-debian-stable-test
+	$(MAKE) hoel-debian-testing-test
+	$(MAKE) hoel-ubuntu-latest-test
+	$(MAKE) hoel-ubuntu-lts-test
+	$(MAKE) hoel-alpine-test
+	$(MAKE) hoel-fedora-test
+	@echo "#############################################"
+	@echo "#            HOEL TESTS COMPLETE            #"
+	@echo "#############################################"
+
 hoel-clean: clean-base
 	rm -f hoel/*.tar.gz hoel/*.deb hoel/*.rpm hoel/packages
 	-docker rmi -f babelouest/hoel
+	-docker rmi -f babelouest/hoel-test
 
 glewlwyd-deb:
 	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) glewlwyd/deb/

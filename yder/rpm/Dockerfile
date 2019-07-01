@@ -17,6 +17,8 @@ RUN cd /opt && \
 		cd build && \
 		cmake -DBUILD_RPM=on .. && \
 		make && \
+		make package && \
+		cp liborcania-dev_*.rpm /opt/liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm && \
 		make install && \
 # Build Yder
 		cd /opt && \
@@ -28,7 +30,7 @@ RUN cd /opt && \
 		cd build && \
 		cmake -DBUILD_RPM=on .. && \
 		make && \
-		make package ; \
+		make package && \
 		cp libyder-dev_*.rpm /opt/libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm && \
     echo libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm >> /opt/packages
 

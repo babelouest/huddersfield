@@ -13,6 +13,8 @@ RUN cd /opt && \
 		cd build && \
 		cmake .. && \
 		make && \
+		make package && \
+		cp liborcania-dev_*.tar.gz /opt/liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
 		make install && \
 # Build Yder
 		cd /opt && \

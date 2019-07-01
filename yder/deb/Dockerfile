@@ -18,6 +18,8 @@ RUN cd /opt && \
 		cd build && \
 		cmake .. && \
 		make && \
+		make package && \
+		cp liborcania-dev_*.deb /opt/liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
 		make install && \
 # Build Yder
 		cd /opt && \

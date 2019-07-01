@@ -7,7 +7,7 @@ RUN apt-get update && \
 		libsystemd-dev \
 		libsqlite3-dev \
 		libpq-dev \
-    default-libmysqlclient-dev
+		default-libmysqlclient-dev
 
 ARG ORCANIA_VERSION
 ARG YDER_VERSION

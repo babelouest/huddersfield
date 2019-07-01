@@ -4,17 +4,13 @@ ARG ORCANIA_VERSION
 
 COPY *.deb /opt/
 
-# Build Orcania
-RUN cd /opt && \
-		dpkg -i /opt/liborcania_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
-    apt purge liborcania -y
-
 # Install required packages
 RUN apt-get update && \
 		apt-get install -y \
 		check \
 		libsubunit-dev
 
+# Install Orcania dev edition and build tests
 RUN dpkg -i /opt/liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.deb && \
 		wget https://github.com/babelouest/orcania/archive/v${ORCANIA_VERSION}.tar.gz && \
 		tar -zxvf v${ORCANIA_VERSION}.tar.gz && \
