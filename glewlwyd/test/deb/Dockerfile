@@ -1,13 +1,5 @@
 FROM babelouest/deb
 
-ARG ORCANIA_VERSION
-ARG YDER_VERSION
-ARG ULFIUS_VERSION
-ARG HOEL_VERSION
-ARG GLEWLWYD_VERSION
-ARG LIBJWT_VERSION
-ARG LIBCBOR_VERSION
-
 # Install required packages
 RUN apt-get update && \
 		apt-get install -y \
@@ -29,8 +21,15 @@ RUN apt-get update && \
     default-mysql-client \
 		default-libmysqlclient-dev && \
 		apt-get install -y libcbor-dev || \
-		(cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
-		tar xf libcbor.tar.gz && cd libcbor-${LIBCBOR_VERSION} && mkdir build && cd build && cmake .. && make && make install)
+		(cd /opt && wget https://github.com/PJK/libcbor/archive/v0.5.0.tar.gz -O libcbor.tar.gz && \
+		tar xf libcbor.tar.gz && cd libcbor-0.5.0 && mkdir build && cd build && cmake .. && make && make install)
+
+ARG ORCANIA_VERSION
+ARG YDER_VERSION
+ARG ULFIUS_VERSION
+ARG HOEL_VERSION
+ARG GLEWLWYD_VERSION
+ARG LIBJWT_VERSION
 
 # libtool and autoconf may be required, install them with 'sudo apt-get install libtool autoconf'
 RUN cd /opt && \
