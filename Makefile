@@ -11,7 +11,7 @@
 # - hutch (https://github.com/babelouest/hutch)
 # - angharad (https://github.com/babelouest/angharad)
 #
-# Copyright 2018 Nicolas Mora <mail@babelouest.org>
+# Copyright 2018-2019 Nicolas Mora <mail@babelouest.org>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the MIT License
