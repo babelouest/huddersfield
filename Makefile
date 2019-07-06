@@ -23,6 +23,7 @@
 #
 
 GITHUB_UPLOAD=0
+REMOTE=0
 LOCAL_UPDATE_SYSTEM=0
 LOCAL_INSTALL_LIBJWT=0
 GITHUB_USER=babelouest
@@ -30,23 +31,52 @@ GITHUB_TOKEN=$(shell cat GITHUB_TOKEN)
 LOCAL_ID=$(shell grep -e "^ID=" /etc/os-release |cut -c 4-)
 LOCAL_RELEASE=$(shell lsb_release -c -s)
 
+ORCANIA_SRC=../orcania
+YDER_SRC=../yder
+HOEL_SRC=../hoel
+ULFIUS_SRC=../ulfius
+GLEWLWYD_SRC=../glewlwyd
+ANGHARAD_SRC=../angharad
+HUTCH_SRC=../hutch
+TALIESIN_SRC=../taliesin
+
 ifeq (($(GITHUB_TOKEN)),"")
 	AUTH_HEADER=
 else
 	AUTH_HEADER=-H "Authorization: token $(GITHUB_TOKEN)"
 endif
 
-ORCANIA_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/orcania/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-YDER_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/yder/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-ULFIUS_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/ulfius/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-HOEL_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/hoel/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-GLEWLWYD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/glewlwyd/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-TALIESIN_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/taliesin/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-HUTCH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/hutch/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-ANGHARAD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/angharad/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-BENOIC_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/benoic/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-CARLEON_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/carleon/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-GARETH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/gareth/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+ifeq (($(REMOTE)),"0")
+	ORCANIA_VERSION=$(shell grep "## " $(ORCANIA_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+	YDER_VERSION=$(shell grep "## " $(YDER_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+	ULFIUS_VERSION=$(shell grep "## " $(ULFIUS_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+	HOEL_VERSION=$(shell grep "## " $(HOEL_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+	GLEWLWYD_VERSION=$(shell grep "## " $(GLEWLWYD_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+	ANGHARAD_VERSION=$(shell grep "## " $(ANGHARAD_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+	HUTCH_VERSION=$(shell grep "## " $(HUTCH_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+	TALIESIN_VERSION=$(shell grep "## " $(TALIESIN_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+
+	#wget -O angharad/angharad.tar.gz https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).tar.gz
+	#wget -O angharad/benoic.tar.gz https://github.com/babelouest/benoic/archive/v$(BENOIC_VERSION).tar.gz
+	#wget -O angharad/carleon.tar.gz https://github.com/babelouest/carleon/archive/v$(CARLEON_VERSION).tar.gz
+	#wget -O angharad/gareth.tar.gz https://github.com/babelouest/gareth/archive/v$(GARETH_VERSION).tar.gz
+	#(cd angharad && mkdir angharad && tar xf angharad.tar.gz -C angharad --strip 1 && cd angharad && mkdir benoic carleon gareth && \
+	#tar xf ../benoic.tar.gz -C benoic --strip 1 && tar xf ../carleon.tar.gz -C carleon --strip 1 && tar xf ../gareth.tar.gz -C gareth --strip 1 && \
+	#cd .. && rm angharad.tar.gz benoic.tar.gz carleon.tar.gz gareth.tar.gz && tar cz angharad -f angharad.tar.gz)
+else
+	ORCANIA_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/orcania/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+	YDER_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/yder/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+	ULFIUS_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/ulfius/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+	HOEL_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/hoel/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+	GLEWLWYD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/glewlwyd/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+	TALIESIN_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/taliesin/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+	HUTCH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/hutch/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+	ANGHARAD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/angharad/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+	BENOIC_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/benoic/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+	CARLEON_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/carleon/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+	GARETH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/gareth/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+endif
+
 LIBJWT_VERSION=1.10.2
 LIBCBOR_VERSION=0.5.0
 
@@ -119,66 +149,75 @@ local-deb-install-libjwt:
 		sudo make install ); \
 	fi
 
+orcania-source: orcania/orcania.tar.gz
+
+orcania/orcania.tar.gz:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O orcania/orcania.tar.gz https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz; \
+	else \
+		tar --exclude='orcania/webapp-src/node_modules*' --exclude 'orcania/.git/*' -cvzf orcania/orcania.tar.gz $(ORCANIA_SRC); \
+	fi
+
 orcania-deb:
 	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/deb/
-	docker run --rm -v $(shell pwd)/orcania/:/share babelouest/orcania
+	docker run --rm -v $(shell pwd)/:/share babelouest/orcania
 
 orcania-deb-test:
 	cp orcania/*.deb orcania/test/deb/
 	docker build -t babelouest/orcania-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/test/deb/
 	rm -f orcania/test/deb/*.deb
-	docker run --rm babelouest/orcania-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/orcania-test
 
 orcania-tgz:
 	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/tgz/
-	docker run --rm -v $(shell pwd)/orcania/:/share babelouest/orcania
+	docker run --rm -v $(shell pwd)/:/share babelouest/orcania
 
 orcania-tgz-test:
 	cp orcania/*.tar.gz orcania/test/tgz/
 	docker build -t babelouest/orcania-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/test/tgz/
 	rm -f orcania/test/tgz/*.tar.gz
-	docker run --rm babelouest/orcania-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/orcania-test
 
 orcania-rpm:
 	docker build -t babelouest/orcania --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/rpm/
-	docker run --rm -v $(shell pwd)/orcania/:/share babelouest/orcania
+	docker run --rm -v $(shell pwd)/:/share babelouest/orcania
 
 orcania-rpm-test:
 	cp orcania/*.rpm orcania/test/rpm/
 	docker build -t babelouest/orcania-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/test/rpm/
 	rm -f orcania/test/rpm/*.rpm
-	docker run --rm babelouest/orcania-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/orcania-test
 
-orcania-debian-stable: 
+orcania-debian-stable: orcania-source
 	$(MAKE) debian-stable
 	$(MAKE) orcania-deb
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
-orcania-debian-testing: 
+orcania-debian-stable-test: orcania-debian-stable
+	$(MAKE) debian-stable
+	$(MAKE) orcania-deb-test
+
+orcania-debian-testing: orcania-source
 	$(MAKE) debian-testing
 	$(MAKE) orcania-deb
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
-orcania-ubuntu-latest: 
+orcania-debian-testing-test: orcania-debian-testing
+	$(MAKE) debian-testing
+	$(MAKE) orcania-deb-test
+
+orcania-ubuntu-latest: orcania-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) orcania-deb
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
-orcania-ubuntu-lts: 
+orcania-ubuntu-lts: orcania-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
 		$(MAKE) orcania-deb; \
 		xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%; \
 	fi
-
-orcania-debian-stable-test: orcania-debian-stable
-	$(MAKE) debian-stable
-	$(MAKE) orcania-deb-test
-
-orcania-debian-testing-test: orcania-debian-testing
-	$(MAKE) debian-testing
-	$(MAKE) orcania-deb-test
 
 orcania-ubuntu-latest-test: orcania-ubuntu-latest
 	$(MAKE) ubuntu-latest
@@ -191,7 +230,7 @@ orcania-ubuntu-lts-test: orcania-ubuntu-lts
 		$(MAKE) orcania-deb-test; \
 	fi
 
-orcania-alpine: 
+orcania-alpine: orcania-source
 	$(MAKE) alpine
 	$(MAKE) orcania-tgz
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
@@ -200,7 +239,7 @@ orcania-alpine-test: orcania-alpine
 	$(MAKE) alpine
 	$(MAKE) orcania-tgz-test
 
-orcania-fedora: 
+orcania-fedora: orcania-source
 	$(MAKE) fedora
 	$(MAKE) orcania-rpm
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
@@ -255,37 +294,46 @@ orcania-clean: clean-base
 	-docker rmi -f babelouest/orcania
 	-docker rmi -f babelouest/orcania-test
 
+yder-source: yder/yder.tar.gz
+
+yder/yder.tar.gz:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O yder/yder.tar.gz https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz; \
+	else \
+		tar --exclude='yder/webapp-src/node_modules*' --exclude 'yder/.git/*' -cvzf yder/yder.tar.gz $(YDER_SRC); \
+	fi
+
 yder-deb:
 	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/deb/
-	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder
+	docker run --rm -v $(shell pwd)/:/share babelouest/yder
 
 yder-deb-test:
 	cp yder/*.deb yder/test/deb/
 	docker build -t babelouest/yder-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/test/deb/
 	rm -f yder/test/deb/*.deb
-	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/yder-test
 
 yder-tgz:
 	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/tgz/
-	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder
+	docker run --rm -v $(shell pwd)/:/share babelouest/yder
 
 yder-tgz-test:
 	cp yder/*.tar.gz yder/test/tgz/
 	docker build -t babelouest/yder-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/test/tgz/
 	rm -f yder/test/tgz/*.tar.gz
-	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/yder-test
 
 yder-rpm:
 	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/rpm/
-	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder
+	docker run --rm -v $(shell pwd)/:/share babelouest/yder
 
 yder-rpm-test:
 	cp yder/*.rpm yder/test/rpm/
 	docker build -t babelouest/yder-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/test/rpm/
 	rm -f yder/test/rpm/*.rpm
-	docker run --rm -v $(shell pwd)/yder/:/share babelouest/yder-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/yder-test
 
-yder-debian-stable: 
+yder-debian-stable: yder-source orcania-source
 	$(MAKE) debian-stable
 	$(MAKE) yder-deb
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
@@ -294,7 +342,7 @@ yder-debian-stable-test: yder-debian-stable
 	$(MAKE) debian-stable
 	$(MAKE) yder-deb-test
 
-yder-debian-testing: 
+yder-debian-testing: yder-source orcania-source
 	$(MAKE) debian-testing
 	$(MAKE) yder-deb
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
@@ -303,7 +351,7 @@ yder-debian-testing-test: yder-debian-testing
 	$(MAKE) debian-testing
 	$(MAKE) yder-deb-test
 
-yder-ubuntu-latest: 
+yder-ubuntu-latest: yder-source orcania-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) yder-deb
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
@@ -312,7 +360,7 @@ yder-ubuntu-latest-test: yder-ubuntu-latest
 	$(MAKE) ubuntu-latest
 	$(MAKE) yder-deb-test
 
-yder-ubuntu-lts: 
+yder-ubuntu-lts: yder-source orcania-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
@@ -404,37 +452,46 @@ yder-clean: clean-base
 	-docker rmi -f babelouest/yder
 	-docker rmi -f babelouest/yder-test
 
+ulfius-source: ulfius/ulfius.tar.gz
+
+ulfius/ulfius.tar.gz:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O ulfius/ulfius.tar.gz https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz; \
+	else \
+		tar --exclude='ulfius/webapp-src/node_modules*' --exclude 'ulfius/.git/*' -cvzf ulfius/ulfius.tar.gz $(ULFIUS_SRC); \
+	fi
+
 ulfius-deb:
 	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/deb/
-	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius
+	docker run --rm -v $(shell pwd)/:/share babelouest/ulfius
 
 ulfius-deb-test:
 	cp ulfius/*.tar.gz ulfius/test/deb/
 	docker build -t babelouest/ulfius-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/test/deb/
 	rm -f ulfius/test/deb/*.tar.gz
-	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/ulfius-test
 
 ulfius-tgz:
 	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/tgz/
-	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius
+	docker run --rm -v $(shell pwd)/:/share babelouest/ulfius
 
 ulfius-tgz-test:
 	cp ulfius/*.tar.gz ulfius/test/tgz/
 	docker build -t babelouest/ulfius-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/test/tgz/
 	rm -f ulfius/test/tgz/*.tar.gz
-	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/ulfius-test
 
 ulfius-rpm:
 	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/rpm/
-	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius
+	docker run --rm -v $(shell pwd)/:/share babelouest/ulfius
 
 ulfius-rpm-test:
 	cp ulfius/*.tar.gz ulfius/test/rpm/
 	docker build -t babelouest/ulfius-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/test/rpm/
 	rm -f ulfius/test/rpm/*.tar.gz
-	docker run --rm -v $(shell pwd)/ulfius/:/share babelouest/ulfius-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/ulfius-test
 
-ulfius-debian-stable: 
+ulfius-debian-stable: yder-source orcania-source ulfius-source
 	$(MAKE) debian-stable
 	$(MAKE) ulfius-deb
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
@@ -443,7 +500,7 @@ ulfius-debian-stable-test: ulfius-debian-stable
 	$(MAKE) debian-stable
 	$(MAKE) ulfius-deb-test
 
-ulfius-debian-testing: 
+ulfius-debian-testing: yder-source orcania-source ulfius-source
 	$(MAKE) debian-testing
 	$(MAKE) ulfius-deb
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
@@ -452,7 +509,7 @@ ulfius-debian-testing-test: ulfius-debian-testing
 	$(MAKE) debian-testing
 	$(MAKE) ulfius-deb-test
 
-ulfius-ubuntu-latest: 
+ulfius-ubuntu-latest: yder-source orcania-source ulfius-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) ulfius-deb
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
@@ -461,7 +518,7 @@ ulfius-ubuntu-latest-test: ulfius-ubuntu-latest
 	$(MAKE) ubuntu-latest
 	$(MAKE) ulfius-deb-test
 
-ulfius-ubuntu-lts: 
+ulfius-ubuntu-lts: yder-source orcania-source ulfius-source
 	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
 		$(MAKE) ulfius-deb; \
@@ -474,7 +531,7 @@ ulfius-ubuntu-lts-test: ulfius-ubuntu-lts
 		$(MAKE) ulfius-deb-test; \
 	fi
 
-ulfius-alpine: 
+ulfius-alpine: yder-source orcania-source ulfius-source
 	$(MAKE) alpine
 	$(MAKE) ulfius-tgz
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
@@ -483,7 +540,7 @@ ulfius-alpine-test: ulfius-alpine
 	$(MAKE) alpine
 	$(MAKE) ulfius-tgz-test
 
-ulfius-fedora: 
+ulfius-fedora: yder-source orcania-source ulfius-source
 	$(MAKE) fedora
 	$(MAKE) ulfius-rpm
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
@@ -567,37 +624,46 @@ ulfius-clean: clean-base
 	-docker rmi -f babelouest/ulfius
 	-docker rmi -f babelouest/ulfius-test
 
+hoel-source: hoel/hoel.tar.gz
+
+hoel/hoel.tar.gz:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O hoel/hoel.tar.gz https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz; \
+	else \
+		tar --exclude='hoel/webapp-src/node_modules*' --exclude 'hoel/.git/*' -cvzf hoel/hoel.tar.gz $(HOEL_SRC); \
+	fi
+
 hoel-deb:
 	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/deb/
-	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel
+	docker run --rm -v $(shell pwd)/:/share babelouest/hoel
 
 hoel-deb-test:
 	cp hoel/*.tar.gz hoel/test/deb/
 	docker build -t babelouest/hoel-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/test/deb/
 	rm -f hoel/test/deb/*.tar.gz
-	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/hoel-test
 
 hoel-tgz:
 	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/tgz/
-	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel
+	docker run --rm -v $(shell pwd)/:/share babelouest/hoel
 
 hoel-tgz-test:
 	cp hoel/*.tar.gz hoel/test/tgz/
 	docker build -t babelouest/hoel-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/test/tgz/
 	rm -f hoel/test/tgz/*.tar.gz
-	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/hoel-test
 
 hoel-rpm:
 	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/rpm/
-	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel
+	docker run --rm -v $(shell pwd)/:/share babelouest/hoel
 
 hoel-rpm-test:
 	cp hoel/*.tar.gz hoel/test/rpm/
 	docker build -t babelouest/hoel-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/test/rpm/
 	rm -f hoel/test/rpm/*.tar.gz
-	docker run --rm -v $(shell pwd)/hoel/:/share babelouest/hoel-test
+	docker run --rm -v $(shell pwd)/:/share babelouest/hoel-test
 
-hoel-debian-stable: 
+hoel-debian-stable: yder-source orcania-source hoel-source
 	$(MAKE) debian-stable
 	$(MAKE) hoel-deb
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
@@ -606,7 +672,7 @@ hoel-debian-stable-test: hoel-debian-stable
 	$(MAKE) debian-stable
 	$(MAKE) hoel-deb-test
 
-hoel-debian-testing: 
+hoel-debian-testing: yder-source orcania-source hoel-source
 	$(MAKE) debian-testing
 	$(MAKE) hoel-deb
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
@@ -615,7 +681,7 @@ hoel-debian-testing-test: hoel-debian-testing
 	$(MAKE) debian-testing
 	$(MAKE) hoel-deb-test
 
-hoel-ubuntu-latest: 
+hoel-ubuntu-latest: yder-source orcania-source hoel-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) hoel-deb
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
@@ -624,7 +690,7 @@ hoel-ubuntu-latest-test: hoel-ubuntu-latest
 	$(MAKE) ubuntu-latest
 	$(MAKE) hoel-deb-test
 
-hoel-ubuntu-lts: 
+hoel-ubuntu-lts: yder-source orcania-source hoel-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
@@ -639,7 +705,7 @@ hoel-ubuntu-lts-test: hoel-ubuntu-lts
 		$(MAKE) hoel-deb-test; \
 	fi
 
-hoel-alpine: 
+hoel-alpine: yder-source orcania-source hoel-source
 	$(MAKE) alpine
 	$(MAKE) hoel-tgz
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
@@ -648,7 +714,7 @@ hoel-alpine-test: hoel-alpine
 	$(MAKE) alpine
 	$(MAKE) hoel-tgz-test
 
-hoel-fedora: 
+hoel-fedora: yder-source orcania-source hoel-source
 	$(MAKE) fedora
 	$(MAKE) hoel-rpm
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
@@ -772,10 +838,15 @@ glewlwyd-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev uuid-dev libldap2-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev libcurl4-gnutls-dev libssl-dev pkg-config; \
+		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev uuid-dev libldap2-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev libcurl4-gnutls-dev libssl-dev pkg-config libpq-dev liboath-dev; \
 	fi
 
 glewlwyd-local-deb: glewlwyd-install-dependencies local-deb-install-libjwt
+	# libcbor
+	wget https://github.com/PJK/libcbor/archive/v$(LIBCBOR_VERSION).tar.gz -O build/libcbor.$(LIBCBOR_VERSION).tar.gz
+	tar xf build/libcbor.$(LIBCBOR_VERSION).tar.gz -C build/
+	(mkdir build/libcbor-$(LIBCBOR_VERSION)/build && cd build/libcbor-$(LIBCBOR_VERSION)/build && cmake .. && make && sudo make install)
+	
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -831,11 +902,11 @@ glewlwyd-local-deb: glewlwyd-install-dependencies local-deb-install-libjwt
 	( cd build/hoel-$(HOEL_VERSION) && \
 	mkdir build && \
 	cd build && \
-	cmake -DWITH_PGSQL=off .. && \
+	cmake .. && \
 	make && \
 	sudo make install && \
 	rm -rf * && \
-	cmake -DWITH_PGSQL=off -DINSTALL_HEADER=off .. && \
+	cmake -DINSTALL_HEADER=off .. && \
 	make package; \
 	cp libhoel_*.deb ../../../glewlwyd/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
