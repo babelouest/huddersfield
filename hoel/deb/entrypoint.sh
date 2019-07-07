@@ -26,7 +26,6 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $HOEL_ARCHIVE ]; then
   make install
 
   cp liborcania-dev_$ORCANIA_VERSION.deb /opt/liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
-  echo liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb >> /share/hoel/packages
 
   mkdir /opt/yder/
 
