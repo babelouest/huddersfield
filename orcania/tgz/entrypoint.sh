@@ -15,16 +15,17 @@ if [ -f $ORCANIA_ARCHIVE ]; then
 
   cd /opt/orcania/build
 
-  cmake ..
+  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make
 
   make package
-  echo pl $ORCANIA_VERSION op
 
-  cp liborcania-dev_$ORCANIA_VERSION.tar.gz /share/orcania/liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).tar.gz
+  cp liborcania-dev_$ORCANIA_VERSION.tar.gz /share/orcania/liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz
 
-  echo liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).tar.gz > /share/orcania/packages
+  echo liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz > /share/orcania/packages
+  
+  echo "$(date -R) liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz build success" >> /share/summary.log
 else
   echo "File $ORCANIA_ARCHIVE not present" && false
 fi

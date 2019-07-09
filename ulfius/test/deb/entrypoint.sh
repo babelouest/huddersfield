@@ -26,6 +26,8 @@ if [ -f $ULFIUS_ARCHIVE ]; then
   ./core
   ./framework
   ./websocket
+  
+  echo "$(date -R) ulfius-dev-full_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.tar.gz test complete success" >> /share/summary.log
 else
   echo "File $ULFIUS_ARCHIVE not present" && false
 fi

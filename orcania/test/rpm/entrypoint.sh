@@ -21,6 +21,8 @@ if [ -f $ORCANIA_ARCHIVE ]; then
   ./split_test
   ./memory_test
   ./pointer_list_test
+  
+  echo "$(date -R) liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm test complete success" >> /share/summary.log
 else
   echo "File $ORCANIA_ARCHIVE not present" && false
 fi

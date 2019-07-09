@@ -31,6 +31,9 @@ GITHUB_TOKEN=$(shell cat GITHUB_TOKEN)
 LOCAL_ID=$(shell grep -e "^ID=" /etc/os-release |cut -c 4-)
 LOCAL_RELEASE=$(shell lsb_release -c -s)
 
+LIBJWT_VERSION=1.10.2
+LIBCBOR_VERSION=0.5.0
+
 ORCANIA_SRC=../orcania
 YDER_SRC=../yder
 HOEL_SRC=../hoel
@@ -46,39 +49,34 @@ else
 	AUTH_HEADER=-H "Authorization: token $(GITHUB_TOKEN)"
 endif
 
-ifeq (($(REMOTE)),"0")
-	ORCANIA_VERSION=$(shell grep "## " $(ORCANIA_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
-	YDER_VERSION=$(shell grep "## " $(YDER_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
-	ULFIUS_VERSION=$(shell grep "## " $(ULFIUS_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
-	HOEL_VERSION=$(shell grep "## " $(HOEL_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
-	GLEWLWYD_VERSION=$(shell grep "## " $(GLEWLWYD_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
-	ANGHARAD_VERSION=$(shell grep "## " $(ANGHARAD_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
-	HUTCH_VERSION=$(shell grep "## " $(HUTCH_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
-	TALIESIN_VERSION=$(shell grep "## " $(TALIESIN_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+#ORCANIA_VERSION=$(shell grep "## " $(ORCANIA_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+#YDER_VERSION=$(shell grep "## " $(YDER_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+#ULFIUS_VERSION=$(shell grep "## " $(ULFIUS_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+#HOEL_VERSION=$(shell grep "## " $(HOEL_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+#GLEWLWYD_VERSION=$(shell grep "## " $(GLEWLWYD_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+#ANGHARAD_VERSION=$(shell grep "## " $(ANGHARAD_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+#HUTCH_VERSION=$(shell grep "## " $(HUTCH_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
+#TALIESIN_VERSION=$(shell grep "## " $(TALIESIN_SRC)/CHANGELOG.md | head -1 | cut -c 4-)
 
-	#wget -O angharad/angharad.tar.gz https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).tar.gz
-	#wget -O angharad/benoic.tar.gz https://github.com/babelouest/benoic/archive/v$(BENOIC_VERSION).tar.gz
-	#wget -O angharad/carleon.tar.gz https://github.com/babelouest/carleon/archive/v$(CARLEON_VERSION).tar.gz
-	#wget -O angharad/gareth.tar.gz https://github.com/babelouest/gareth/archive/v$(GARETH_VERSION).tar.gz
-	#(cd angharad && mkdir angharad && tar xf angharad.tar.gz -C angharad --strip 1 && cd angharad && mkdir benoic carleon gareth && \
-	#tar xf ../benoic.tar.gz -C benoic --strip 1 && tar xf ../carleon.tar.gz -C carleon --strip 1 && tar xf ../gareth.tar.gz -C gareth --strip 1 && \
-	#cd .. && rm angharad.tar.gz benoic.tar.gz carleon.tar.gz gareth.tar.gz && tar cz angharad -f angharad.tar.gz)
-else
-	ORCANIA_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/orcania/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-	YDER_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/yder/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-	ULFIUS_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/ulfius/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-	HOEL_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/hoel/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-	GLEWLWYD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/glewlwyd/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-	TALIESIN_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/taliesin/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-	HUTCH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/hutch/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-	ANGHARAD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/angharad/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-	BENOIC_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/benoic/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-	CARLEON_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/carleon/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-	GARETH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/gareth/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
-endif
+#wget -O angharad/angharad.tar.gz https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).tar.gz
+#wget -O angharad/benoic.tar.gz https://github.com/babelouest/benoic/archive/v$(BENOIC_VERSION).tar.gz
+#wget -O angharad/carleon.tar.gz https://github.com/babelouest/carleon/archive/v$(CARLEON_VERSION).tar.gz
+#wget -O angharad/gareth.tar.gz https://github.com/babelouest/gareth/archive/v$(GARETH_VERSION).tar.gz
+#(cd angharad && mkdir angharad && tar xf angharad.tar.gz -C angharad --strip 1 && cd angharad && mkdir benoic carleon gareth && \
+#tar xf ../benoic.tar.gz -C benoic --strip 1 && tar xf ../carleon.tar.gz -C carleon --strip 1 && tar xf ../gareth.tar.gz -C gareth --strip 1 && \
+#cd .. && rm angharad.tar.gz benoic.tar.gz carleon.tar.gz gareth.tar.gz && tar cz angharad -f angharad.tar.gz)
 
-LIBJWT_VERSION=1.10.2
-LIBCBOR_VERSION=0.5.0
+ORCANIA_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/orcania/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+YDER_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/yder/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+ULFIUS_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/ulfius/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+HOEL_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/hoel/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+GLEWLWYD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/glewlwyd/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+TALIESIN_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/taliesin/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+HUTCH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/hutch/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+ANGHARAD_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/angharad/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+BENOIC_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/benoic/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+CARLEON_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/carleon/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
+GARETH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babelouest/gareth/releases/latest | grep tag_name | cut -d '"' -f 4 | cut -c 2-)
 
 all: debian-stable-build debian-testing-build ubuntu-latest-build ubuntu-lts-build alpine-build fedora-build
 
@@ -111,6 +109,7 @@ clean-base:
 	/bin/rm -rf build/*
 
 clean: orcania-clean yder-clean ulfius-clean hoel-clean glewlwyd-clean taliesin-clean hutch-clean angharad-clean clean-base clean-no-tag-images
+	echo > summary.log
 
 clean-no-tag-images:
 	-docker rmi -f $(shell docker images -f "dangling=true" -q)
@@ -375,7 +374,7 @@ yder-ubuntu-lts-test: yder-ubuntu-lts
 		$(MAKE) yder-deb-test; \
 	fi
 
-yder-alpine: 
+yder-alpine: yder-source orcania-source
 	$(MAKE) alpine
 	$(MAKE) yder-tgz
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
@@ -798,30 +797,59 @@ hoel-clean: clean-base
 	-docker rmi -f babelouest/hoel
 	-docker rmi -f babelouest/hoel-test
 
+glewlwyd-source: glewlwyd/glewlwyd.tar.gz
+
+glewlwyd/glewlwyd.tar.gz:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O glewlwyd/glewlwyd.tar.gz https://github.com/babelouest/glewlwyd/archive/v$(GLEWLWYD_VERSION).tar.gz; \
+	else \
+		tar --exclude='glewlwyd/webapp-src/node_modules*' --exclude 'glewlwyd/.git/*' -cvzf glewlwyd/glewlwyd.tar.gz $(GLEWLWYD_SRC); \
+	fi
+
 glewlwyd-deb:
 	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/deb/
-	docker run --rm -v $(shell pwd)/glewlwyd/:/share babelouest/glewlwyd
+	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd
+
+glewlwyd-deb-test:
+	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/test/deb/
+	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd-test
 
 glewlwyd-tgz:
 	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/tgz/
-	docker run --rm -v $(shell pwd)/glewlwyd/:/share babelouest/glewlwyd
+	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd
 
-glewlwyd-debian-stable: 
+glewlwyd-tgz-test:
+	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/test/tgz/
+	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd-test
+
+glewlwyd-debian-stable: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) debian-stable
 	$(MAKE) glewlwyd-deb
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
-glewlwyd-debian-testing: 
+glewlwyd-debian-stable-test: glewlwyd-debian-stable
+	$(MAKE) debian-stable
+	$(MAKE) glewlwyd-deb-test
+
+glewlwyd-debian-testing: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) debian-testing
 	$(MAKE) glewlwyd-deb
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
-glewlwyd-ubuntu-latest: 
+glewlwyd-debian-testing-test: glewlwyd-debian-testing
+	$(MAKE) debian-testing
+	$(MAKE) glewlwyd-deb-test
+
+glewlwyd-ubuntu-latest: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) glewlwyd-deb
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
-glewlwyd-ubuntu-lts: 
+glewlwyd-ubuntu-latest-test: glewlwyd-ubuntu-latest
+	$(MAKE) ubuntu-latest
+	$(MAKE) glewlwyd-deb-test
+
+glewlwyd-ubuntu-lts: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
@@ -829,10 +857,21 @@ glewlwyd-ubuntu-lts:
 		xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%; \
 	fi
 
-glewlwyd-alpine: 
+glewlwyd-ubuntu-lts-test: glewlwyd-ubuntu-lts
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts-test
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) glewlwyd-deb-test; \
+	fi
+
+glewlwyd-alpine: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) alpine
 	$(MAKE) glewlwyd-tgz
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
+
+glewlwyd-alpine-test: glewlwyd-alpine
+	$(MAKE) alpine
+	$(MAKE) glewlwyd-tgz-test
 
 glewlwyd-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -935,9 +974,20 @@ glewlwyd-build:
 	$(MAKE) glewlwyd-ubuntu-lts
 	$(MAKE) glewlwyd-alpine
 
+glewlwyd-test:
+	$(MAKE) glewlwyd-debian-stable-test
+	$(MAKE) glewlwyd-debian-testing-test
+	$(MAKE) glewlwyd-ubuntu-latest-test
+	$(MAKE) glewlwyd-ubuntu-lts-test
+	$(MAKE) glewlwyd-alpine-test
+	@echo "#############################################"
+	@echo "#          GLEWLWYD TESTS COMPLETE          #"
+	@echo "#############################################"
+
 glewlwyd-clean: clean-base
 	rm -f glewlwyd/*.tar.gz glewlwyd/*.deb glewlwyd/packages
 	-docker rmi -f babelouest/glewlwyd
+	-docker rmi -f babelouest/glewlwyd-test
 
 taliesin-deb:
 	docker build -t babelouest/taliesin --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg TALIESIN_VERSION=$(TALIESIN_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) taliesin/deb/

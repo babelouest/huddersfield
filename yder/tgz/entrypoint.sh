@@ -17,11 +17,11 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ]; then
 
   cd /opt/orcania/build
 
-  cmake ..
+  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make package
 
-  cp liborcania-dev_$ORCANIA_VERSION.tar.gz /share/yder/liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).tar.gz
+  cp liborcania-dev_$ORCANIA_VERSION.tar.gz /share/yder/liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz
 
   make install
 
@@ -33,13 +33,15 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ]; then
 
   cd /opt/yder/build
 
-  cmake -DWITH_JOURNALD=off ..
+  cmake -DCMAKE_INSTALL_LIBDIR=lib -DWITH_JOURNALD=off ..
 
   make package
 
-  cp libyder-dev_$YDER_VERSION.tar.gz /share/yder/libyder-dev_${YDER_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).tar.gz
+  cp libyder-dev_$YDER_VERSION.tar.gz /share/yder/libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz
 
-  echo libyder-dev_${YDER_VERSION}$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).tar.gz > /share/yder/packages
+  echo libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz > /share/yder/packages
+  
+  echo "$(date -R) libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz build success" >> /share/summary.log
 else
   echo "Files $ORCANIA_ARCHIVE or $YDER_ARCHIVE not present" && false
 fi

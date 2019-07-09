@@ -20,12 +20,14 @@ if [ -f $ULFIUS_ARCHIVE ]; then
 
   cd /opt/ulfius/test
 
-  make u_map core framework websocket
+  make u_map core framework websocket LIBS="-lc -lorcania -lulfius -lyder -ljansson -lgnutls -lcheck -pthread -lrt -lm -lsubunit"
   
   ./u_map
   ./core
   ./framework
   ./websocket
+  
+  echo "$(date -R) libulfius-dev_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm test complete success" >> /share/summary.log
 else
   echo "File $ULFIUS_ARCHIVE not present" && false
 fi

@@ -24,6 +24,8 @@ if [ -f $ORCANIA_ARCHIVE ]; then
   cp liborcania-dev_$ORCANIA_VERSION.rpm /share/orcania/liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm
 
   echo liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm > /share/orcania/packages
+  
+  echo "$(date -R) liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm build success" >> /share/summary.log
 else
   echo "File $ORCANIA_ARCHIVE not present" && false
 fi

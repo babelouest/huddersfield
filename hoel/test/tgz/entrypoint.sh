@@ -14,10 +14,6 @@ if [ -f $HOEL_ARCHIVE ]; then
   tar xvf libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz -C /usr/ --strip 1
   tar xvf libhoel-dev_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz -C /usr/ --strip 1
 
-  mv /usr/lib64/liborcania* /usr/lib
-  mv /usr/lib64/libyder* /usr/lib
-  mv /usr/lib64/libhoel* /usr/lib
-
   mkdir /opt/hoel/
 
   tar -zxvf $HOEL_ARCHIVE -C /opt/hoel --strip 1
@@ -29,6 +25,8 @@ if [ -f $HOEL_ARCHIVE ]; then
   sqlite3 /tmp/test.db < test.sql
 
   ./core
+  
+  echo "$(date -R) hoel-dev-full_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
 else
   echo "File $HOEL_ARCHIVE not present" && false
 fi

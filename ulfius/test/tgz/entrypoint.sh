@@ -14,10 +14,6 @@ if [ -f $ULFIUS_ARCHIVE ]; then
   tar xvf  libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz -C /usr/ --strip 1
   tar xvf  libulfius-dev_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz -C /usr/ --strip 1
 
-  mv /usr/lib64/liborcania* /usr/lib
-  mv /usr/lib64/libyder* /usr/lib
-  mv /usr/lib64/libulfius* /usr/lib
-
   mkdir /opt/ulfius/
 
   tar -zxvf $ULFIUS_ARCHIVE -C /opt/ulfius --strip 1
@@ -30,6 +26,8 @@ if [ -f $ULFIUS_ARCHIVE ]; then
   ./core
   #./framework # fails on alpine
   ./websocket
+  
+  echo "$(date -R) ulfius-dev-full_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
 else
   echo "File $ULFIUS_ARCHIVE not present" && false
 fi

@@ -8,12 +8,9 @@ if [ -f $YDER_ARCHIVE ]; then
   ORCANIA_VERSION=$(cat /opt/ORCANIA_VERSION)
   YDER_VERSION=$(cat /opt/YDER_VERSION)
   
-  tar xvf /share/orcania/liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).tar.gz -C /usr/ --strip 1
-  tar xvf /share/yder/libyder-dev_${YDER_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).tar.gz
+  tar xvf /share/yder/liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz -C /usr/ --strip 1
+  tar xvf /share/yder/libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz -C /usr/ --strip 1
   
-  mv /usr/lib64/liborcania* /usr/lib
-  mv /usr/lib64/libyder* /usr/lib
-
   mkdir /opt/yder
 
   tar -zxvf $YDER_ARCHIVE -C /opt/yder --strip 1
@@ -23,6 +20,8 @@ if [ -f $YDER_ARCHIVE ]; then
   make yder_test
   
   ./yder_test
+  
+  echo "$(date -R) libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
 else
   echo "File $YDER_ARCHIVE not present" && false
 fi

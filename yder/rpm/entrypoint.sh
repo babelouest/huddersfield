@@ -40,6 +40,8 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ]; then
   cp libyder-dev_$YDER_VERSION.rpm /share/yder/libyder-dev_${YDER_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm
 
   echo libyder-dev_${YDER_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm > /share/yder/packages
+  
+  echo "$(date -R) libyder-dev_${YDER_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm build success" >> /share/summary.log
 else
   echo "Files $ORCANIA_ARCHIVE or $YDER_ARCHIVE not present" && false
 fi

@@ -26,6 +26,8 @@ if [ -f $HOEL_ARCHIVE ]; then
   sqlite3 /tmp/test.db < test.sql
 
   ./core
+  
+  echo "$(date -R) libhoel-dev_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm test complete success" >> /share/summary.log
 else
   echo "File $HOEL_ARCHIVE not present" && false
 fi
