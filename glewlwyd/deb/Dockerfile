@@ -26,7 +26,6 @@ RUN apt-get update && \
 		make \
 		wget \
 		liboath-dev \
-    default-mysql-client \
 		default-libmysqlclient-dev && \
 		apt-get install -y libcbor-dev || \
 		(cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
