@@ -35,6 +35,8 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
   
   kill $G_PID
 
+  echo "$(date -R) glewlwyd-dev_${GLEWLWYD_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
+
 else
   echo "File $GLEWLWYD_ARCHIVE not present" && false
 fi

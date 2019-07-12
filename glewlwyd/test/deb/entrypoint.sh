@@ -34,6 +34,8 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
   make test
   
   kill $G_PID
+  
+  echo "$(date -R) glewlwyd-dev_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb test complete success" >> /share/summary.log
 
 else
   echo "File $GLEWLWYD_ARCHIVE not present" && false
