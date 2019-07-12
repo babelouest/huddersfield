@@ -814,6 +814,12 @@ glewlwyd-deb-test:
 	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/test/deb/
 	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd-test
 
+glewlwyd-deb-smoke:
+	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/deb/
+	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/smoke/deb/
+	rm -f glewlwyd/smoke/deb/glewlwyd-full_*.tar.gz
+	docker run --rm -it -p 4593:4593 babelouest/glewlwyd-smoke
+
 glewlwyd-tgz:
 	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/tgz/
 	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd
@@ -821,6 +827,12 @@ glewlwyd-tgz:
 glewlwyd-tgz-test:
 	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/test/tgz/
 	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd-test
+
+glewlwyd-tgz-smoke:
+	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/tgz/
+	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/smoke/tgz/
+	rm -f glewlwyd/smoke/tgz/glewlwyd-full_*.tar.gz
+	docker run --rm -it -p 4593:4593 babelouest/glewlwyd-smoke
 
 glewlwyd-debian-stable: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) debian-stable
@@ -831,6 +843,10 @@ glewlwyd-debian-stable-test: glewlwyd-debian-stable
 	$(MAKE) debian-stable
 	$(MAKE) glewlwyd-deb-test
 
+glewlwyd-debian-stable-smoke: glewlwyd-debian-stable
+	$(MAKE) debian-stable
+	$(MAKE) glewlwyd-deb-smoke
+
 glewlwyd-debian-testing: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) debian-testing
 	$(MAKE) glewlwyd-deb
@@ -840,6 +856,10 @@ glewlwyd-debian-testing-test: glewlwyd-debian-testing
 	$(MAKE) debian-testing
 	$(MAKE) glewlwyd-deb-test
 
+glewlwyd-debian-testing-smoke: glewlwyd-debian-testing
+	$(MAKE) debian-testing
+	$(MAKE) glewlwyd-deb-smoke
+
 glewlwyd-ubuntu-latest: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) glewlwyd-deb
@@ -848,6 +868,10 @@ glewlwyd-ubuntu-latest: yder-source orcania-source hoel-source ulfius-source gle
 glewlwyd-ubuntu-latest-test: glewlwyd-ubuntu-latest
 	$(MAKE) ubuntu-latest
 	$(MAKE) glewlwyd-deb-test
+
+glewlwyd-ubuntu-latest-smoke: glewlwyd-ubuntu-latest
+	$(MAKE) ubuntu-latest
+	$(MAKE) glewlwyd-deb-smoke
 
 glewlwyd-ubuntu-lts: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) ubuntu-latest
@@ -859,9 +883,16 @@ glewlwyd-ubuntu-lts: yder-source orcania-source hoel-source ulfius-source glewlw
 
 glewlwyd-ubuntu-lts-test: glewlwyd-ubuntu-lts
 	$(MAKE) ubuntu-latest
-	$(MAKE) ubuntu-lts-test
+	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
 		$(MAKE) glewlwyd-deb-test; \
+	fi
+
+glewlwyd-ubuntu-lts-smoke: glewlwyd-ubuntu-lts
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) glewlwyd-deb-smoke; \
 	fi
 
 glewlwyd-alpine: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
@@ -872,6 +903,10 @@ glewlwyd-alpine: yder-source orcania-source hoel-source ulfius-source glewlwyd-s
 glewlwyd-alpine-test: glewlwyd-alpine
 	$(MAKE) alpine
 	$(MAKE) glewlwyd-tgz-test
+
+glewlwyd-alpine-smoke: glewlwyd-alpine
+	$(MAKE) alpine
+	$(MAKE) glewlwyd-tgz-smoke
 
 glewlwyd-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
