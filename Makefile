@@ -80,6 +80,8 @@ GARETH_VERSION=$(shell curl $(AUTH_HEADER) -s https://api.github.com/repos/babel
 
 all: debian-stable-build debian-testing-build ubuntu-latest-build ubuntu-lts-build alpine-build fedora-build
 
+debian-oldstable-build: orcania-debian-oldstable yder-debian-oldstable ulfius-debian-oldstable hoel-debian-oldstable glewlwyd-debian-oldstable taliesin-debian-oldstable angharad-debian-oldstable hutch-debian-oldstable
+
 debian-stable-build: orcania-debian-stable yder-debian-stable ulfius-debian-stable hoel-debian-stable glewlwyd-debian-stable taliesin-debian-stable angharad-debian-stable hutch-debian-stable
 
 debian-testing-build: orcania-debian-testing yder-debian-testing ulfius-debian-testing hoel-debian-testing glewlwyd-debian-testing taliesin-debian-testing hutch-debian-testing angharad-debian-testing
@@ -113,6 +115,9 @@ clean: orcania-clean yder-clean ulfius-clean hoel-clean glewlwyd-clean taliesin-
 
 clean-no-tag-images:
 	-docker rmi -f $(shell docker images -f "dangling=true" -q)
+
+debian-oldstable:
+	@docker build -t babelouest/deb docker-base/debian-oldstable/
 
 debian-stable:
 	@docker build -t babelouest/deb docker-base/debian-stable/
@@ -187,10 +192,19 @@ orcania-rpm-test:
 	rm -f orcania/test/rpm/*.rpm
 	docker run --rm -v $(shell pwd)/:/share babelouest/orcania-test
 
+orcania-debian-oldstable: orcania-source
+	$(MAKE) debian-oldstable
+	$(MAKE) orcania-deb
+	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
+
 orcania-debian-stable: orcania-source
 	$(MAKE) debian-stable
 	$(MAKE) orcania-deb
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
+
+orcania-debian-oldstable-test: orcania-debian-oldstable
+	$(MAKE) debian-oldstable
+	$(MAKE) orcania-deb-test
 
 orcania-debian-stable-test: orcania-debian-stable
 	$(MAKE) debian-stable
@@ -270,6 +284,7 @@ orcania-local-deb: orcania-install-dependencies
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
 orcania-build:
+	$(MAKE) orcania-debian-oldstable
 	$(MAKE) orcania-debian-stable
 	$(MAKE) orcania-debian-testing
 	$(MAKE) orcania-ubuntu-latest
@@ -278,6 +293,7 @@ orcania-build:
 	$(MAKE) orcania-fedora
 
 orcania-test:
+	$(MAKE) orcania-debian-oldstable-test
 	$(MAKE) orcania-debian-stable-test
 	$(MAKE) orcania-debian-testing-test
 	$(MAKE) orcania-ubuntu-latest-test
@@ -332,10 +348,19 @@ yder-rpm-test:
 	rm -f yder/test/rpm/*.rpm
 	docker run --rm -v $(shell pwd)/:/share babelouest/yder-test
 
+yder-debian-oldstable: yder-source orcania-source
+	$(MAKE) debian-oldstable
+	$(MAKE) yder-deb
+	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
+
 yder-debian-stable: yder-source orcania-source
 	$(MAKE) debian-stable
 	$(MAKE) yder-deb
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
+
+yder-debian-oldstable-test: yder-debian-oldstable
+	$(MAKE) debian-oldstable
+	$(MAKE) yder-deb-test
 
 yder-debian-stable-test: yder-debian-stable
 	$(MAKE) debian-stable
@@ -428,6 +453,7 @@ yder-local-deb: yder-install-dependencies
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
 yder-build:
+	$(MAKE) yder-debian-oldstable
 	$(MAKE) yder-debian-stable
 	$(MAKE) yder-debian-testing
 	$(MAKE) yder-ubuntu-latest
@@ -436,6 +462,7 @@ yder-build:
 	$(MAKE) yder-fedora
 
 yder-test:
+	$(MAKE) yder-debian-oldstable-test
 	$(MAKE) yder-debian-stable-test
 	$(MAKE) yder-debian-testing-test
 	#$(MAKE) yder-ubuntu-latest-test # TODO Disabled until I make it work
@@ -490,10 +517,19 @@ ulfius-rpm-test:
 	rm -f ulfius/test/rpm/*.tar.gz
 	docker run --rm -v $(shell pwd)/:/share babelouest/ulfius-test
 
+ulfius-debian-oldstable: yder-source orcania-source ulfius-source
+	$(MAKE) debian-oldstable
+	$(MAKE) ulfius-deb
+	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
+
 ulfius-debian-stable: yder-source orcania-source ulfius-source
 	$(MAKE) debian-stable
 	$(MAKE) ulfius-deb
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
+
+ulfius-debian-oldstable-test: ulfius-debian-oldstable
+	$(MAKE) debian-oldstable
+	$(MAKE) ulfius-deb-test
 
 ulfius-debian-stable-test: ulfius-debian-stable
 	$(MAKE) debian-stable
@@ -600,6 +636,7 @@ ulfius-local-deb:
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
 ulfius-build:
+	$(MAKE) ulfius-debian-oldstable
 	$(MAKE) ulfius-debian-stable
 	$(MAKE) ulfius-debian-testing
 	$(MAKE) ulfius-ubuntu-latest
@@ -608,6 +645,7 @@ ulfius-build:
 	$(MAKE) ulfius-fedora
 
 ulfius-test:
+	$(MAKE) ulfius-debian-oldstable-test
 	$(MAKE) ulfius-debian-stable-test
 	$(MAKE) ulfius-debian-testing-test
 	$(MAKE) ulfius-ubuntu-latest-test
@@ -662,10 +700,19 @@ hoel-rpm-test:
 	rm -f hoel/test/rpm/*.tar.gz
 	docker run --rm -v $(shell pwd)/:/share babelouest/hoel-test
 
+hoel-debian-oldstable: yder-source orcania-source hoel-source
+	$(MAKE) debian-oldstable
+	$(MAKE) hoel-deb
+	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
+
 hoel-debian-stable: yder-source orcania-source hoel-source
 	$(MAKE) debian-stable
 	$(MAKE) hoel-deb
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
+
+hoel-debian-oldstable-test: hoel-debian-oldstable
+	$(MAKE) debian-oldstable
+	$(MAKE) hoel-deb-test
 
 hoel-debian-stable-test: hoel-debian-stable
 	$(MAKE) debian-stable
@@ -774,6 +821,7 @@ hoel-local-deb: hoel-install-dependencies
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
 hoel-build:
+	$(MAKE) hoel-debian-oldstable
 	$(MAKE) hoel-debian-stable
 	$(MAKE) hoel-debian-testing
 	$(MAKE) hoel-ubuntu-latest
@@ -782,6 +830,7 @@ hoel-build:
 	$(MAKE) hoel-fedora
 
 hoel-test:
+	$(MAKE) hoel-debian-oldstable-test
 	$(MAKE) hoel-debian-stable-test
 	$(MAKE) hoel-debian-testing-test
 	$(MAKE) hoel-ubuntu-latest-test
@@ -833,6 +882,19 @@ glewlwyd-tgz-smoke:
 	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/smoke/tgz/
 	rm -f glewlwyd/smoke/tgz/glewlwyd-full_*.tar.gz
 	docker run --rm -it -p 4593:4593 babelouest/glewlwyd-smoke
+
+glewlwyd-debian-oldstable: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
+	$(MAKE) debian-oldstable
+	$(MAKE) glewlwyd-deb
+	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
+
+glewlwyd-debian-oldstable-test: glewlwyd-debian-oldstable
+	$(MAKE) debian-oldstable
+	$(MAKE) glewlwyd-deb-test
+
+glewlwyd-debian-oldstable-smoke: glewlwyd-debian-oldstable
+	$(MAKE) debian-oldstable
+	$(MAKE) glewlwyd-deb-smoke
 
 glewlwyd-debian-stable: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) debian-stable
@@ -1003,6 +1065,7 @@ glewlwyd-local-deb: glewlwyd-install-dependencies local-deb-install-libjwt
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-build:
+	$(MAKE) glewlwyd-debian-oldstable
 	$(MAKE) glewlwyd-debian-stable
 	$(MAKE) glewlwyd-debian-testing
 	$(MAKE) glewlwyd-ubuntu-latest
@@ -1010,6 +1073,7 @@ glewlwyd-build:
 	$(MAKE) glewlwyd-alpine
 
 glewlwyd-test:
+	$(MAKE) glewlwyd-debian-oldstable-test
 	$(MAKE) glewlwyd-debian-stable-test
 	$(MAKE) glewlwyd-debian-testing-test
 	$(MAKE) glewlwyd-ubuntu-latest-test
@@ -1169,30 +1233,39 @@ taliesin-quickstart-custom:
 taliesin-quickstart-sqlite-noauth:
 	cd taliesin/quickstart && $(MAKE) build-quickstart-x86_64_sqlite_noauth TALIESIN_VERSION=$(TALIESIN_VERSION) LIBJWT_VERSION=$(LIBJWT_VERSION)
 
+hutch-source: hutch/hutch.tar.gz
+
+hutch/hutch.tar.gz:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O hutch/hutch.tar.gz https://github.com/babelouest/hutch/archive/v$(HUTCH_VERSION).tar.gz; \
+	else \
+		tar --exclude='hutch/webapp-src/node_modules*' --exclude 'hutch/.git/*' -cvzf hutch/hutch.tar.gz $(HUTCH_SRC); \
+	fi
+
 hutch-deb:
 	docker build -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) hutch/deb/
-	docker run --rm -v $(shell pwd)/hutch/:/share babelouest/hutch
+	docker run --rm -v $(shell pwd)/:/share babelouest/hutch
 
 hutch-tgz:
 	docker build -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) hutch/tgz/
-	docker run --rm -v $(shell pwd)/hutch/:/share babelouest/hutch
+	docker run --rm -v $(shell pwd)/:/share babelouest/hutch
 
-hutch-debian-stable: 
+hutch-debian-stable: yder-source orcania-source hoel-source ulfius-source hutch-source
 	$(MAKE) debian-stable
 	$(MAKE) hutch-deb
 	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
-hutch-debian-testing: 
+hutch-debian-testing: yder-source orcania-source hoel-source ulfius-source hutch-source
 	$(MAKE) debian-testing
 	$(MAKE) hutch-deb
 	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
-hutch-ubuntu-latest: 
+hutch-ubuntu-latest: yder-source orcania-source hoel-source ulfius-source hutch-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) hutch-deb
 	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
-hutch-ubuntu-lts: 
+hutch-ubuntu-lts: yder-source orcania-source hoel-source ulfius-source hutch-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
@@ -1200,7 +1273,7 @@ hutch-ubuntu-lts:
 		xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%; \
 	fi
 
-hutch-alpine: 
+hutch-alpine: yder-source orcania-source hoel-source ulfius-source hutch-source
 	$(MAKE) alpine
 	$(MAKE) hutch-tgz
 	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
