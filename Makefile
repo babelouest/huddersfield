@@ -465,9 +465,9 @@ yder-test:
 	$(MAKE) yder-debian-oldstable-test
 	$(MAKE) yder-debian-stable-test
 	$(MAKE) yder-debian-testing-test
-	#$(MAKE) yder-ubuntu-latest-test # TODO Disabled until I make it work
-	#$(MAKE) yder-ubuntu-lts-test # TODO Disabled until I make it work
-	#$(MAKE) yder-alpine-test # TODO Disabled until I make it work
+	$(MAKE) yder-ubuntu-latest-test
+	$(MAKE) yder-ubuntu-lts-test
+	$(MAKE) yder-alpine-test
 	$(MAKE) yder-fedora-test
 	@echo "#############################################"
 	@echo "#           YDER TESTS COMPLETE             #"
