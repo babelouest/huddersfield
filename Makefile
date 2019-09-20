@@ -23,7 +23,7 @@
 #
 
 GITHUB_UPLOAD=0
-REMOTE=0
+REMOTE=1
 LOCAL_UPDATE_SYSTEM=0
 LOCAL_INSTALL_LIBJWT=0
 GITHUB_USER=babelouest
@@ -136,22 +136,6 @@ alpine:
 
 fedora:
 	docker build -t babelouest/rpm docker-base/fedora-latest/
-
-local-deb-install-libjwt:
-	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
-		# install dependencies \
-		sudo apt-get install -y autoconf automake libtool libssl-dev; \
-	fi
-	@if [ "$(LOCAL_INSTALL_LIBJWT)" = "1" ]; then \
-		# install libjwt \
-		wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O build/v${LIBJWT_VERSION}.tar.gz && \
-		tar -xf build/v${LIBJWT_VERSION}.tar.gz -C build/; \
-		( cd build/libjwt-${LIBJWT_VERSION}/ && \
-		autoreconf -i && \
-		(./configure --without-openssl || ./configure) && \
-		make && \
-		sudo make install ); \
-	fi
 
 orcania-source: orcania/orcania.tar.gz
 
@@ -268,7 +252,7 @@ orcania-install-dependencies:
 		sudo apt-get install -y libjansson-dev pkg-config; \
 	fi
 
-orcania-local-deb: orcania-install-dependencies
+orcania-local-deb: orcania-install-dependencies orcania-source
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -861,7 +845,7 @@ glewlwyd-deb:
 
 glewlwyd-deb-test:
 	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/test/deb/
-	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd-test
+	docker run --rm -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-test
 
 glewlwyd-deb-smoke:
 	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/deb/
@@ -875,7 +859,7 @@ glewlwyd-tgz:
 
 glewlwyd-tgz-test:
 	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/test/tgz/
-	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd-test
+	docker run --rm -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-test
 
 glewlwyd-tgz-smoke:
 	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/tgz/
@@ -974,15 +958,10 @@ glewlwyd-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev uuid-dev libldap2-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev libcurl4-gnutls-dev libssl-dev pkg-config libpq-dev liboath-dev; \
+		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev uuid-dev libldap2-dev default-libmysqlclient-dev libpq-dev libsqlite3-dev libconfig-dev libgnutls28-dev libcurl4-gnutls-dev libssl-dev pkg-config libpq-dev liboath-dev libcbor-dev libjwt-dev liboath-dev; \
 	fi
 
-glewlwyd-local-deb: glewlwyd-install-dependencies local-deb-install-libjwt
-	# libcbor
-	wget https://github.com/PJK/libcbor/archive/v$(LIBCBOR_VERSION).tar.gz -O build/libcbor.$(LIBCBOR_VERSION).tar.gz
-	tar xf build/libcbor.$(LIBCBOR_VERSION).tar.gz -C build/
-	(mkdir build/libcbor-$(LIBCBOR_VERSION)/build && cd build/libcbor-$(LIBCBOR_VERSION)/build && cmake .. && make && sudo make install)
-	
+glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source ulfius-source hoel-source yder-source orcania-source
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -1131,7 +1110,7 @@ taliesin-install-dependencies:
 		sudo apt-get install -y libconfig-dev libjansson-dev libsystemd-dev libgnutls28-dev libssl-dev libmicrohttpd-dev libmariadbclient-dev libsqlite3-dev libtool libavfilter-dev libavcodec-dev libavformat-dev libswresample-dev libavutil-dev pkg-config; \
 	fi
 
-taliesin-local-deb: taliesin-install-dependencies local-deb-install-libjwt
+taliesin-local-deb: taliesin-install-dependencies
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -1285,7 +1264,7 @@ hutch-install-dependencies:
 		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev pkg-config; \
 	fi
 
-hutch-local-deb: hutch-install-dependencies local-deb-install-libjwt
+hutch-local-deb: hutch-install-dependencies
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
@@ -1421,7 +1400,7 @@ angharad-install-dependencies:
 		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libopenzwave1.5-dev libmpdclient-dev libcurl4-gnutls-dev g++ pkg-config; \
 	fi
 
-angharad-local-deb: angharad-install-dependencies local-deb-install-libjwt
+angharad-local-deb: angharad-install-dependencies
 	# package orcania
 	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
