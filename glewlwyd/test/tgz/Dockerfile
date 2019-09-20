@@ -21,6 +21,7 @@ RUN apk add --no-cache \
 		jansson-dev \
 		libgcrypt-dev \
 		libmicrohttpd-dev \
+    gnutls-utils \
     sqlite \
 		sqlite-dev \
 		mariadb-dev \
@@ -50,4 +51,4 @@ RUN echo ${GLEWLWYD_VERSION} > /opt/GLEWLWYD_VERSION
 
 COPY ["entrypoint.sh", "/"]
 
-CMD ["/entrypoint.sh"]
+CMD ["/share/glewlwyd/test/tgz/entrypoint.sh"]
