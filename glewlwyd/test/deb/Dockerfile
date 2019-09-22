@@ -47,13 +47,6 @@ RUN if [ $(lsb_release -cs) = "bionic" ]; then \
     tar xf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION} && autoreconf -i && (./configure --without-openssl || ./configure) && make && make install && ldconfig) \
     fi
 
-ARG ORCANIA_VERSION
-ARG YDER_VERSION
-ARG ULFIUS_VERSION
-ARG HOEL_VERSION
-ARG GLEWLWYD_VERSION
-ARG LIBJWT_VERSION
-
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
 RUN echo ${YDER_VERSION} > /opt/YDER_VERSION
 RUN echo ${ULFIUS_VERSION} > /opt/ULFIUS_VERSION
