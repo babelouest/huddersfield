@@ -38,7 +38,7 @@ RUN apt-get update && \
     dpkg -i libulfius_${ULFIUS_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb && \
     dpkg -i glewlwyd_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb && \
     mkdir -p /var/cache/glewlwyd && \
-    sqlite3 /var/cache/glewlwyd/glewlwyd.db < /usr/share/glewlwyd/database/init.sqlite3.sql
+    sqlite3 /var/cache/glewlwyd/glewlwyd.db < /usr/share/docs/glewlwyd/database/init.sqlite3.sql
 
 COPY ["entrypoint.sh", "/"]
 

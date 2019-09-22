@@ -41,7 +41,7 @@ RUN apk add --no-cache \
     tar xvf libhoel_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz -C /usr/ --strip 1 && \
     tar xvf glewlwyd_${GLEWLWYD_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz -C /usr/ --strip 1 && \
     mkdir -p /var/cache/glewlwyd && \
-    sqlite3 /var/cache/glewlwyd/glewlwyd.db < /usr/share/glewlwyd/database/init.sqlite3.sql
+    sqlite3 /var/cache/glewlwyd/glewlwyd.db < /usr/share/glewlwyd/docs/database/init.sqlite3.sql
 
 COPY ["entrypoint.sh", "/"]
 
