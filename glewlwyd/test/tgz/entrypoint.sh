@@ -45,7 +45,7 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
   
   sleep 2
   
-  make test_glewlwyd_scheme_certificate VERBOSE=1 || (cat /tmp/glewlwyd-https.log && false)
+  make test_glewlwyd_scheme_certificate || (cat /tmp/glewlwyd-https.log && false)
   
   kill $G_PID
   
