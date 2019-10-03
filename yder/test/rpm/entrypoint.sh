@@ -8,8 +8,8 @@ if [ -f $YDER_ARCHIVE ]; then
   YDER_VERSION=$(cat /opt/YDER_VERSION)
   ORCANIA_VERSION=$(cat /opt/ORCANIA_VERSION)
   
-  yum install -y /share/yder/liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm
-  yum install -y /share/yder/libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm
+  rpm --install /share/yder/liborcania-dev_${ORCANIA_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm
+  rpm --install /share/yder/libyder-dev_${YDER_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm
 
   mkdir /opt/yder
 
@@ -21,7 +21,7 @@ if [ -f $YDER_ARCHIVE ]; then
   
   ./yder_test
   
-  echo "$(date -R) libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm test complete success" >> /share/summary.log
+  echo "$(date -R) libyder-dev_${YDER_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm test complete success" >> /share/summary.log
 else
   echo "File $YDER_ARCHIVE not present" && false
 fi

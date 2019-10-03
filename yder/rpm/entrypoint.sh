@@ -21,7 +21,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ]; then
 
   make package
 
-  cp liborcania-dev_$ORCANIA_VERSION.rpm /share/yder/liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm
+  cp liborcania-dev_$ORCANIA_VERSION.rpm /share/yder/liborcania-dev_${ORCANIA_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm
 
   make install
 
@@ -37,11 +37,11 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ]; then
 
   make package
 
-  cp libyder-dev_$YDER_VERSION.rpm /share/yder/libyder-dev_${YDER_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm
+  cp libyder-dev_$YDER_VERSION.rpm /share/yder/libyder-dev_${YDER_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm
 
-  echo libyder-dev_${YDER_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm > /share/yder/packages
+  echo libyder-dev_${YDER_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm > /share/yder/packages
   
-  echo "$(date -R) libyder-dev_${YDER_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm build success" >> /share/summary.log
+  echo "$(date -R) libyder-dev_${YDER_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm build success" >> /share/summary.log
 else
   echo "Files $ORCANIA_ARCHIVE or $YDER_ARCHIVE not present" && false
 fi

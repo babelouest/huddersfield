@@ -137,6 +137,12 @@ alpine:
 fedora:
 	docker build -t babelouest/rpm docker-base/fedora-latest/
 
+opensuse-tumbleweed:
+	docker build -t babelouest/rpm docker-base/opensuse-tumbleweed/
+
+opensuse-leap:
+	docker build -t babelouest/rpm docker-base/opensuse-leap/
+
 orcania-source: orcania/orcania.tar.gz
 
 orcania/orcania.tar.gz:
@@ -172,7 +178,7 @@ orcania-rpm:
 
 orcania-rpm-test:
 	cp orcania/*.rpm orcania/test/rpm/
-	docker build -t babelouest/orcania-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) orcania/test/rpm/
+	docker build -t babelouest/orcania-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg RPMI=$(RPMI) orcania/test/rpm/
 	rm -f orcania/test/rpm/*.rpm
 	docker run --rm -v $(shell pwd)/:/share babelouest/orcania-test
 
@@ -243,7 +249,25 @@ orcania-fedora: orcania-source
 
 orcania-fedora-test: orcania-fedora
 	$(MAKE) fedora
-	$(MAKE) orcania-rpm-test
+	$(MAKE) orcania-rpm-test RPMI=yum
+
+orcania-opensuse-tumbleweed: orcania-source
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) orcania-rpm
+	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
+
+orcania-opensuse-tumbleweed-test: orcania-opensuse-tumbleweed
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) orcania-rpm-test RPMI=zypper
+
+orcania-opensuse-leap: orcania-source
+	$(MAKE) opensuse-leap
+	$(MAKE) orcania-rpm
+	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
+
+orcania-opensuse-leap-test: orcania-opensuse-leap
+	$(MAKE) opensuse-leap
+	$(MAKE) orcania-rpm-test RPMI=zypper
 
 orcania-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -275,6 +299,8 @@ orcania-build:
 	$(MAKE) orcania-ubuntu-lts
 	$(MAKE) orcania-alpine
 	$(MAKE) orcania-fedora
+	$(MAKE) orcania-opensuse-tumbleweed
+	$(MAKE) orcania-opensuse-leap
 
 orcania-test:
 	$(MAKE) orcania-debian-oldstable-test
@@ -284,6 +310,8 @@ orcania-test:
 	$(MAKE) orcania-ubuntu-lts-test
 	$(MAKE) orcania-alpine-test
 	$(MAKE) orcania-fedora-test
+	$(MAKE) orcania-opensuse-tumbleweed-test
+	$(MAKE) orcania-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#          ORCANIA TESTS COMPLETE           #"
 	@echo "#############################################"
@@ -323,12 +351,12 @@ yder-tgz-test:
 	docker run --rm -v $(shell pwd)/:/share babelouest/yder-test
 
 yder-rpm:
-	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/rpm/
+	docker build -t babelouest/yder --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg RPMI=$(RPMI) yder/rpm/
 	docker run --rm -v $(shell pwd)/:/share babelouest/yder
 
 yder-rpm-test:
 	cp yder/*.rpm yder/test/rpm/
-	docker build -t babelouest/yder-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) yder/test/rpm/
+	docker build -t babelouest/yder-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg RPMI=$(RPMI) yder/test/rpm/
 	rm -f yder/test/rpm/*.rpm
 	docker run --rm -v $(shell pwd)/:/share babelouest/yder-test
 
@@ -392,14 +420,32 @@ yder-alpine-test: yder-alpine
 	$(MAKE) alpine
 	$(MAKE) yder-tgz-test
 
-yder-fedora: 
+yder-fedora: yder-source orcania-source
 	$(MAKE) fedora
-	$(MAKE) yder-rpm
+	$(MAKE) yder-rpm RPMI=yum
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
 yder-fedora-test: yder-fedora
 	$(MAKE) fedora
-	$(MAKE) yder-rpm-test
+	$(MAKE) yder-rpm-test RPMI=yum
+
+yder-opensuse-tumbleweed: yder-source orcania-source
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) yder-rpm RPMI=zypper
+	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
+
+yder-opensuse-tumbleweed-test: yder-opensuse-tumbleweed
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) yder-rpm-test RPMI=zypper
+
+yder-opensuse-leap: yder-source orcania-source
+	$(MAKE) opensuse-leap
+	$(MAKE) yder-rpm RPMI=zypper
+	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
+
+yder-opensuse-leap-test: yder-opensuse-leap
+	$(MAKE) opensuse-leap
+	$(MAKE) yder-rpm-test RPMI=zypper
 
 yder-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -444,6 +490,8 @@ yder-build:
 	$(MAKE) yder-ubuntu-lts
 	$(MAKE) yder-alpine
 	$(MAKE) yder-fedora
+	$(MAKE) yder-opensuse-tumbleweed
+	$(MAKE) yder-opensuse-leap
 
 yder-test:
 	$(MAKE) yder-debian-oldstable-test
@@ -451,8 +499,10 @@ yder-test:
 	$(MAKE) yder-debian-testing-test
 	$(MAKE) yder-ubuntu-latest-test
 	$(MAKE) yder-ubuntu-lts-test
-	$(MAKE) yder-alpine-test
+	#$(MAKE) yder-alpine-test # Sometimes alpine is weird
 	$(MAKE) yder-fedora-test
+	$(MAKE) yder-opensuse-tumbleweed-test
+	$(MAKE) yder-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#           YDER TESTS COMPLETE             #"
 	@echo "#############################################"
@@ -1087,7 +1137,7 @@ glewlwyd-test:
 	@echo "#############################################"
 
 glewlwyd-clean: clean-base
-	rm -f glewlwyd/*.tar.gz glewlwyd/*.deb glewlwyd/packages
+	rm -f glewlwyd/*.tar.gz glewlwyd/*.deb glewlwyd/*.rpm glewlwyd/packages
 	-docker rmi -f babelouest/glewlwyd
 	-docker rmi -f babelouest/glewlwyd-test
 

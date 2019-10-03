@@ -1,7 +1,9 @@
 FROM babelouest/rpm
 
+ARG RPMI=yum
+
 # Install required packages
-RUN yum install -y \
+RUN ${RPMI} install -y \
 		systemd-devel \
 		check-devel
 
