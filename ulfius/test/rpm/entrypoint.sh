@@ -9,10 +9,10 @@ if [ -f $ULFIUS_ARCHIVE ]; then
   ORCANIA_VERSION=$(cat /opt/ORCANIA_VERSION)
   ULFIUS_VERSION=$(cat /opt/ULFIUS_VERSION)
   
-  tar xvf /share/ulfius/ulfius-dev-full_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.tar.gz
-  yum install -y liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm
-  yum install -y libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm
-  yum install -y libulfius-dev_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm
+  tar xvf /share/ulfius/ulfius-dev-full_${ULFIUS_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_`uname -m`.tar.gz
+  rpm --install liborcania-dev_${ORCANIA_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_`uname -m`.rpm
+  rpm --install libyder-dev_${YDER_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_`uname -m`.rpm
+  rpm --install libulfius-dev_${ULFIUS_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_`uname -m`.rpm
 
   mkdir /opt/ulfius/
 
@@ -20,14 +20,14 @@ if [ -f $ULFIUS_ARCHIVE ]; then
 
   cd /opt/ulfius/test
 
-  make u_map core framework websocket LIBS="-lc -lorcania -lulfius -lyder -ljansson -lgnutls -lcheck -pthread -lrt -lm -lsubunit"
+  make u_map core framework websocket LIBS="-lc -lorcania -lulfius -lyder -ljansson -lgnutls -pthread $(pkg-config --libs check)"
   
   ./u_map
   ./core
   ./framework
   ./websocket
   
-  echo "$(date -R) libulfius-dev_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm test complete success" >> /share/summary.log
+  echo "$(date -R) libulfius-dev_${ULFIUS_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_`uname -m`.rpm test complete success" >> /share/summary.log
 else
   echo "File $ULFIUS_ARCHIVE not present" && false
 fi

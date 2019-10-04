@@ -1,12 +1,16 @@
 FROM babelouest/rpm
 
+ARG RPMI=yum
+
 # Install required packages
-RUN yum install -y \
-    jansson-devel \
-		systemd-devel \
+RUN ${RPMI} install -y \
+    systemd-devel \
     libcurl-devel \
     gnutls-devel \
     libmicrohttpd-devel
+
+RUN ${RPMI} install -y libjansson-devel || \
+    ${RPMI} install -y jansson-devel
 
 ARG ORCANIA_VERSION
 ARG YDER_VERSION

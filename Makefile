@@ -542,12 +542,12 @@ ulfius-tgz-test:
 	docker run --rm -v $(shell pwd)/:/share babelouest/ulfius-test
 
 ulfius-rpm:
-	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/rpm/
+	docker build -t babelouest/ulfius --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RPMI=$(RPMI) ulfius/rpm/
 	docker run --rm -v $(shell pwd)/:/share babelouest/ulfius
 
 ulfius-rpm-test:
 	cp ulfius/*.tar.gz ulfius/test/rpm/
-	docker build -t babelouest/ulfius-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) ulfius/test/rpm/
+	docker build -t babelouest/ulfius-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RPMI=$(RPMI) ulfius/test/rpm/
 	rm -f ulfius/test/rpm/*.tar.gz
 	docker run --rm -v $(shell pwd)/:/share babelouest/ulfius-test
 
@@ -611,12 +611,30 @@ ulfius-alpine-test: ulfius-alpine
 
 ulfius-fedora: yder-source orcania-source ulfius-source
 	$(MAKE) fedora
-	$(MAKE) ulfius-rpm
+	$(MAKE) ulfius-rpm RPMI=yum
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
 ulfius-fedora-test: ulfius-fedora
 	$(MAKE) fedora
-	$(MAKE) ulfius-rpm-test
+	$(MAKE) ulfius-rpm-test RPMI=yum
+
+ulfius-opensuse-tumbleweed: yder-source orcania-source ulfius-source
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) ulfius-rpm RPMI=zypper
+	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
+
+ulfius-opensuse-tumbleweed-test: ulfius-opensuse-tumbleweed
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) ulfius-rpm-test RPMI=zypper
+
+ulfius-opensuse-leap: yder-source orcania-source ulfius-source
+	$(MAKE) opensuse-leap
+	$(MAKE) ulfius-rpm RPMI=zypper
+	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
+
+ulfius-opensuse-leap-test: ulfius-opensuse-leap
+	$(MAKE) opensuse-leap
+	$(MAKE) ulfius-rpm-test RPMI=zypper
 
 ulfius-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -677,6 +695,8 @@ ulfius-build:
 	$(MAKE) ulfius-ubuntu-lts
 	$(MAKE) ulfius-alpine
 	$(MAKE) ulfius-fedora
+	$(MAKE) ulfius-opensuse-tumbleweed
+	$(MAKE) ulfius-opensuse-leap
 
 ulfius-test:
 	$(MAKE) ulfius-debian-oldstable-test
@@ -686,6 +706,8 @@ ulfius-test:
 	$(MAKE) ulfius-ubuntu-lts-test
 	$(MAKE) ulfius-alpine-test
 	$(MAKE) ulfius-fedora-test
+	#$(MAKE) ulfius-opensuse-tumbleweed-test
+	#$(MAKE) ulfius-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#          ULFIUS TESTS COMPLETE            #"
 	@echo "#############################################"
