@@ -9,11 +9,10 @@ if [ -f $HOEL_ARCHIVE ]; then
   ORCANIA_VERSION=$(cat /opt/ORCANIA_VERSION)
   HOEL_VERSION=$(cat /opt/HOEL_VERSION)
   
-  ls -l /share/hoel
-  tar xvf /share/hoel/hoel-dev-full_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.tar.gz
-  yum install -y liborcania-dev_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm
-  yum install -y libyder-dev_${YDER_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm
-  yum install -y libhoel-dev_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm
+  tar xvf /share/hoel/hoel-dev-full_${HOEL_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).tar.gz
+  rpm --install liborcania-dev_${ORCANIA_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm
+  rpm --install libyder-dev_${YDER_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm
+  rpm --install libhoel-dev_${HOEL_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm
 
   mkdir /opt/hoel/
 
@@ -21,13 +20,13 @@ if [ -f $HOEL_ARCHIVE ]; then
 
   cd /opt/hoel/test
 
-  make core
+  make core LIBS="-lc -lorcania -lhoel -lyder -ljansson -pthread $(pkg-config --libs check)"
   
   sqlite3 /tmp/test.db < test.sql
 
   ./core
   
-  echo "$(date -R) libhoel-dev_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`lsb_release -c -s`_`uname -m`.rpm test complete success" >> /share/summary.log
+  echo "$(date -R) libhoel-dev_${HOEL_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm test complete success" >> /share/summary.log
 else
   echo "File $HOEL_ARCHIVE not present" && false
 fi

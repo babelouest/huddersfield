@@ -1,12 +1,14 @@
 FROM babelouest/rpm
 
+ARG RPMI=yum
+
 # Install required packages
-RUN yum install -y \
-    jansson-devel \
-		systemd-devel \
-		sqlite-devel \
-		libpq-devel \
-    mariadb-devel
+RUN ${RPMI} install -y \
+    systemd-devel \
+    sqlite-devel
+
+RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-devel || \
+    ${RPMI} install -y jansson-devel mariadb-devel libpq-devel
 
 ARG ORCANIA_VERSION
 ARG YDER_VERSION

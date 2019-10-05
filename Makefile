@@ -747,12 +747,12 @@ hoel-tgz-test:
 	docker run --rm -v $(shell pwd)/:/share babelouest/hoel-test
 
 hoel-rpm:
-	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/rpm/
+	docker build -t babelouest/hoel --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg RPMI=$(RPMI) hoel/rpm/
 	docker run --rm -v $(shell pwd)/:/share babelouest/hoel
 
 hoel-rpm-test:
 	cp hoel/*.tar.gz hoel/test/rpm/
-	docker build -t babelouest/hoel-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) hoel/test/rpm/
+	docker build -t babelouest/hoel-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg RPMI=$(RPMI) hoel/test/rpm/
 	rm -f hoel/test/rpm/*.tar.gz
 	docker run --rm -v $(shell pwd)/:/share babelouest/hoel-test
 
@@ -818,12 +818,30 @@ hoel-alpine-test: hoel-alpine
 
 hoel-fedora: yder-source orcania-source hoel-source
 	$(MAKE) fedora
-	$(MAKE) hoel-rpm
+	$(MAKE) hoel-rpm RPMI=yum
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
 hoel-fedora-test: hoel-fedora
 	$(MAKE) fedora
-	$(MAKE) hoel-rpm-test
+	$(MAKE) hoel-rpm-test RPMI=yum
+
+hoel-opensuse-tumbleweed: yder-source orcania-source hoel-source
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) hoel-rpm RPMI=zypper
+	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
+
+hoel-opensuse-tumbleweed-test: hoel-opensuse-tumbleweed
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) hoel-rpm-test RPMI=zypper
+
+hoel-opensuse-leap: yder-source orcania-source hoel-source
+	$(MAKE) opensuse-leap
+	$(MAKE) hoel-rpm RPMI=zypper
+	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
+
+hoel-opensuse-leap-test: hoel-opensuse-leap
+	$(MAKE) opensuse-leap
+	$(MAKE) hoel-rpm-test RPMI=zypper
 
 hoel-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -884,6 +902,8 @@ hoel-build:
 	$(MAKE) hoel-ubuntu-lts
 	$(MAKE) hoel-alpine
 	$(MAKE) hoel-fedora
+	#$(MAKE) hoel-opensuse-tumbleweed
+	$(MAKE) hoel-opensuse-leap
 
 hoel-test:
 	$(MAKE) hoel-debian-oldstable-test
@@ -893,6 +913,8 @@ hoel-test:
 	$(MAKE) hoel-ubuntu-lts-test
 	$(MAKE) hoel-alpine-test
 	$(MAKE) hoel-fedora-test
+	#$(MAKE) hoel-opensuse-tumbleweed-test
+	$(MAKE) hoel-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#            HOEL TESTS COMPLETE            #"
 	@echo "#############################################"
