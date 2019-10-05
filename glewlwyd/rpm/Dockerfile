@@ -7,24 +7,25 @@ ARG HOEL_VERSION
 ARG GLEWLWYD_VERSION
 ARG LIBJWT_VERSION
 
+ARG RPMI=yum
+
+RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-devel openldap2-devel || \
+    ${RPMI} install -y jansson-devel mariadb-devel libpq-devel openldap-devel
+
 # Install required packages
-RUN yum install -y \
-    jansson-devel \
-		systemd-devel \
+RUN ${RPMI} install -y \
+    systemd-devel \
     libcurl-devel \
     gnutls-devel \
     libmicrohttpd-devel \
-		sqlite-devel \
-		libpq-devel \
-    mariadb-devel \
+    sqlite-devel \
     liboath-devel \
     libtool \
     autoconf\
     libconfig-devel \
-    openldap-devel \
     libcbor-devel && \
-		(cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \
-		tar xf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION} && autoreconf -i && ./configure --without-openssl --prefix=/usr && \
+    (cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \
+    tar xf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION} && autoreconf -i && ./configure --without-openssl --prefix=/usr && \
     make && make install && ldconfig)
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION

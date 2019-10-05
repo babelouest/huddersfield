@@ -962,18 +962,18 @@ glewlwyd-tgz-smoke:
 	docker run --rm -it -p 4593:4593 babelouest/glewlwyd-smoke
 
 glewlwyd-rpm:
-	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/rpm/
+	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg RPMI=$(RPMI) glewlwyd/rpm/
 	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd
 
 glewlwyd-rpm-test:
-	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/test/rpm/
+	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg RPMI=$(RPMI) glewlwyd/test/rpm/
 	docker run --rm -it -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-test
 
-#glewlwyd-rpm-smoke:
-#	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/rpm/
-#	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) glewlwyd/smoke/rpm/
-#	rm -f glewlwyd/smoke/rpm/glewlwyd-full_*.tar.gz
-#	docker run --rm -it -p 4593:4593 babelouest/glewlwyd-smoke
+glewlwyd-rpm-smoke:
+	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/rpm/
+	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg RPMI=$(RPMI) glewlwyd/smoke/rpm/
+	rm -f glewlwyd/smoke/rpm/glewlwyd-full_*.tar.gz
+	docker run --rm -it -p 4593:4593 babelouest/glewlwyd-smoke
 
 glewlwyd-debian-oldstable: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) debian-oldstable
@@ -1064,13 +1064,42 @@ glewlwyd-alpine-smoke: glewlwyd-alpine
 
 glewlwyd-fedora: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) fedora
-	$(MAKE) glewlwyd-rpm
+	$(MAKE) glewlwyd-rpm RPMI=yum
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
-#glewlwyd-fedora-test: glewlwyd-fedora
-glewlwyd-fedora-test:
+glewlwyd-fedora-test: glewlwyd-fedora
 	$(MAKE) fedora
-	$(MAKE) glewlwyd-rpm-test
+	$(MAKE) glewlwyd-rpm-test RPMI=yum
+
+glewlwyd-fedora-smoke: glewlwyd-fedora
+	$(MAKE) fedora
+	$(MAKE) glewlwyd-rpm-smoke RPMI=yum
+
+glewlwyd-opensuse-tumbleweed: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) glewlwyd-rpm RPMI=zypper
+	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
+
+glewlwyd-opensuse-tumbleweed-test: glewlwyd-opensuse-tumbleweed
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) glewlwyd-rpm-test RPMI=zypper
+
+#glewlwyd-opensuse-tumbleweed-smoke: glewlwyd-opensuse-tumbleweed
+#	$(MAKE) opensuse-tumbleweed
+#	$(MAKE) glewlwyd-rpm-smoke RPMI=zypper
+
+glewlwyd-opensuse-leap: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
+	$(MAKE) opensuse-leap
+	$(MAKE) glewlwyd-rpm RPMI=zypper
+	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
+
+glewlwyd-opensuse-leap-test: glewlwyd-opensuse-leap
+	$(MAKE) opensuse-leap
+	$(MAKE) glewlwyd-rpm-test RPMI=zypper
+
+#glewlwyd-opensuse-leap-smoke: glewlwyd-opensuse-leap
+#	$(MAKE) opensuse-leap
+#	$(MAKE) glewlwyd-rpm-smoke RPMI=zypper
 
 glewlwyd-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -1168,6 +1197,9 @@ glewlwyd-build:
 	$(MAKE) glewlwyd-ubuntu-latest
 	$(MAKE) glewlwyd-ubuntu-lts
 	$(MAKE) glewlwyd-alpine
+	#$(MAKE) glewlwyd-fedora
+	#$(MAKE) glewlwyd-opensuse-tumbleweed
+	#$(MAKE) glewlwyd-opensuse-leap
 
 glewlwyd-test:
 	$(MAKE) glewlwyd-debian-oldstable-test
@@ -1176,6 +1208,9 @@ glewlwyd-test:
 	$(MAKE) glewlwyd-ubuntu-latest-test
 	$(MAKE) glewlwyd-ubuntu-lts-test
 	#$(MAKE) glewlwyd-alpine-test # glewlwyd_oidc_request_jwt and glewlwyd_scheme_certificate Not working, although running test from another host works
+	$(MAKE) glewlwyd-fedora-test
+	#$(MAKE) glewlwyd-opensuse-tumbleweed-test
+	#$(MAKE) glewlwyd-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#          GLEWLWYD TESTS COMPLETE          #"
 	@echo "#############################################"

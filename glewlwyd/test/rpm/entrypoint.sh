@@ -11,11 +11,11 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
   ULFIUS_VERSION=$(cat /opt/ULFIUS_VERSION)
   GLEWLWYD_VERSION=$(cat /opt/GLEWLWYD_VERSION)
 
-  yum install -y /share/glewlwyd/liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm \
-                 /share/glewlwyd/libyder-dev_${YDER_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm \
-                 /share/glewlwyd/libhoel-dev_${HOEL_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm \
-                 /share/glewlwyd/libulfius-dev_${ULFIUS_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm
-  rpm -i --nodeps /share/glewlwyd/glewlwyd-dev_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm
+  rpm --install /share/glewlwyd/liborcania-dev_${ORCANIA_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm \
+                        /share/glewlwyd/libyder-dev_${YDER_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm \
+                        /share/glewlwyd/libhoel-dev_${HOEL_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm \
+                        /share/glewlwyd/libulfius-dev_${ULFIUS_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm
+  rpm -i --nodeps /share/glewlwyd/glewlwyd-dev_${GLEWLWYD_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm
 
   ldconfig
   
@@ -37,21 +37,19 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   kill $G_PID
 
-# Same as alpine, test_glewlwyd_scheme_certificate doesn't work inside the docker instance but works when test is executed from outside
+  ../test/cert/create-cert.sh
 
-  #../test/cert/create-cert.sh
+  glewlwyd --config-file=cert/glewlwyd-cert-ci.conf &
 
-  #glewlwyd --config-file=cert/glewlwyd-cert-ci.conf &
+  export G_PID=$!
 
-  #export G_PID=$!
+  sleep 2
 
-  #sleep 2
+  make test_glewlwyd_scheme_certificate || (cat /tmp/glewlwyd-https.log && false)
 
-  #make test_glewlwyd_scheme_certificate || (cat /tmp/glewlwyd-https.log && false)
+  kill $G_PID
 
-  #kill $G_PID
-
-  echo "$(date -R) glewlwyd-dev_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).rpm test complete success" >> /share/summary.log
+  echo "$(date -R) glewlwyd-dev_${GLEWLWYD_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm test complete success" >> /share/summary.log
 
 else
   echo "File $GLEWLWYD_ARCHIVE not present" && false
