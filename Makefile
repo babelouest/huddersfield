@@ -1077,12 +1077,12 @@ glewlwyd-fedora-smoke: glewlwyd-fedora
 
 glewlwyd-opensuse-tumbleweed: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) opensuse-tumbleweed
-	$(MAKE) glewlwyd-rpm RPMI=zypper
+	$(MAKE) glewlwyd-rpm RPMI="zypper --non-interactive"
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-opensuse-tumbleweed-test: glewlwyd-opensuse-tumbleweed
 	$(MAKE) opensuse-tumbleweed
-	$(MAKE) glewlwyd-rpm-test RPMI=zypper
+	$(MAKE) glewlwyd-rpm-test RPMI="zypper --non-interactive"
 
 #glewlwyd-opensuse-tumbleweed-smoke: glewlwyd-opensuse-tumbleweed
 #	$(MAKE) opensuse-tumbleweed
@@ -1090,12 +1090,12 @@ glewlwyd-opensuse-tumbleweed-test: glewlwyd-opensuse-tumbleweed
 
 glewlwyd-opensuse-leap: yder-source orcania-source hoel-source ulfius-source glewlwyd-source
 	$(MAKE) opensuse-leap
-	$(MAKE) glewlwyd-rpm RPMI=zypper
+	$(MAKE) glewlwyd-rpm RPMI="zypper --non-interactive"
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-opensuse-leap-test: glewlwyd-opensuse-leap
 	$(MAKE) opensuse-leap
-	$(MAKE) glewlwyd-rpm-test RPMI=zypper
+	$(MAKE) glewlwyd-rpm-test RPMI="zypper --non-interactive"
 
 #glewlwyd-opensuse-leap-smoke: glewlwyd-opensuse-leap
 #	$(MAKE) opensuse-leap
