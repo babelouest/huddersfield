@@ -53,4 +53,4 @@ RUN echo ${ULFIUS_VERSION} > /opt/ULFIUS_VERSION
 RUN echo ${HOEL_VERSION} > /opt/HOEL_VERSION
 RUN echo ${GLEWLWYD_VERSION} > /opt/GLEWLWYD_VERSION
 
-CMD ["/share/glewlwyd/test/tgz/entrypoint.sh"]
+CMD ["/share/glewlwyd/test/deb/entrypoint.sh"]
