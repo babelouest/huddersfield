@@ -1,7 +1,7 @@
 FROM opensuse/tumbleweed
 
 # Install base packages
-RUN zypper up &&\
+RUN zypper --non-interactive up &&\
     zypper install -y gcc \
     make \
     cmake \
