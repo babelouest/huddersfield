@@ -32,6 +32,7 @@ LOCAL_ID=$(shell grep -e "^ID=" /etc/os-release |cut -c 4-)
 LOCAL_RELEASE=$(shell lsb_release -c -s)
 
 LIBJWT_VERSION=1.12.0
+LIBJANSSON_VERSION=2.12
 LIBCBOR_VERSION=0.5.0
 
 ORCANIA_SRC=../orcania
@@ -114,7 +115,7 @@ clean-base:
 	-docker rmi -f babelouest/deb babelouest/tgz babelouest/rpm
 	/bin/rm -rf build/*
 
-clean: orcania-clean yder-clean ulfius-clean hoel-clean rhonabwy-clean glewlwyd-clean taliesin-clean hutch-clean angharad-clean clean-base clean-no-tag-images
+clean: orcania-clean yder-clean ulfius-clean hoel-clean rhonabwy-clean iddawc-clean glewlwyd-clean taliesin-clean hutch-clean angharad-clean clean-base clean-no-tag-images
 	echo > summary.log
 
 clean-no-tag-images:
@@ -1151,6 +1152,229 @@ rhonabwy-clean: clean-base
 	rm -f rhonabwy/*.tar.gz rhonabwy/*.deb rhonabwy/*.rpm rhonabwy/packages
 	-docker rmi -f babelouest/rhonabwy
 	-docker rmi -f babelouest/rhonabwy-test
+
+iddawc-source: iddawc/iddawc.tar.gz
+
+iddawc/iddawc.tar.gz:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O iddawc/iddawc.tar.gz https://github.com/babelouest/iddawc/archive/v$(IDDAWC_VERSION).tar.gz; \
+	else \
+		tar --exclude 'iddawc/.git/*' -cvzf iddawc/iddawc.tar.gz $(IDDAWC_SRC); \
+	fi
+
+iddawc-deb:
+	docker build -t babelouest/iddawc --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/build/deb/
+	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc
+
+iddawc-deb-test:
+	cp iddawc/*.tar.gz iddawc/test/deb/
+	docker build -t babelouest/iddawc-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/test/deb/
+	rm -f iddawc/test/deb/*.tar.gz
+	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc-test
+
+iddawc-tgz:
+	docker build -t babelouest/iddawc --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/build/tgz/
+	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc
+
+iddawc-tgz-test:
+	cp iddawc/*.tar.gz iddawc/test/tgz/
+	docker build -t babelouest/iddawc-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/test/tgz/
+	rm -f iddawc/test/tgz/*.tar.gz
+	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc-test
+
+iddawc-rpm:
+	docker build -t babelouest/iddawc --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) iddawc/build/rpm/
+	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc
+
+iddawc-rpm-test:
+	cp iddawc/*.tar.gz iddawc/test/rpm/
+	docker build -t babelouest/iddawc-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) iddawc/test/rpm/
+	rm -f iddawc/test/rpm/*.tar.gz
+	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc-test
+
+iddawc-debian-oldstable: yder-source orcania-source ulfius-source rhonabwy-source iddawc-source
+	$(MAKE) debian-oldstable
+	$(MAKE) iddawc-deb
+	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
+
+iddawc-debian-stable: yder-source orcania-source ulfius-source rhonabwy-source iddawc-source
+	$(MAKE) debian-stable
+	$(MAKE) iddawc-deb
+	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
+
+iddawc-debian-oldstable-test: iddawc-debian-oldstable
+	$(MAKE) debian-oldstable
+	$(MAKE) iddawc-deb-test
+
+iddawc-debian-stable-test: iddawc-debian-stable
+	$(MAKE) debian-stable
+	$(MAKE) iddawc-deb-test
+
+iddawc-debian-testing: yder-source orcania-source ulfius-source rhonabwy-source iddawc-source
+	$(MAKE) debian-testing
+	$(MAKE) iddawc-deb
+	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
+
+iddawc-debian-testing-test: iddawc-debian-testing
+	$(MAKE) debian-testing
+	$(MAKE) iddawc-deb-test
+
+iddawc-ubuntu-latest: yder-source orcania-source ulfius-source rhonabwy-source iddawc-source
+	$(MAKE) ubuntu-latest
+	$(MAKE) iddawc-deb
+	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
+
+iddawc-ubuntu-latest-test: iddawc-ubuntu-latest
+	$(MAKE) ubuntu-latest
+	$(MAKE) iddawc-deb-test
+
+iddawc-ubuntu-lts: yder-source orcania-source ulfius-source rhonabwy-source iddawc-source
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) iddawc-deb; \
+		xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%; \
+	fi
+
+iddawc-ubuntu-lts-test: iddawc-ubuntu-lts
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) iddawc-deb-test; \
+	fi
+
+iddawc-alpine: yder-source orcania-source ulfius-source rhonabwy-source iddawc-source
+	$(MAKE) alpine
+	$(MAKE) iddawc-tgz
+	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
+
+iddawc-alpine-test: iddawc-alpine
+	$(MAKE) alpine
+	$(MAKE) iddawc-tgz-test
+
+iddawc-fedora: yder-source orcania-source ulfius-source rhonabwy-source iddawc-source
+	$(MAKE) fedora
+	$(MAKE) iddawc-rpm RPMI=yum
+	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
+
+iddawc-fedora-test: iddawc-fedora
+	$(MAKE) fedora
+	$(MAKE) iddawc-rpm-test RPMI=yum
+
+iddawc-opensuse-tumbleweed: yder-source orcania-source ulfius-source rhonabwy-source iddawc-source
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) iddawc-rpm RPMI=zypper
+	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
+
+iddawc-opensuse-tumbleweed-test: iddawc-opensuse-tumbleweed
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) iddawc-rpm-test RPMI=zypper
+
+iddawc-opensuse-leap: yder-source orcania-source ulfius-source rhonabwy-source iddawc-source
+	$(MAKE) opensuse-leap
+	$(MAKE) iddawc-rpm RPMI=zypper
+	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
+
+iddawc-opensuse-leap-test: iddawc-opensuse-leap
+	$(MAKE) opensuse-leap
+	$(MAKE) iddawc-rpm-test RPMI=zypper
+
+iddawc-install-dependencies:
+	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
+		# install dependencies \
+		sudo apt update && sudo apt upgrade -y; \
+		sudo apt-get install -y libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libpq-dev pkg-config; \
+	fi
+
+iddawc-local-deb: iddawc-install-dependencies
+	# package orcania
+	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
+	rm -f build/v$(ORCANIA_VERSION).tar.gz
+	( cd build/orcania-$(ORCANIA_VERSION) && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	make package; \
+	sudo make install && \
+	cp liborcania-dev_*.deb ../../../iddawc/liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+
+	# package yder
+	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
+	tar xf build/v$(YDER_VERSION).tar.gz -C build/
+	rm -f build/v$(YDER_VERSION).tar.gz
+	( cd build/yder-$(YDER_VERSION) && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	make package; \
+	sudo make install && \
+	cp libyder-dev_*.deb ../../../iddawc/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+
+	# package ulfius
+	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
+	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
+	rm -f build/v$(ULFIUS_VERSION).tar.gz
+	( cd build/ulfius-$(ULFIUS_VERSION) && \
+	mkdir build && \
+	cd build && \
+	cmake -DWITH_WEBSOCKET=off .. && \
+	make && \
+	sudo make install && \
+	rm -rf * && \
+	cmake -DWITH_WEBSOCKET=off -DINSTALL_HEADER=off .. && \
+	make && \
+	make package; \
+	cp libulfius_*.deb ../../../glewlwyd/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+	
+	# package iddawc
+	wget https://github.com/babelouest/iddawc/archive/v$(IDDAWC_VERSION).tar.gz -O build/v$(IDDAWC_VERSION).tar.gz
+	tar xf build/v$(IDDAWC_VERSION).tar.gz -C build/
+	rm -f build/v$(IDDAWC_VERSION).tar.gz
+	( cd build/iddawc-$(IDDAWC_VERSION) && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make package; \
+	cp libiddawc-dev_*.deb ../../../iddawc/libiddawc-dev_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+
+	( cd iddawc && tar cvz liborcania-dev_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libiddawc-dev_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f iddawc-dev-full_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
+	rm -rf build/*
+	echo libiddawc-dev_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./iddawc/packages
+	echo iddawc-dev-full_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz >> ./iddawc/packages
+	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
+
+iddawc-build:
+	$(MAKE) iddawc-debian-oldstable
+	$(MAKE) iddawc-debian-stable
+	$(MAKE) iddawc-debian-testing
+	$(MAKE) iddawc-ubuntu-latest
+	$(MAKE) iddawc-ubuntu-lts
+	$(MAKE) iddawc-alpine
+	$(MAKE) iddawc-fedora
+	$(MAKE) iddawc-opensuse-tumbleweed
+	$(MAKE) iddawc-opensuse-leap
+
+iddawc-test:
+	$(MAKE) iddawc-debian-oldstable-test
+	$(MAKE) iddawc-debian-stable-test
+	$(MAKE) iddawc-debian-testing-test
+	$(MAKE) iddawc-ubuntu-latest-test
+	$(MAKE) iddawc-ubuntu-lts-test
+	$(MAKE) iddawc-alpine-test
+	$(MAKE) iddawc-fedora-test
+	$(MAKE) iddawc-opensuse-tumbleweed-test
+	$(MAKE) iddawc-opensuse-leap-test
+	@echo "#############################################"
+	@echo "#            IDDAWC TESTS COMPLETE        #"
+	@echo "#############################################"
+
+iddawc-clean: clean-base
+	rm -f iddawc/*.tar.gz iddawc/*.deb iddawc/*.rpm iddawc/packages
+	-docker rmi -f babelouest/iddawc
+	-docker rmi -f babelouest/iddawc-test
 
 glewlwyd-source: glewlwyd/glewlwyd.tar.gz
 
