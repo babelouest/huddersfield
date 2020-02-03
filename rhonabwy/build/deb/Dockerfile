@@ -1,14 +1,5 @@
 FROM babelouest/deb
 
-# Install required packages
-RUN apt-get update && \
-		apt-get install -y \
-		libcurl4-gnutls-dev \
-		libjansson-dev \
-		libsystemd-dev \
-		libgnutls28-dev \
-		libmicrohttpd-dev
-
 ARG ORCANIA_VERSION
 ARG YDER_VERSION
 ARG ULFIUS_VERSION
@@ -25,6 +16,7 @@ RUN apt-get update && \
 		libssl-dev \
 		libcurl4-gnutls-dev \
 		libldap2-dev \
+		libgnutls28-dev \
 		libmicrohttpd-dev \
 		make \
 		wget && \
