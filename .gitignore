@@ -3,3 +3,4 @@
 *.rpm
 GITHUB_TOKEN
 packages
+build/*
