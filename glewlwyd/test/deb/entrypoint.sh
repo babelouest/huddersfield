@@ -9,13 +9,17 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
   ORCANIA_VERSION=$(cat /opt/ORCANIA_VERSION)
   HOEL_VERSION=$(cat /opt/HOEL_VERSION)
   ULFIUS_VERSION=$(cat /opt/ULFIUS_VERSION)
+  RHONABWY_VERSION=$(cat /opt/RHONABWY_VERSION)
+  IDDAWC_VERSION=$(cat /opt/IDDAWC_VERSION)
   GLEWLWYD_VERSION=$(cat /opt/GLEWLWYD_VERSION)
   
   dpkg -i /share/glewlwyd/liborcania-dev_${ORCANIA_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
   dpkg -i /share/glewlwyd/libyder-dev_${YDER_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
-  dpkg -i /share/glewlwyd/libhoel-dev_${HOEL_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
-  dpkg -i /share/glewlwyd/libulfius-dev_${ULFIUS_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
-  dpkg -i /share/glewlwyd/glewlwyd-dev_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
+  dpkg -i --ignore-depends=libjansson-dev /share/glewlwyd/libhoel-dev_${HOEL_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
+  dpkg -i --ignore-depends=libjansson-dev /share/glewlwyd/libulfius-dev_${ULFIUS_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
+  dpkg -i --ignore-depends=libjansson-dev /share/glewlwyd/librhonabwy-dev_${RHONABWY_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
+  dpkg -i --ignore-depends=libjansson-dev /share/glewlwyd/libiddawc-dev_${IDDAWC_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
+  dpkg -i --ignore-depends=libjansson-dev /share/glewlwyd/glewlwyd-dev_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb
 
   mkdir -p /opt/glewlwyd/
 
