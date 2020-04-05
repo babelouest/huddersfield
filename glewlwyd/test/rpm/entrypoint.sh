@@ -37,7 +37,11 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   sqlite3 /tmp/glewlwyd.db < /opt/glewlwyd/test/glewlwyd-test.sql
 
-  glewlwyd --config-file=/opt/glewlwyd/test/glewlwyd-ci.conf &
+  if [ $(cat /opt/MEMCHECK) -eq "1" ]; then
+    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=/opt/glewlwyd/test/glewlwyd-ci.conf 2>/share/glewlwyd/valgrind_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
+  else
+    glewlwyd --config-file=/opt/glewlwyd/test/glewlwyd-ci.conf &
+  fi
 
   export G_PID=$!
   
@@ -53,7 +57,11 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   make glewlwyd_scheme_certificate
   
-  glewlwyd --config-file=cert/glewlwyd-cert-ci.conf &
+  if [ $(cat /opt/MEMCHECK) -eq "1" ]; then
+    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=cert/glewlwyd-cert-ci.conf 2>/share/glewlwyd/valgrind_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
+  else
+    glewlwyd --config-file=cert/glewlwyd-cert-ci.conf &
+  fi
 
   export G_PID=$!
   
@@ -63,7 +71,11 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
   
   kill $G_PID
 
-  glewlwyd --config-file=test/glewlwyd-profile-delete-disable.conf &
+  if [ $(cat /opt/MEMCHECK) -eq "1" ]; then
+    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=test/glewlwyd-profile-delete-disable.conf 2>/share/glewlwyd/valgrind-profile-delete-disable_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
+  else
+    glewlwyd --config-file=test/glewlwyd-profile-delete-disable.conf &
+  fi
 
   export G_PID=$!
 
@@ -73,7 +85,11 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   kill $G_PID
 
-  glewlwyd --config-file=test/glewlwyd-profile-delete-yes.conf &
+  if [ $(cat /opt/MEMCHECK) -eq "1" ]; then
+    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=test/glewlwyd-profile-delete-yes.conf 2>/share/glewlwyd/valgrind-profile-delete-yes_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
+  else
+    glewlwyd --config-file=test/glewlwyd-profile-delete-yes.conf &
+  fi
 
   export G_PID=$!
 

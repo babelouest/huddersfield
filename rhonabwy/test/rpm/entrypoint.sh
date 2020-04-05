@@ -22,12 +22,21 @@ if [ -f $RHONABWY_ARCHIVE ]; then
 
   cd /opt/rhonabwy/test
 
-  make core import export jwks
+  make misc jwk_core jwk_export jwk_import jwks_core jws_core jws_hmac jws_ecdsa jws_rsa jws_rsapss jwe_core jwe_rsa jwe_dir
   
-  ./core
-  ./import
-  ./export
-  ./jwks
+  ./misc
+  ./jwk_core
+  ./jwk_export
+  ./jwk_import
+  ./jwks_core
+  ./jws_core
+  ./jws_hmac
+  ./jws_ecdsa
+  ./jws_rsa
+  ./jws_rsapss
+  ./jwe_core
+  ./jwe_rsa
+  ./jwe_dir
   
   echo "$(date -R) librhonabwy-dev_${RHONABWY_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_`uname -m`.rpm test complete success" >> /share/summary.log
 else

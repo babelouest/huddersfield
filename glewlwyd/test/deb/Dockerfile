@@ -10,6 +10,7 @@ ARG GLEWLWYD_VERSION
 ARG LIBJANSSON_VERSION
 ARG LIBJWT_VERSION
 ARG LIBCBOR_VERSION
+ARG MEMCHECK
 
 # Install required packages
 RUN apt-get update && \
@@ -35,6 +36,7 @@ RUN apt-get update && \
     default-libmysqlclient-dev \
     check \
     gnutls-bin \
+    valgrind \
     libsubunit-dev && \
     apt-get install -y libcbor-dev || \
     (cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
@@ -64,5 +66,6 @@ RUN echo ${HOEL_VERSION} > /opt/HOEL_VERSION
 RUN echo ${RHONABWY_VERSION} > /opt/RHONABWY_VERSION
 RUN echo ${IDDAWC_VERSION} > /opt/IDDAWC_VERSION
 RUN echo ${GLEWLWYD_VERSION} > /opt/GLEWLWYD_VERSION
+RUN echo ${MEMCHECK} > /opt/MEMCHECK
 
 CMD ["/share/glewlwyd/test/deb/entrypoint.sh"]

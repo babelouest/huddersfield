@@ -35,10 +35,14 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   sqlite3 /tmp/glewlwyd.db < /opt/glewlwyd/test/glewlwyd-test.sql
 
-  glewlwyd --config-file=/opt/glewlwyd/test/glewlwyd-ci.conf &
+  if grep -q "1" "/opt/MEMCHECK"; then
+    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=/opt/glewlwyd/test/glewlwyd-ci.conf 2>/share/glewlwyd/valgrind_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
+    export G_PID=$!
+  else
+    glewlwyd --config-file=/opt/glewlwyd/test/glewlwyd-ci.conf &
+    export G_PID=$!
+  fi
 
-  export G_PID=$!
-  
   ../test/cert/create-cert.sh
 
   ln -s ../test/cert/ .
@@ -47,40 +51,60 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
   
   make test
   
-  kill $G_PID
+  kill -TERM $G_PID
 
+  sleep 2
+  
   make glewlwyd_scheme_certificate
   
-  glewlwyd --config-file=cert/glewlwyd-cert-ci.conf &
+  if grep -q "1" "/opt/MEMCHECK"; then
+    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=cert/glewlwyd-cert-ci.conf 2>/share/glewlwyd/valgrind_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
+    export G_PID=$!
+  else
+    glewlwyd --config-file=cert/glewlwyd-cert-ci.conf &
+    export G_PID=$!
+  fi
 
-  export G_PID=$!
-  
   sleep 2
   
   ./glewlwyd_scheme_certificate || (cat /tmp/glewlwyd-https.log && false)
   
-  kill $G_PID
+  kill -TERM $G_PID
 
-  glewlwyd --config-file=test/glewlwyd-profile-delete-disable.conf &
-
-  export G_PID=$!
+  sleep 2
+  
+  if grep -q "1" "/opt/MEMCHECK"; then
+    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=test/glewlwyd-profile-delete-disable.conf 2>/share/glewlwyd/valgrind-profile-delete-disable_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
+    export G_PID=$!
+  else
+    glewlwyd --config-file=test/glewlwyd-profile-delete-disable.conf &
+    export G_PID=$!
+  fi
 
   sleep 2
 
   ./glewlwyd_profile_delete disable || (cat /tmp/glewlwyd-disable.log && false)
 
-  kill $G_PID
+  kill -TERM $G_PID
 
-  glewlwyd --config-file=test/glewlwyd-profile-delete-yes.conf &
-
-  export G_PID=$!
+  sleep 2
+  
+  if grep -q "1" "/opt/MEMCHECK"; then
+    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=test/glewlwyd-profile-delete-yes.conf 2>/share/glewlwyd/valgrind-profile-delete-yes_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
+    export G_PID=$!
+  else
+    glewlwyd --config-file=test/glewlwyd-profile-delete-yes.conf &
+    export G_PID=$!
+  fi
 
   sleep 2
 
   ./glewlwyd_profile_delete delete || (cat /tmp/glewlwyd-delete.log && false)
 
-  kill $G_PID
+  kill -TERM $G_PID
 
+  sleep 2
+  
   echo "$(date -R) glewlwyd-dev_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).deb test complete success" >> /share/summary.log
 
 else

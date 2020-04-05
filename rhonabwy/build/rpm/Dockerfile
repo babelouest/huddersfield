@@ -6,7 +6,6 @@ ARG ORCANIA_VERSION
 ARG YDER_VERSION
 ARG ULFIUS_VERSION
 ARG RHONABWY_VERSION
-ARG LIBJWT_VERSION
 
 RUN ${RPMI} install -y libjansson-devel || \
     ${RPMI} install -y jansson-devel
@@ -16,12 +15,8 @@ RUN ${RPMI} install -y \
     systemd-devel \
     libcurl-devel \
     gnutls-devel \
-    libtool \
-    autoconf\
-    libmicrohttpd-devel && \
-    (cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \
-    tar xf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION} && autoreconf -i && ./configure --without-openssl --prefix=/usr && \
-    make && make install && ldconfig)
+    zlib-devel \
+    libmicrohttpd-devel
 
 RUN ${RPMI} install -y libjansson-devel || \
     ${RPMI} install -y jansson-devel

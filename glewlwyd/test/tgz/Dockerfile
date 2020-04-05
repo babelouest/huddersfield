@@ -9,6 +9,7 @@ ARG IDDAWC_VERSION
 ARG GLEWLWYD_VERSION
 ARG LIBJWT_VERSION
 ARG LIBCBOR_VERSION
+ARG MEMCHECK
 
 # Install required packages
 RUN apk add --no-cache \
@@ -37,6 +38,7 @@ RUN apk add --no-cache \
     wget \
     cmake \
     bash \
+    valgrind \
     oath-toolkit-dev && \
     (cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
     tar xf libcbor.tar.gz && cd libcbor-${LIBCBOR_VERSION} && mkdir build && cd build && \
@@ -52,5 +54,6 @@ RUN echo ${HOEL_VERSION} > /opt/HOEL_VERSION
 RUN echo ${RHONABWY_VERSION} > /opt/RHONABWY_VERSION
 RUN echo ${IDDAWC_VERSION} > /opt/IDDAWC_VERSION
 RUN echo ${GLEWLWYD_VERSION} > /opt/GLEWLWYD_VERSION
+RUN echo ${MEMCHECK} > /opt/MEMCHECK
 
 CMD ["/share/glewlwyd/test/tgz/entrypoint.sh"]

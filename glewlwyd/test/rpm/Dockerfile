@@ -8,6 +8,7 @@ ARG RHONABWY_VERSION
 ARG IDDAWC_VERSION
 ARG GLEWLWYD_VERSION
 ARG LIBJWT_VERSION
+ARG MEMCHECK
 
 ARG RPMI=yum
 
@@ -31,6 +32,7 @@ RUN ${RPMI} install -y \
     libtool \
     autoconf\
     libconfig-devel \
+    valgrind \
     libcbor-devel && \
     (cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \
     tar xf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION} && autoreconf -i && ./configure --without-openssl --prefix=/usr && \
@@ -43,5 +45,6 @@ RUN echo ${HOEL_VERSION} > /opt/HOEL_VERSION
 RUN echo ${RHONABWY_VERSION} > /opt/RHONABWY_VERSION
 RUN echo ${IDDAWC_VERSION} > /opt/IDDAWC_VERSION
 RUN echo ${GLEWLWYD_VERSION} > /opt/GLEWLWYD_VERSION
+RUN echo ${MEMCHECK} > /opt/MEMCHECK
 
 CMD ["/share/glewlwyd/test/rpm/entrypoint.sh"]
