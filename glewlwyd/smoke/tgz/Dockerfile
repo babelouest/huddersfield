@@ -7,7 +7,6 @@ ARG HOEL_VERSION
 ARG RHONABWY_VERSION
 ARG IDDAWC_VERSION
 ARG GLEWLWYD_VERSION
-ARG LIBJWT_VERSION
 ARG LIBCBOR_VERSION
 
 COPY ["glewlwyd-full_*.tar.gz", "/opt/"]
@@ -16,8 +15,8 @@ COPY ["glewlwyd-full_*.tar.gz", "/opt/"]
 RUN apk add --no-cache \
 		sqlite \
 		libconfig \
-		jansson-dev \
-		gnutls-dev \
+		jansson \
+		gnutls \
 		libcurl \
 		libldap \
 		libmicrohttpd \
@@ -29,12 +28,11 @@ RUN apk add --no-cache \
 		cmake \
 		autoconf \
 		automake \
+		zlib \
 		libtool && \
 		(cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
 		tar xf libcbor.tar.gz && cd libcbor-${LIBCBOR_VERSION} && mkdir build && cd build && \
 		cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib .. && make && make install) && \
-		(cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \
-		tar xf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION} && autoreconf -i && ./configure --without-openssl && make && make install) && \
 		cd /opt && \
 		tar xvf ./glewlwyd-full_${GLEWLWYD_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz && \
 		tar xvf liborcania_${ORCANIA_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz -C /usr/ --strip 1 && \

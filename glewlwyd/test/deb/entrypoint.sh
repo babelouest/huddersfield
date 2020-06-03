@@ -49,13 +49,13 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   ln -s ../test/ .
   
-  make test
+  make test || (cat Testing/Temporary/LastTest.log && cat /tmp/glewlwyd.log && false)
   
   kill -TERM $G_PID
 
   sleep 2
   
-  make glewlwyd_scheme_certificate
+  make glewlwyd_scheme_certificate glewlwyd_oidc_client_certificate
   
   if grep -q "1" "/opt/MEMCHECK"; then
     valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=cert/glewlwyd-cert-ci.conf 2>/share/glewlwyd/valgrind_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
@@ -67,7 +67,7 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   sleep 2
   
-  ./glewlwyd_scheme_certificate || (cat /tmp/glewlwyd-https.log && false)
+  (./glewlwyd_scheme_certificate && ./glewlwyd_oidc_client_certificate) || (cat /tmp/glewlwyd-https.log && false)
   
   kill -TERM $G_PID
 
