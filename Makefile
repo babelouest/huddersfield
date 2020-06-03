@@ -32,8 +32,8 @@ LOCAL_ID=$(shell grep -e "^ID=" /etc/os-release |cut -c 4-)
 LOCAL_RELEASE=$(shell lsb_release -c -s)
 
 LIBJWT_VERSION=1.12.0
-LIBJANSSON_VERSION=2.12
-LIBCBOR_VERSION=0.5.0
+LIBJANSSON_VERSION=2.13.1
+LIBCBOR_VERSION=0.7.0
 
 ORCANIA_SRC=../orcania
 YDER_SRC=../yder
@@ -148,6 +148,41 @@ opensuse-tumbleweed:
 
 opensuse-leap:
 	docker build -t babelouest/rpm docker-base/opensuse-leap/
+
+deb-shell:
+	docker build -t babelouest/deb-shell --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) shell/deb/
+	docker run --rm -it -p 4593:4593 -v $(shell dirname "$$(pwd)")/:/share babelouest/deb-shell bash
+
+tgz-shell:
+	docker build -t babelouest/tgz-shell --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) shell/tgz/
+	docker run --rm -it -p 4593:4593 -v $(shell dirname "$$(pwd)")/:/share babelouest/tgz-shell bash
+
+rpm-shell:
+	docker build -t babelouest/rpm-shell --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) shell/rpm/
+	docker run --rm -it -p 4593:4593 -v $(shell dirname "$$(pwd)")/:/share babelouest/rpm-shell
+
+shell-debian-oldstable:
+	$(MAKE) debian-oldstable
+	$(MAKE) deb-shell
+
+shell-debian-stable:
+	$(MAKE) debian-stable
+	$(MAKE) deb-shell
+
+shell-debian-testing:
+	$(MAKE) debian-testing
+	$(MAKE) deb-shell
+
+shell-ubuntu-latest:
+	$(MAKE) ubuntu-latest
+	$(MAKE) deb-shell
+
+orcania-ubuntu-lts: orcania-source
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) deb-shell; \
+	fi
 
 orcania-source: orcania/orcania.tar.gz
 
@@ -1163,32 +1198,32 @@ iddawc/iddawc.tar.gz:
 	fi
 
 iddawc-deb:
-	docker build -t babelouest/iddawc --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/build/deb/
+	docker build -t babelouest/iddawc --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/build/deb/
 	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc
 
 iddawc-deb-test:
 	cp iddawc/*.tar.gz iddawc/test/deb/
-	docker build -t babelouest/iddawc-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/test/deb/
+	docker build -t babelouest/iddawc-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/test/deb/
 	rm -f iddawc/test/deb/*.tar.gz
 	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc-test
 
 iddawc-tgz:
-	docker build -t babelouest/iddawc --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/build/tgz/
+	docker build -t babelouest/iddawc --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/build/tgz/
 	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc
 
 iddawc-tgz-test:
 	cp iddawc/*.tar.gz iddawc/test/tgz/
-	docker build -t babelouest/iddawc-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/test/tgz/
+	docker build -t babelouest/iddawc-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) iddawc/test/tgz/
 	rm -f iddawc/test/tgz/*.tar.gz
 	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc-test
 
 iddawc-rpm:
-	docker build -t babelouest/iddawc --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) iddawc/build/rpm/
+	docker build -t babelouest/iddawc --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) iddawc/build/rpm/
 	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc
 
 iddawc-rpm-test:
 	cp iddawc/*.tar.gz iddawc/test/rpm/
-	docker build -t babelouest/iddawc-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) iddawc/test/rpm/
+	docker build -t babelouest/iddawc-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) iddawc/test/rpm/
 	rm -f iddawc/test/rpm/*.tar.gz
 	docker run --rm -v $(shell pwd)/:/share babelouest/iddawc-test
 
@@ -1386,44 +1421,44 @@ glewlwyd/glewlwyd.tar.gz:
 	fi
 
 glewlwyd-deb:
-	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/build/deb/
+	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/build/deb/
 	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd
 
 glewlwyd-deb-test:
-	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg MEMCHECK=$(MEMCHECK) glewlwyd/test/deb/
+	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/test/deb/
 	docker run --rm -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-test
 
 glewlwyd-deb-smoke:
 	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/deb/
-	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/smoke/deb/
+	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/smoke/deb/
 	rm -f glewlwyd/smoke/deb/glewlwyd-full_*.tar.gz
 	docker run --rm -it -p 4593:4593 babelouest/glewlwyd-smoke
 
 glewlwyd-tgz:
-	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/build/tgz/
+	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/build/tgz/
 	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd
 
 glewlwyd-tgz-test:
-	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg MEMCHECK=$(MEMCHECK) glewlwyd/test/tgz/
+	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg MEMCHECK=$(MEMCHECK) glewlwyd/test/tgz/
 	docker run --rm -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-test
 
 glewlwyd-tgz-smoke:
 	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/tgz/
-	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/smoke/tgz/
+	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/smoke/tgz/
 	rm -f glewlwyd/smoke/tgz/glewlwyd-full_*.tar.gz
 	docker run --rm -it -p 4593:4593 babelouest/glewlwyd-smoke
 
 glewlwyd-rpm:
-	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) glewlwyd/build/rpm/
+	docker build -t babelouest/glewlwyd --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) glewlwyd/build/rpm/
 	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd
 
 glewlwyd-rpm-test:
-	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) --build-arg MEMCHECK=$(MEMCHECK) glewlwyd/test/rpm/
+	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) --build-arg MEMCHECK=$(MEMCHECK) glewlwyd/test/rpm/
 	docker run --rm -it -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-test
 
 glewlwyd-rpm-smoke:
 	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/rpm/
-	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg RPMI=$(RPMI) glewlwyd/smoke/rpm/
+	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg RPMI=$(RPMI) glewlwyd/smoke/rpm/
 	rm -f glewlwyd/smoke/rpm/glewlwyd-full_*.tar.gz
 	docker run --rm -it -p 4593:4593 babelouest/glewlwyd-smoke
 
@@ -1561,11 +1596,11 @@ glewlwyd-install-dependencies:
 	fi
 
 glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source rhonabwy-source iddawc-source ulfius-source hoel-source yder-source orcania-source
+	mkdir -p build/orcania build/yder build/ulfius build/hoel build/rhonabwy build/iddawc build/glewlwyd
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
-	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
-	rm -f build/v$(ORCANIA_VERSION).tar.gz
-	( cd build/orcania-$(ORCANIA_VERSION) && \
+	#wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf orcania/orcania.tar.gz -C build/orcania/ --strip 1
+	( cd build/orcania && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -1578,10 +1613,9 @@ glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source rhonabwy-sourc
 	cp liborcania_*.deb ../../../glewlwyd/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
-	tar xf build/v$(YDER_VERSION).tar.gz -C build/
-	rm -f build/v$(YDER_VERSION).tar.gz
-	( cd build/yder-$(YDER_VERSION) && \
+	#wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
+	tar xf yder/yder.tar.gz -C build/yder/ --strip 1
+	( cd build/yder && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -1594,26 +1628,24 @@ glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source rhonabwy-sourc
 	cp libyder_*.deb ../../../glewlwyd/libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package ulfius
-	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
-	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
-	rm -f build/v$(ULFIUS_VERSION).tar.gz
-	( cd build/ulfius-$(ULFIUS_VERSION) && \
+	#wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
+	tar xf ulfius/ulfius.tar.gz -C build/ulfius/ --strip 1
+	( cd build/ulfius && \
 	mkdir build && \
 	cd build && \
-	cmake -DWITH_WEBSOCKET=off .. && \
+	cmake .. && \
 	make && \
 	sudo make install && \
 	rm -rf * && \
-	cmake -DWITH_WEBSOCKET=off -DINSTALL_HEADER=off .. && \
+	cmake -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
 	cp libulfius_*.deb ../../../glewlwyd/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	
 	# package hoel
-	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
-	tar xf build/v$(HOEL_VERSION).tar.gz -C build/
-	rm -f build/v$(HOEL_VERSION).tar.gz
-	( cd build/hoel-$(HOEL_VERSION) && \
+	#wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
+	tar xf hoel/hoel.tar.gz -C build/hoel/ --strip 1
+	( cd build/hoel && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -1625,10 +1657,9 @@ glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source rhonabwy-sourc
 	cp libhoel_*.deb ../../../glewlwyd/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package rhonabwy
-	wget https://github.com/babelouest/rhonabwy/archive/v$(RHONABWY_VERSION).tar.gz -O build/v$(RHONABWY_VERSION).tar.gz
-	tar xf build/v$(RHONABWY_VERSION).tar.gz -C build/
-	rm -f build/v$(RHONABWY_VERSION).tar.gz
-	( cd build/rhonabwy-$(RHONABWY_VERSION) && \
+	#wget https://github.com/babelouest/rhonabwy/archive/v$(RHONABWY_VERSION).tar.gz -O build/v$(RHONABWY_VERSION).tar.gz
+	tar xf rhonabwy/rhonabwy.tar.gz -C build/rhonabwy/ --strip 1
+	( cd build/rhonabwy && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -1640,10 +1671,9 @@ glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source rhonabwy-sourc
 	cp librhonabwy_*.deb ../../../glewlwyd/librhonabwy_$(RHONABWY_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package iddawc
-	wget https://github.com/babelouest/iddawc/archive/v$(IDDAWC_VERSION).tar.gz -O build/v$(IDDAWC_VERSION).tar.gz
-	tar xf build/v$(IDDAWC_VERSION).tar.gz -C build/
-	rm -f build/v$(IDDAWC_VERSION).tar.gz
-	( cd build/iddawc-$(IDDAWC_VERSION) && \
+	#wget https://github.com/babelouest/iddawc/archive/v$(IDDAWC_VERSION).tar.gz -O build/v$(IDDAWC_VERSION).tar.gz
+	tar xf iddawc/iddawc.tar.gz -C build/iddawc/ --strip 1
+	( cd build/iddawc && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -1655,10 +1685,9 @@ glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source rhonabwy-sourc
 	cp libiddawc_*.deb ../../../glewlwyd/libiddawc_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package glewlwyd
-	wget https://github.com/babelouest/glewlwyd/archive/v$(GLEWLWYD_VERSION).tar.gz -O build/v$(GLEWLWYD_VERSION).tar.gz
-	tar xf build/v$(GLEWLWYD_VERSION).tar.gz -C build/
-	rm -f build/v$(GLEWLWYD_VERSION).tar.gz
-	( cd build/glewlwyd-$(GLEWLWYD_VERSION) && \
+	#wget https://github.com/babelouest/glewlwyd/archive/v$(GLEWLWYD_VERSION).tar.gz -O build/v$(GLEWLWYD_VERSION).tar.gz
+	tar xf glewlwyd/glewlwyd.tar.gz -C build/glewlwyd/ --strip 1
+	( cd build/glewlwyd && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -1673,15 +1702,15 @@ glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source rhonabwy-sourc
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-build:
-	$(MAKE) glewlwyd-debian-oldstable
-	$(MAKE) glewlwyd-debian-stable
-	$(MAKE) glewlwyd-debian-testing
-	$(MAKE) glewlwyd-ubuntu-latest
-	$(MAKE) glewlwyd-ubuntu-lts
-	$(MAKE) glewlwyd-alpine
-	#$(MAKE) glewlwyd-fedora
-	#$(MAKE) glewlwyd-opensuse-tumbleweed
-	#$(MAKE) glewlwyd-opensuse-leap
+	-$(MAKE) glewlwyd-debian-oldstable
+	-$(MAKE) glewlwyd-debian-stable
+	-$(MAKE) glewlwyd-debian-testing
+	-$(MAKE) glewlwyd-ubuntu-latest
+	-$(MAKE) glewlwyd-ubuntu-lts
+	-$(MAKE) glewlwyd-alpine
+	-$(MAKE) glewlwyd-fedora
+	#-$(MAKE) glewlwyd-opensuse-tumbleweed
+	#-$(MAKE) glewlwyd-opensuse-leap
 
 glewlwyd-test:
 	$(MAKE) glewlwyd-debian-oldstable-test
