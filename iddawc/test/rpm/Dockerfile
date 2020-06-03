@@ -27,6 +27,7 @@ RUN ${RPMI} install -y \
     libcurl-devel \
     gnutls-devel \
     check-devel \
+    zlib-devel \
     libtool \
     autoconf\
     libmicrohttpd-devel

@@ -23,6 +23,7 @@ RUN apk add --no-cache \
 		cmake \
 		autoconf \
 		automake \
+		zlib-dev \
 		libtool \
 		bash && \
     (cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \

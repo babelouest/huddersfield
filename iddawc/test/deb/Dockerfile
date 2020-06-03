@@ -25,6 +25,7 @@ RUN apt-get update && \
 		check \
 		libtool \
 		autoconf \
+		zlib1g-dev \
 		libsubunit-dev && \
 		apt-get install -y libjwt-dev || \
 		(cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \

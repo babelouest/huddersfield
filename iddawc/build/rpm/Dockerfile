@@ -20,6 +20,7 @@ RUN ${RPMI} install -y \
     gnutls-devel \
     libtool \
     autoconf\
+    zlib-devel \
     libmicrohttpd-devel
 
 # Install jansson from github on Opensuse Leap

@@ -23,6 +23,7 @@ RUN apk add --no-cache \
 		autoconf \
 		automake \
 		libtool \
+		zlib-dev \
 		bash && \
     (cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \
     tar -zxvf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION}/ && autoreconf -i && ./configure --prefix=/usr --without-openssl && \
