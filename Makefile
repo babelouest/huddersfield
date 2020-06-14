@@ -177,7 +177,7 @@ shell-ubuntu-latest:
 	$(MAKE) ubuntu-latest
 	$(MAKE) deb-shell
 
-orcania-ubuntu-lts: orcania-source
+shell-ubuntu-lts: orcania-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
@@ -1428,6 +1428,10 @@ glewlwyd-deb-test:
 	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/test/deb/
 	docker run --rm -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-test
 
+glewlwyd-deb-memcheck:
+	docker build -t babelouest/glewlwyd-memcheck --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/memcheck/deb/
+	docker run --rm -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-memcheck
+
 glewlwyd-deb-smoke:
 	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/deb/
 	docker build -t babelouest/glewlwyd-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/smoke/deb/
@@ -1439,8 +1443,12 @@ glewlwyd-tgz:
 	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd
 
 glewlwyd-tgz-test:
-	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg MEMCHECK=$(MEMCHECK) glewlwyd/test/tgz/
+	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg glewlwyd/test/tgz/
 	docker run --rm -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-test
+
+glewlwyd-tgz-memcheck:
+	docker build -t babelouest/glewlwyd-memcheck --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/memcheck/tgz/
+	docker run --rm -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-memcheck
 
 glewlwyd-tgz-smoke:
 	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/tgz/
@@ -1453,8 +1461,12 @@ glewlwyd-rpm:
 	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd
 
 glewlwyd-rpm-test:
-	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) --build-arg MEMCHECK=$(MEMCHECK) glewlwyd/test/rpm/
+	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) glewlwyd/test/rpm/
 	docker run --rm -it -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-test
+
+glewlwyd-rpm-memcheck:
+	docker build -t babelouest/glewlwyd-memcheck --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) glewlwyd/memcheck/rpm/
+	docker run --rm -it -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-memcheck
 
 glewlwyd-rpm-smoke:
 	cp glewlwyd/glewlwyd-full_*.tar.gz glewlwyd/smoke/rpm/
@@ -1469,7 +1481,11 @@ glewlwyd-debian-oldstable: yder-source orcania-source hoel-source ulfius-source 
 
 glewlwyd-debian-oldstable-test: glewlwyd-debian-oldstable
 	$(MAKE) debian-oldstable
-	$(MAKE) glewlwyd-deb-test MEMCHECK=0
+	$(MAKE) glewlwyd-deb-test
+
+glewlwyd-debian-oldstable-memcheck: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source glewlwyd-source
+	$(MAKE) debian-oldstable
+	$(MAKE) glewlwyd-deb-memcheck
 
 glewlwyd-debian-oldstable-smoke: glewlwyd-debian-oldstable
 	$(MAKE) debian-oldstable
@@ -1484,6 +1500,10 @@ glewlwyd-debian-stable-test: glewlwyd-debian-stable
 	$(MAKE) debian-stable
 	$(MAKE) glewlwyd-deb-test
 
+glewlwyd-debian-stable-memcheck: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source glewlwyd-source
+	$(MAKE) debian-stable
+	$(MAKE) glewlwyd-deb-memcheck
+
 glewlwyd-debian-stable-smoke: glewlwyd-debian-stable
 	$(MAKE) debian-stable
 	$(MAKE) glewlwyd-deb-smoke
@@ -1497,6 +1517,10 @@ glewlwyd-debian-testing-test: glewlwyd-debian-testing
 	$(MAKE) debian-testing
 	$(MAKE) glewlwyd-deb-test
 
+glewlwyd-debian-testing-memcheck: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source glewlwyd-source
+	$(MAKE) debian-testing
+	$(MAKE) glewlwyd-deb-memcheck
+
 glewlwyd-debian-testing-smoke: glewlwyd-debian-testing
 	$(MAKE) debian-testing
 	$(MAKE) glewlwyd-deb-smoke
@@ -1509,6 +1533,10 @@ glewlwyd-ubuntu-latest: yder-source orcania-source hoel-source ulfius-source rho
 glewlwyd-ubuntu-latest-test: glewlwyd-ubuntu-latest
 	$(MAKE) ubuntu-latest
 	$(MAKE) glewlwyd-deb-test
+
+glewlwyd-ubuntu-latest-memcheck: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source glewlwyd-source
+	$(MAKE) ubuntu-latest
+	$(MAKE) glewlwyd-deb-memcheck
 
 glewlwyd-ubuntu-latest-smoke: glewlwyd-ubuntu-latest
 	$(MAKE) ubuntu-latest
@@ -1529,6 +1557,13 @@ glewlwyd-ubuntu-lts-test: glewlwyd-ubuntu-lts
 		$(MAKE) glewlwyd-deb-test; \
 	fi
 
+glewlwyd-ubuntu-lts-memcheck:
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) glewlwyd-deb-memcheck; \
+	fi
+
 glewlwyd-ubuntu-lts-smoke: glewlwyd-ubuntu-lts
 	$(MAKE) ubuntu-latest
 	$(MAKE) ubuntu-lts
@@ -1545,6 +1580,10 @@ glewlwyd-alpine-test: glewlwyd-alpine
 	$(MAKE) alpine
 	$(MAKE) glewlwyd-tgz-test
 
+glewlwyd-alpine-memcheck: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source glewlwyd-source
+	$(MAKE) alpine
+	$(MAKE) glewlwyd-tgz-memcheck
+
 glewlwyd-alpine-smoke: glewlwyd-alpine
 	$(MAKE) alpine
 	$(MAKE) glewlwyd-tgz-smoke
@@ -1557,6 +1596,10 @@ glewlwyd-fedora: yder-source orcania-source hoel-source ulfius-source rhonabwy-s
 glewlwyd-fedora-test: glewlwyd-fedora
 	$(MAKE) fedora
 	$(MAKE) glewlwyd-rpm-test RPMI=yum
+
+glewlwyd-fedora-memcheck:
+	$(MAKE) fedora
+	$(MAKE) glewlwyd-rpm-memcheck RPMI=yum
 
 glewlwyd-fedora-smoke: glewlwyd-fedora
 	$(MAKE) fedora
@@ -1571,6 +1614,10 @@ glewlwyd-opensuse-tumbleweed-test: glewlwyd-opensuse-tumbleweed
 	$(MAKE) opensuse-tumbleweed
 	$(MAKE) glewlwyd-rpm-test RPMI=zypper
 
+glewlwyd-opensuse-tumbleweed-memcheck: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source glewlwyd-source
+	$(MAKE) opensuse-tumbleweed
+	$(MAKE) glewlwyd-rpm-memcheck RPMI=zypper
+
 #glewlwyd-opensuse-tumbleweed-smoke: glewlwyd-opensuse-tumbleweed
 #	$(MAKE) opensuse-tumbleweed
 #	$(MAKE) glewlwyd-rpm-smoke RPMI=zypper
@@ -1583,6 +1630,10 @@ glewlwyd-opensuse-leap: yder-source orcania-source hoel-source rhonabwy-source i
 glewlwyd-opensuse-leap-test: glewlwyd-opensuse-leap
 	$(MAKE) opensuse-leap
 	$(MAKE) glewlwyd-rpm-test RPMI=zypper
+
+glewlwyd-opensuse-leap-memcheck: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source glewlwyd-source
+	$(MAKE) opensuse-leap
+	$(MAKE) glewlwyd-rpm-memcheck RPMI=zypper
 
 #glewlwyd-opensuse-leap-smoke: glewlwyd-opensuse-leap
 #	$(MAKE) opensuse-leap
@@ -1726,10 +1777,26 @@ glewlwyd-test:
 	@echo "#          GLEWLWYD TESTS COMPLETE          #"
 	@echo "#############################################"
 
+glewlwyd-memcheck:
+	-$(MAKE) glewlwyd-debian-oldstable-memcheck
+	-$(MAKE) glewlwyd-debian-stable-memcheck
+	-$(MAKE) glewlwyd-debian-testing-memcheck
+	-$(MAKE) glewlwyd-ubuntu-latest-memcheck
+	-$(MAKE) glewlwyd-ubuntu-lts-memcheck
+	-$(MAKE) glewlwyd-alpine-memcheck
+	-$(MAKE) glewlwyd-fedora-memcheck
+	#-$(MAKE) glewlwyd-opensuse-tumbleweed-memcheck
+	#-$(MAKE) glewlwyd-opensuse-leap-memcheck
+	@echo "#############################################"
+	@echo "#         GLEWLWYD MEMCHECK COMPLETE        #"
+	@echo "#############################################"
+
 glewlwyd-clean: clean-base
 	rm -f glewlwyd/*.tar.gz glewlwyd/*.deb glewlwyd/*.rpm glewlwyd/packages glewlwyd/valgrind*
 	-docker rmi -f babelouest/glewlwyd
 	-docker rmi -f babelouest/glewlwyd-test
+	-docker rmi -f babelouest/glewlwyd-smoke
+	-docker rmi -f babelouest/glewlwyd-memcheck
 
 taliesin-deb:
 	docker build -t babelouest/taliesin --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg TALIESIN_VERSION=$(TALIESIN_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) taliesin/build/deb/

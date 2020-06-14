@@ -4,3 +4,4 @@
 GITHUB_TOKEN
 packages
 build/*
+valgrind*.txt
