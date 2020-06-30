@@ -38,7 +38,7 @@ if [ -f $RHONABWY_ARCHIVE ]; then
   ./jwe_rsa
   ./jwe_dir
   
-  echo "$(date -R) librhonabwy-dev_${RHONABWY_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_`uname -m`.rpm test complete success" >> /share/summary.log
+  echo "$(date -R) rhonabwy-dev_${RHONABWY_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_`uname -m`.rpm test complete success" >> /share/summary.log
 else
   echo "File $RHONABWY_ARCHIVE not present" && false
 fi

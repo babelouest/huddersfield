@@ -38,7 +38,7 @@ if [ -f $RHONABWY_ARCHIVE ]; then
   ./jwe_rsa
   ./jwe_dir
   
-  echo "$(date -R) ulfius-dev-full_${RHONABWY_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
+  echo "$(date -R) rhonabwy-dev-full_${RHONABWY_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
 else
   echo "File $RHONABWY_ARCHIVE not present" && false
 fi
