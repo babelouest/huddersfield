@@ -93,19 +93,19 @@ $(function() {
       [{
         label: "Stargazers",
         borderColor: "green",
-        lineTension: 0,
+        lineTension: 0.4,
         data: []
       },
       {
         label: "Watchers",
         borderColor: "blue",
-        lineTension: 0,
+        lineTension: 0.4,
         data: []
       },
       {
         label: "Forks",
          borderColor: "red",
-         lineTension: 0,
+         lineTension: 0.4,
          data: []
       }]
     };
@@ -116,7 +116,7 @@ $(function() {
       data.datasets[1].data.push(current.watchers);
       data.datasets[2].data.push(current.forks);
     }
-    if (lastXDays) {
+    if (lastXDays < data.labels.length) {
       data.labels = data.labels.slice(data.labels.length - lastXDays);
       data.datasets[0].data = data.datasets[0].data.slice(data.datasets[0].data.length - lastXDays);
       data.datasets[1].data = data.datasets[1].data.slice(data.datasets[1].data.length - lastXDays);
@@ -147,14 +147,14 @@ $(function() {
         label: "Total",
         yAxisID: 'total',
         borderColor: "green",
-        lineTension: 0,
+        lineTension: 0.4,
         data: []
       },
       {
         label: "Uniques",
         yAxisID: 'uniques',
         borderColor: "blue",
-        lineTension: 0,
+        lineTension: 0.4,
         data: []
       }]
     };
@@ -178,7 +178,7 @@ $(function() {
       dateCounter.setDate(dateCounter.getDate() + 1);
       maxValue = maxValue<current.count?current.count:maxValue;
     }
-    if (lastXDays) {
+    if (lastXDays < data.labels.length) {
       data.labels = data.labels.slice(data.labels.length - lastXDays);
       data.datasets[0].data = data.datasets[0].data.slice(data.datasets[0].data.length - lastXDays);
       data.datasets[1].data = data.datasets[1].data.slice(data.datasets[1].data.length - lastXDays);
@@ -409,7 +409,7 @@ $(function() {
       }
       data.datasets.push(dataset);
     }
-    if (lastXDays) {
+    if (lastXDays < data.labels.length) {
       data.labels = data.labels.slice(data.labels.length - lastXDays);
       data.datasets[0].data = data.datasets[0].data.slice(data.datasets[0].data.length - lastXDays);
     }
