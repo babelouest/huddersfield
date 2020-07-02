@@ -135,6 +135,9 @@ exports.compulseStats = (user, repo, token, path) => {
           var curAsset = _.find(curRelease.assets, (curAsset) => { return (curAsset.name === asset.name); });
           if (curAsset) {
             curAsset.download_count.push({date: nowDay, count: asset.download_count});
+          } else {
+            asset.download_count = [{date: nowDay, count: asset.download_count}]
+            curRelease.assets.push(asset);
           }
         });
       } else {
