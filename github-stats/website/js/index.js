@@ -116,7 +116,7 @@ $(function() {
       data.datasets[1].data.push(current.watchers);
       data.datasets[2].data.push(current.forks);
     }
-    if (lastXDays < data.labels.length) {
+    if (lastXDays && lastXDays < data.labels.length) {
       data.labels = data.labels.slice(data.labels.length - lastXDays);
       data.datasets[0].data = data.datasets[0].data.slice(data.datasets[0].data.length - lastXDays);
       data.datasets[1].data = data.datasets[1].data.slice(data.datasets[1].data.length - lastXDays);
@@ -178,7 +178,7 @@ $(function() {
       dateCounter.setDate(dateCounter.getDate() + 1);
       maxValue = maxValue<current.count?current.count:maxValue;
     }
-    if (lastXDays < data.labels.length) {
+    if (lastXDays && lastXDays < data.labels.length) {
       data.labels = data.labels.slice(data.labels.length - lastXDays);
       data.datasets[0].data = data.datasets[0].data.slice(data.datasets[0].data.length - lastXDays);
       data.datasets[1].data = data.datasets[1].data.slice(data.datasets[1].data.length - lastXDays);
@@ -409,7 +409,7 @@ $(function() {
       }
       data.datasets.push(dataset);
     }
-    if (lastXDays < data.labels.length) {
+    if (lastXDays && lastXDays < data.labels.length) {
       data.labels = data.labels.slice(data.labels.length - lastXDays);
       data.datasets[0].data = data.datasets[0].data.slice(data.datasets[0].data.length - lastXDays);
     }
