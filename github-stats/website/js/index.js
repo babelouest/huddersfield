@@ -11,6 +11,7 @@ $(function() {
   var fedoraColorCounter = 0x294172;
   var defaultColorCounter = 0xDBDBDB;
   var counterIncrement = 0x010101;
+  var lastXDays = parseInt($("#lastXDays").val());
 
   $.get("data/index.json", function(indexFiles) {
     for (var i = 0; i < indexFiles.length; i++) {
@@ -23,6 +24,7 @@ $(function() {
   $("#navClones").click(() => { navClonesFunc(); });
   $("#navReleases").click(() => { navReleasesFunc(); });
   $("#navRefresh").click(() => { navRefreshFunc(); });
+  $("#lastXDays").change(() => { lastXDays  = parseInt($("#lastXDays").val()); currentNav(); });
 
   function getColorForAsset(asset) {
     var color = "#";
@@ -114,6 +116,12 @@ $(function() {
       data.datasets[1].data.push(current.watchers);
       data.datasets[2].data.push(current.forks);
     }
+    if (lastXDays) {
+      data.labels = data.labels.slice(data.labels.length - lastXDays);
+      data.datasets[0].data = data.datasets[0].data.slice(data.datasets[0].data.length - lastXDays);
+      data.datasets[1].data = data.datasets[1].data.slice(data.datasets[1].data.length - lastXDays);
+      data.datasets[2].data = data.datasets[2].data.slice(data.datasets[2].data.length - lastXDays);
+    }
 
     myChart && myChart.destroy();
     myChart = new Chart(ctx, {
@@ -169,6 +177,11 @@ $(function() {
       data.datasets[1].data.push(current.uniques);
       dateCounter.setDate(dateCounter.getDate() + 1);
       maxValue = maxValue<current.count?current.count:maxValue;
+    }
+    if (lastXDays) {
+      data.labels = data.labels.slice(data.labels.length - lastXDays);
+      data.datasets[0].data = data.datasets[0].data.slice(data.datasets[0].data.length - lastXDays);
+      data.datasets[1].data = data.datasets[1].data.slice(data.datasets[1].data.length - lastXDays);
     }
 
     $("#tableReferrersBody").empty();
@@ -229,14 +242,14 @@ $(function() {
         label: "Total",
         yAxisID: 'total',
         borderColor: "green",
-        lineTension: 0,
+        lineTension: 0.4,
         data: []
       },
       {
         label: "Uniques",
         yAxisID: 'uniques',
         borderColor: "blue",
-        lineTension: 0,
+        lineTension: 0.4,
         data: []
       }]
     };
@@ -259,6 +272,11 @@ $(function() {
       data.datasets[1].data.push(current.uniques);
       dateCounter.setDate(dateCounter.getDate() + 1);
       maxValue = maxValue<current.count?current.count:maxValue;
+    }
+    if (lastXDays) {
+      data.labels = data.labels.slice(data.labels.length - lastXDays);
+      data.datasets[0].data = data.datasets[0].data.slice(data.datasets[0].data.length - lastXDays);
+      data.datasets[1].data = data.datasets[1].data.slice(data.datasets[1].data.length - lastXDays);
     }
 
     myChart && myChart.destroy();
@@ -390,6 +408,10 @@ $(function() {
         }
       }
       data.datasets.push(dataset);
+    }
+    if (lastXDays) {
+      data.labels = data.labels.slice(data.labels.length - lastXDays);
+      data.datasets[0].data = data.datasets[0].data.slice(data.datasets[0].data.length - lastXDays);
     }
 
     myChart && myChart.destroy();
