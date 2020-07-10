@@ -19,6 +19,8 @@ if [ -f $ULFIUS_ARCHIVE ]; then
   tar -zxvf $ULFIUS_ARCHIVE -C /opt/ulfius --strip 1
 
   cd /opt/ulfius/test
+  
+  ./cert/create-cert.sh
 
   make u_map core framework websocket
   

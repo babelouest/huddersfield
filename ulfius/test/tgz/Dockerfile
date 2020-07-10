@@ -18,7 +18,8 @@ RUN apk add --no-cache \
 		util-linux-dev \
 		wget \
 		cmake \
-		bash
+		bash \
+		gnutls-utils
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
 RUN echo ${YDER_VERSION} > /opt/YDER_VERSION

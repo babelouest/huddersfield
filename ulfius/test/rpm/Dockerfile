@@ -21,8 +21,8 @@ RUN ${RPMI} install -y \
     gnutls-devel \
     libmicrohttpd-devel
 
-RUN ${RPMI} install -y libjansson-devel || \
-    ${RPMI} install -y jansson-devel
+RUN ${RPMI} install -y libjansson-devel gnutls || \
+    ${RPMI} install -y jansson-devel gnutls-utils
 
 COPY ["entrypoint.sh", "/"]
 

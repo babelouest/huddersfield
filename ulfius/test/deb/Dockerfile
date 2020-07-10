@@ -17,7 +17,8 @@ RUN apt-get update && \
 		libgnutls28-dev \
 		libmicrohttpd-dev \
 		check \
-		libsubunit-dev
+		libsubunit-dev \
+		gnutls-bin
 
 COPY ["entrypoint.sh", "/"]
 

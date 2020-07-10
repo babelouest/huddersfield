@@ -20,6 +20,8 @@ if [ -f $ULFIUS_ARCHIVE ]; then
 
   cd /opt/ulfius/test
 
+  ./cert/create-cert.sh
+
   make u_map core framework websocket
   
   ./u_map
