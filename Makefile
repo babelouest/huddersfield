@@ -24,6 +24,7 @@
 
 GITHUB_UPLOAD=0
 REMOTE=1
+SIGN_ASSET=1
 LOCAL_UPDATE_SYSTEM=0
 LOCAL_INSTALL_LIBJWT=0
 GITHUB_USER=babelouest
@@ -105,11 +106,17 @@ fedora-build: orcania-fedora yder-fedora ulfius-fedora hoel-fedora rhonabwy-fedo
 local-build-deb: orcania-local-deb yder-local-deb ulfius-local-deb hoel-local-deb rhonabwy-local-deb iddawc-local-deb glewlwyd-local-deb taliesin-local-deb hutch-local-deb angharad-local-deb
 
 upload-asset:
-	@if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
-		for CUR_FILE in $(PATTERN); do \
+	@for CUR_FILE in $(PATTERN); do \
+		if [ "$(SIGN_ASSET)" = "1" ]; then \
+			gpg --detach-sign --yes $$CUR_FILE || true; \
+		fi; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f $$CUR_FILE.asc ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=$(REPO) tag=v$(TAG) filename=$$CUR_FILE.asc; \
+			fi; \
 			./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=$(REPO) tag=v$(TAG) filename=$$CUR_FILE; \
-		done; \
-	fi
+		fi \
+	done;
 
 clean-base:
 	-docker rmi -f babelouest/deb babelouest/tgz babelouest/rpm
@@ -358,7 +365,7 @@ orcania-test:
 	@echo "#############################################"
 
 orcania-clean: clean-base
-	rm -f orcania/*.tar.gz orcania/*.deb orcania/*.rpm orcania/packages
+	rm -f orcania/*.tar.gz orcania/*.deb orcania/*.rpm orcania/packages orcania/*.sig
 	-docker rmi -f babelouest/orcania
 	-docker rmi -f babelouest/orcania-test
 
@@ -549,7 +556,7 @@ yder-test:
 	@echo "#############################################"
 
 yder-clean: clean-base
-	rm -f yder/*.tar.gz yder/*.deb yder/*.rpm yder/packages
+	rm -f yder/*.tar.gz yder/*.deb yder/*.rpm yder/packages yder/*.sig
 	-docker rmi -f babelouest/yder
 	-docker rmi -f babelouest/yder-test
 
@@ -754,7 +761,7 @@ ulfius-test:
 	@echo "#############################################"
 
 ulfius-clean: clean-base
-	rm -f ulfius/*.tar.gz ulfius/*.deb ulfius/*.rpm ulfius/packages
+	rm -f ulfius/*.tar.gz ulfius/*.deb ulfius/*.rpm ulfius/packages ulfius/*.sig
 	-docker rmi -f babelouest/ulfius
 	-docker rmi -f babelouest/ulfius-test
 
@@ -961,7 +968,7 @@ hoel-test:
 	@echo "#############################################"
 
 hoel-clean: clean-base
-	rm -f hoel/*.tar.gz hoel/*.deb hoel/*.rpm hoel/packages
+	rm -f hoel/*.tar.gz hoel/*.deb hoel/*.rpm hoel/packages hoel/*.sig
 	-docker rmi -f babelouest/hoel
 	-docker rmi -f babelouest/hoel-test
 
@@ -1184,7 +1191,7 @@ rhonabwy-test:
 	@echo "#############################################"
 
 rhonabwy-clean: clean-base
-	rm -f rhonabwy/*.tar.gz rhonabwy/*.deb rhonabwy/*.rpm rhonabwy/packages
+	rm -f rhonabwy/*.tar.gz rhonabwy/*.deb rhonabwy/*.rpm rhonabwy/packages rhonabwy/*.sig
 	-docker rmi -f babelouest/rhonabwy
 	-docker rmi -f babelouest/rhonabwy-test
 
@@ -1407,7 +1414,7 @@ iddawc-test:
 	@echo "#############################################"
 
 iddawc-clean: clean-base
-	rm -f iddawc/*.tar.gz iddawc/*.deb iddawc/*.rpm iddawc/packages
+	rm -f iddawc/*.tar.gz iddawc/*.deb iddawc/*.rpm iddawc/packages iddawc/*.sig
 	-docker rmi -f babelouest/iddawc
 	-docker rmi -f babelouest/iddawc-test
 
@@ -1792,7 +1799,7 @@ glewlwyd-memcheck:
 	@echo "#############################################"
 
 glewlwyd-clean: clean-base
-	rm -f glewlwyd/*.tar.gz glewlwyd/*.deb glewlwyd/*.rpm glewlwyd/packages glewlwyd/valgrind*
+	rm -f glewlwyd/*.tar.gz glewlwyd/*.deb glewlwyd/*.rpm glewlwyd/packages glewlwyd/valgrind* glewlwyd/*.sig
 	-docker rmi -f babelouest/glewlwyd
 	-docker rmi -f babelouest/glewlwyd-test
 	-docker rmi -f babelouest/glewlwyd-smoke
@@ -1931,7 +1938,7 @@ taliesin-build:
 	$(MAKE) taliesin-alpine
 
 taliesin-clean: clean-base
-	rm -f taliesin/*.tar.gz taliesin/*.deb taliesin/packages
+	rm -f taliesin/*.tar.gz taliesin/*.deb taliesin/packages taliesin/*.sig
 	-docker rmi -f babelouest/taliesin
 
 taliesin-quickstart-src:
@@ -2085,7 +2092,7 @@ hutch-build:
 	$(MAKE) hutch-alpine
 
 hutch-clean: clean-base
-	rm -f hutch/*.tar.gz hutch/*.deb hutch/packages
+	rm -f hutch/*.tar.gz hutch/*.deb hutch/packages hutch/*.sig
 	-docker rmi -f babelouest/hutch
 
 angharad-deb:
@@ -2233,5 +2240,5 @@ angharad-build:
 	$(MAKE) angharad-alpine
 
 angharad-clean: clean-base
-	rm -f angharad/*.tar.gz angharad/*.deb angharad/packages
+	rm -f angharad/*.tar.gz angharad/*.deb angharad/packages angharad/*.sig
 	-docker rmi -f babelouest/angharad
