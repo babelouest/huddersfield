@@ -1,6 +1,7 @@
 *.deb
 *.tar.gz
 *.rpm
+*.sig
 GITHUB_TOKEN
 packages
 build/*
