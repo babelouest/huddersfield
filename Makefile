@@ -26,7 +26,6 @@ GITHUB_UPLOAD=0
 REMOTE=1
 SIGN_ASSET=1
 LOCAL_UPDATE_SYSTEM=0
-LOCAL_INSTALL_LIBJWT=0
 GITHUB_USER=babelouest
 GITHUB_TOKEN=$(shell cat GITHUB_TOKEN)
 LOCAL_ID=$(shell grep -e "^ID=" /etc/os-release |cut -c 4-)
@@ -111,8 +110,8 @@ upload-asset:
 			gpg --detach-sign --yes $$CUR_FILE || true; \
 		fi; \
 		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
-			if [ -f $$CUR_FILE.asc ]; then \
-				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=$(REPO) tag=v$(TAG) filename=$$CUR_FILE.asc; \
+			if [ -f $$CUR_FILE.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=$(REPO) tag=v$(TAG) filename=$$CUR_FILE.sig; \
 			fi; \
 			./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=$(REPO) tag=v$(TAG) filename=$$CUR_FILE; \
 		fi \
@@ -1650,7 +1649,7 @@ glewlwyd-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
 		sudo apt update && sudo apt upgrade -y; \
-		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev uuid-dev libldap2-dev default-libmysqlclient-dev libpq-dev libsqlite3-dev libconfig-dev libgnutls28-dev libcurl4-gnutls-dev libssl-dev pkg-config libpq-dev liboath-dev libcbor-dev libjwt-dev liboath-dev; \
+		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev uuid-dev libldap2-dev default-libmysqlclient-dev libpq-dev libsqlite3-dev libconfig-dev libgnutls28-dev libcurl4-gnutls-dev libssl-dev pkg-config libpq-dev liboath-dev libcbor-dev liboath-dev; \
 	fi
 
 glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source rhonabwy-source iddawc-source ulfius-source hoel-source yder-source orcania-source

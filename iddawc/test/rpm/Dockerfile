@@ -7,7 +7,6 @@ ARG YDER_VERSION
 ARG ULFIUS_VERSION
 ARG RHONABWY_VERSION
 ARG IDDAWC_VERSION
-ARG LIBJWT_VERSION
 ARG LIBJANSSON_VERSION
 
 COPY ["*.tar.gz", "/opt/"]
@@ -39,10 +38,6 @@ RUN if [[ $(lsb_release -sd|tr -d \"|sed 's/[)(]//g') == *"openSUSE Leap"* ]]; t
     else \
     ${RPMI} install -y libjansson-devel || ${RPMI} install -y jansson-devel; \
     fi
-
-RUN (cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \
-    tar xf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION} && autoreconf -i && ./configure --without-openssl --prefix=/usr && \
-    make && make install && ldconfig)
 
 COPY ["entrypoint.sh", "/"]
 

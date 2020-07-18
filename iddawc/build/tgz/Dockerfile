@@ -5,7 +5,6 @@ ARG YDER_VERSION
 ARG ULFIUS_VERSION
 ARG RHONABWY_VERSION
 ARG IDDAWC_VERSION
-ARG LIBJWT_VERSION
 
 # Install required packages
 RUN apk add --no-cache \
@@ -24,10 +23,7 @@ RUN apk add --no-cache \
 		automake \
 		libtool \
 		zlib-dev \
-		bash && \
-    (cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \
-    tar -zxvf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION}/ && autoreconf -i && ./configure --prefix=/usr --without-openssl && \
-    make && make install)
+		bash
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
 RUN echo ${YDER_VERSION} > /opt/YDER_VERSION

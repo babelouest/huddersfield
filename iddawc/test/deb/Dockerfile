@@ -5,7 +5,6 @@ ARG YDER_VERSION
 ARG ULFIUS_VERSION
 ARG RHONABWY_VERSION
 ARG IDDAWC_VERSION
-ARG LIBJWT_VERSION
 ARG LIBJANSSON_VERSION
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
@@ -26,17 +25,7 @@ RUN apt-get update && \
 		libtool \
 		autoconf \
 		zlib1g-dev \
-		libsubunit-dev && \
-		apt-get install -y libjwt-dev || \
-		(cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \
-		tar xf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION} && autoreconf -i && (./configure --without-openssl || ./configure) && make && make install && ldconfig)
-
-# Install jwt from github on ubuntu Bionic
-RUN if [ $(lsb_release -cs) = "bionic" ]; then \
-    apt-get remove --purge -y libjwt0; \
-    (cd /opt && wget https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz -O libjwt.tar.gz && \
-    tar xf libjwt.tar.gz && cd libjwt-${LIBJWT_VERSION} && autoreconf -i && (./configure --without-openssl || ./configure) && make && make install && ldconfig) \
-    fi
+		libsubunit-dev
 
 # Install jansson from github on Debian stretch
 RUN if [ $(lsb_release -cs) = "stretch" ]; then \
