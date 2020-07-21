@@ -31,6 +31,7 @@ RUN apt-get update && \
 	libsqlite3-0 \
 	libpq5 \
 	default-mysql-client \
+	default-libmysqlclient-dev \
 	zlib1g \
 	pkg-config
 

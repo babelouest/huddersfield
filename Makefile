@@ -1449,7 +1449,7 @@ glewlwyd-tgz:
 	docker run --rm -v $(shell pwd)/:/share babelouest/glewlwyd
 
 glewlwyd-tgz-test:
-	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg glewlwyd/test/tgz/
+	docker build -t babelouest/glewlwyd-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg GLEWLWYD_VERSION=$(GLEWLWYD_VERSION) --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) glewlwyd/test/tgz/
 	docker run --rm -p 4593:4593 -v $(shell pwd)/:/share babelouest/glewlwyd-test
 
 glewlwyd-tgz-memcheck:
@@ -1775,7 +1775,7 @@ glewlwyd-test:
 	$(MAKE) glewlwyd-debian-testing-test
 	$(MAKE) glewlwyd-ubuntu-latest-test
 	$(MAKE) glewlwyd-ubuntu-lts-test
-	#$(MAKE) glewlwyd-alpine-test # glewlwyd_oidc_request_jwt and glewlwyd_scheme_certificate Not working, although running test from another host works
+	$(MAKE) glewlwyd-alpine-test
 	$(MAKE) glewlwyd-fedora-test
 	#$(MAKE) glewlwyd-opensuse-tumbleweed-test
 	#$(MAKE) glewlwyd-opensuse-leap-test

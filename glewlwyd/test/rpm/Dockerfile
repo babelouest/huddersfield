@@ -22,7 +22,6 @@ RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-devel openld
 RUN ${RPMI} install -y \
     systemd-devel \
     check-devel \
-    systemd-devel \
     libcurl-devel \
     gnutls-devel \
     libmicrohttpd-devel \
