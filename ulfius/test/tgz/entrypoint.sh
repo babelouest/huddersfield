@@ -26,7 +26,7 @@ if [ -f $ULFIUS_ARCHIVE ]; then
   
   ./u_map
   ./core
-  #./framework # fails on alpine
+  ./framework
   ./websocket
   
   echo "$(date -R) ulfius-dev-full_${ULFIUS_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
