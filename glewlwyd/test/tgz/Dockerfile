@@ -22,7 +22,7 @@ RUN apk add --no-cache \
     libconfig-dev \
     jansson-dev \
     libgcrypt-dev \
-    libmicrohttpd-dev \
+		gnutls-dev \
     gnutls-utils \
     sqlite \
     sqlite-dev \
@@ -40,6 +40,8 @@ RUN apk add --no-cache \
     valgrind \
     zlib-dev \
     oath-toolkit-dev && \
+    (cd /opt && wget https://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.71.tar.gz -O libmicrohttpd.tar.gz && \
+    tar xf libmicrohttpd.tar.gz && cd libmicrohttpd-0.9.71 && ./configure && make && make install) && \
     (cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
     tar xf libcbor.tar.gz && cd libcbor-${LIBCBOR_VERSION} && mkdir build && cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib .. && make && make install)
