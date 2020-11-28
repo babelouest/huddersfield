@@ -751,10 +751,10 @@ ulfius-test:
 	$(MAKE) ulfius-debian-testing-test
 	$(MAKE) ulfius-ubuntu-latest-test
 	$(MAKE) ulfius-ubuntu-lts-test
-	$(MAKE) ulfius-alpine-test
+	#$(MAKE) ulfius-alpine-test
 	$(MAKE) ulfius-fedora-test
 	#$(MAKE) ulfius-opensuse-tumbleweed-test
-	#$(MAKE) ulfius-opensuse-leap-test
+	$(MAKE) ulfius-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#          ULFIUS TESTS COMPLETE            #"
 	@echo "#############################################"
