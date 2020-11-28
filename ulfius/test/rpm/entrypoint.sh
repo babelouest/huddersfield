@@ -22,7 +22,7 @@ if [ -f $ULFIUS_ARCHIVE ]; then
 
   ./cert/create-cert.sh
 
-  make u_map core framework websocket LIBS="-lc -lorcania -lulfius -lyder -ljansson -lgnutls -pthread $(pkg-config --libs check)"
+  make u_map core framework websocket LIBS="-lc -lorcania -lulfius -lyder -ljansson -lgnutls -pthread -lz $(pkg-config --libs check)"
   
   ./u_map
   ./core

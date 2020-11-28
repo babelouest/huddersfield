@@ -19,7 +19,8 @@ RUN apk add --no-cache \
 		wget \
 		cmake \
 		bash \
-		gnutls-utils
+		gnutls-utils \
+    zlib-dev
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
 RUN echo ${YDER_VERSION} > /opt/YDER_VERSION

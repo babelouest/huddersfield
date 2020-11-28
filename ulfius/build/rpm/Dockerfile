@@ -7,7 +7,8 @@ RUN ${RPMI} install -y \
     systemd-devel \
     libcurl-devel \
     gnutls-devel \
-    libmicrohttpd-devel
+    libmicrohttpd-devel \
+    zlib-devel
 
 RUN ${RPMI} install -y libjansson-devel || \
     ${RPMI} install -y jansson-devel

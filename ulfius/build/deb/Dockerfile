@@ -7,7 +7,8 @@ RUN apt-get update && \
 		libjansson-dev \
 		libsystemd-dev \
 		libgnutls28-dev \
-		libmicrohttpd-dev
+		libmicrohttpd-dev \
+    zlib1g-dev
 
 ARG ORCANIA_VERSION
 ARG YDER_VERSION

@@ -13,7 +13,8 @@ RUN apk add --no-cache \
 		util-linux-dev \
 		wget \
 		cmake \
-		bash
+		bash \
+    zlib-dev
 
 ARG ORCANIA_VERSION
 ARG YDER_VERSION
