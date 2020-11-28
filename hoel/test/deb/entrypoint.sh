@@ -22,7 +22,7 @@ if [ -f $HOEL_ARCHIVE ]; then
 
   make core
   
-  sqlite3 /tmp/test.db < test.sql
+  sqlite3 /tmp/test.db < test.sqlite3.sql
 
   ./core
   

@@ -22,7 +22,7 @@ if [ -f $HOEL_ARCHIVE ]; then
 
   make core LIBS="-lc -lorcania -lhoel -lyder -ljansson -pthread $(pkg-config --libs check)"
   
-  sqlite3 /tmp/test.db < test.sql
+  sqlite3 /tmp/test.db < test.sqlite3.sql
 
   ./core
   
