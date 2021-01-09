@@ -7,7 +7,7 @@ RUN ${RPMI} install -y \
     systemd-devel \
     sqlite-devel
 
-RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-devel || \
+RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-server-devel || \
     ${RPMI} install -y jansson-devel mariadb-devel libpq-devel
 
 ARG ORCANIA_VERSION

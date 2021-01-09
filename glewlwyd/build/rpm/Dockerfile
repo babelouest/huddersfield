@@ -10,7 +10,7 @@ ARG GLEWLWYD_VERSION
 
 ARG RPMI=yum
 
-RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-devel openldap2-devel || \
+RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-server-devel openldap2-devel || \
     ${RPMI} install -y jansson-devel mariadb-devel libpq-devel openldap-devel
 
 # Install required packages

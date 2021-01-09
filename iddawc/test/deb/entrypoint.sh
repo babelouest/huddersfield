@@ -24,13 +24,13 @@ if [ -f $IDDAWC_ARCHIVE ]; then
 
   cd /opt/iddawc/test
 
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 core.c -o core -lc -lorcania -liddawc -lrhonabwy -ljansson -ljwt -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 implicit.c -o implicit -lc -lorcania -liddawc -lrhonabwy -ljansson -ljwt -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 id_token.c -o id_token -lc -lorcania -liddawc -lrhonabwy -ljansson -ljwt -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 token.c -o token -lc -lorcania -liddawc -lrhonabwy -ljansson -ljwt -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 load_config.c -o load_config -lc -lorcania -liddawc -lrhonabwy -ljansson -ljwt -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 load_userinfo.c -o load_userinfo -lc -lorcania -liddawc -lrhonabwy -ljansson -ljwt -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 flow.c -o flow -lc -lorcania -liddawc -lrhonabwy -ljansson -ljwt -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 core.c -o core -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 implicit.c -o implicit -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 id_token.c -o id_token -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 token.c -o token -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 load_config.c -o load_config -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 load_userinfo.c -o load_userinfo -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 flow.c -o flow -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder -lcheck_pic -pthread -lrt -lm -lsubunit -lulfius
   
   ./core
   ./implicit
