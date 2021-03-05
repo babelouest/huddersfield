@@ -17,6 +17,7 @@ RUN apt-get update && \
 		libjansson-dev \
 		libsystemd-dev \
 		libgnutls28-dev \
+		gnutls-bin \
 		libmicrohttpd-dev \
 		zlib1g-dev \
 		check \

@@ -22,9 +22,12 @@ if [ -f $RHONABWY_ARCHIVE ]; then
 
   cd /opt/rhonabwy/test
 
-  make misc jwk_core jwk_export jwk_import jwks_core jws_core jws_hmac jws_ecdsa jws_rsa jws_rsapss jwe_core jwe_rsa jwe_dir
+  ./cert/create-cert.sh
+
+  make misc cookbook jwk_core jwk_import jwk_export jwks_core jws_core jws_hmac jws_rsa jws_ecdsa jws_rsapss jwe_core jwe_rsa jwe_dir jwe_aesgcm jwe_kw jwe_pbes2 jwe_rsa_oaep jwe_ecdh jwt_core jwt_sign jwt_encrypt jwt_nested
   
   ./misc
+  ./cookbook
   ./jwk_core
   ./jwk_export
   ./jwk_import
@@ -37,6 +40,15 @@ if [ -f $RHONABWY_ARCHIVE ]; then
   ./jwe_core
   ./jwe_rsa
   ./jwe_dir
+  ./jwe_aesgcm
+  ./jwe_kw
+  ./jwe_pbes2
+  ./jwe_rsa_oaep
+  ./jwe_ecdh
+  ./jwt_core
+  ./jwt_sign
+  ./jwt_encrypt
+  ./jwt_nested
   
   echo "$(date -R) rhonabwy-dev_${RHONABWY_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_`uname -m`.rpm test complete success" >> /share/summary.log
 else
