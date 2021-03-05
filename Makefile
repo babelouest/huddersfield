@@ -346,7 +346,7 @@ orcania-build:
 	$(MAKE) orcania-ubuntu-lts
 	$(MAKE) orcania-alpine
 	$(MAKE) orcania-fedora
-	$(MAKE) orcania-opensuse-tumbleweed
+	#$(MAKE) orcania-opensuse-tumbleweed
 	$(MAKE) orcania-opensuse-leap
 
 orcania-test:
@@ -357,7 +357,7 @@ orcania-test:
 	$(MAKE) orcania-ubuntu-lts-test
 	$(MAKE) orcania-alpine-test
 	$(MAKE) orcania-fedora-test
-	$(MAKE) orcania-opensuse-tumbleweed-test
+	#$(MAKE) orcania-opensuse-tumbleweed-test
 	$(MAKE) orcania-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#          ORCANIA TESTS COMPLETE           #"
@@ -537,7 +537,7 @@ yder-build:
 	$(MAKE) yder-ubuntu-lts
 	$(MAKE) yder-alpine
 	$(MAKE) yder-fedora
-	$(MAKE) yder-opensuse-tumbleweed
+	#$(MAKE) yder-opensuse-tumbleweed
 	$(MAKE) yder-opensuse-leap
 
 yder-test:
@@ -548,7 +548,7 @@ yder-test:
 	$(MAKE) yder-ubuntu-lts-test
 	#$(MAKE) yder-alpine-test # Sometimes alpine is weird
 	$(MAKE) yder-fedora-test
-	$(MAKE) yder-opensuse-tumbleweed-test
+	#$(MAKE) yder-opensuse-tumbleweed-test
 	$(MAKE) yder-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#           YDER TESTS COMPLETE             #"
@@ -742,7 +742,7 @@ ulfius-build:
 	$(MAKE) ulfius-ubuntu-lts
 	$(MAKE) ulfius-alpine
 	$(MAKE) ulfius-fedora
-	$(MAKE) ulfius-opensuse-tumbleweed
+	#$(MAKE) ulfius-opensuse-tumbleweed
 	$(MAKE) ulfius-opensuse-leap
 
 ulfius-test:
@@ -751,7 +751,7 @@ ulfius-test:
 	$(MAKE) ulfius-debian-testing-test
 	$(MAKE) ulfius-ubuntu-latest-test
 	$(MAKE) ulfius-ubuntu-lts-test
-	#$(MAKE) ulfius-alpine-test
+	$(MAKE) ulfius-alpine-test
 	$(MAKE) ulfius-fedora-test
 	#$(MAKE) ulfius-opensuse-tumbleweed-test
 	$(MAKE) ulfius-opensuse-leap-test
@@ -1172,7 +1172,7 @@ rhonabwy-build:
 	$(MAKE) rhonabwy-ubuntu-lts
 	$(MAKE) rhonabwy-alpine
 	$(MAKE) rhonabwy-fedora
-	$(MAKE) rhonabwy-opensuse-tumbleweed
+	#$(MAKE) rhonabwy-opensuse-tumbleweed
 	$(MAKE) rhonabwy-opensuse-leap
 
 rhonabwy-test:
@@ -1183,7 +1183,7 @@ rhonabwy-test:
 	$(MAKE) rhonabwy-ubuntu-lts-test
 	$(MAKE) rhonabwy-alpine-test
 	$(MAKE) rhonabwy-fedora-test
-	$(MAKE) rhonabwy-opensuse-tumbleweed-test
+	#$(MAKE) rhonabwy-opensuse-tumbleweed-test
 	$(MAKE) rhonabwy-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#            RHONABWY TESTS COMPLETE        #"
@@ -1395,7 +1395,7 @@ iddawc-build:
 	$(MAKE) iddawc-ubuntu-lts
 	$(MAKE) iddawc-alpine
 	$(MAKE) iddawc-fedora
-	$(MAKE) iddawc-opensuse-tumbleweed
+	#$(MAKE) iddawc-opensuse-tumbleweed
 	$(MAKE) iddawc-opensuse-leap
 
 iddawc-test:
@@ -1406,7 +1406,7 @@ iddawc-test:
 	$(MAKE) iddawc-ubuntu-lts-test
 	$(MAKE) iddawc-alpine-test
 	$(MAKE) iddawc-fedora-test
-	$(MAKE) iddawc-opensuse-tumbleweed-test
+	#$(MAKE) iddawc-opensuse-tumbleweed-test
 	$(MAKE) iddawc-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#            IDDAWC TESTS COMPLETE        #"
@@ -1804,6 +1804,15 @@ glewlwyd-clean: clean-base
 	-docker rmi -f babelouest/glewlwyd-smoke
 	-docker rmi -f babelouest/glewlwyd-memcheck
 
+taliesin-source: taliesin/taliesin.tar.gz
+
+taliesin/taliesin.tar.gz:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O taliesin/taliesin.tar.gz https://github.com/babelouest/taliesin/archive/v$(TALIESIN_VERSION).tar.gz; \
+	else \
+		tar --exclude='taliesin/webapp-src/node_modules*' --exclude 'taliesin/.git/*' --exclude 'taliesin/test/media/*' -cvzf taliesin/taliesin.tar.gz $(TALIESIN_SRC); \
+	fi
+
 taliesin-deb:
 	docker build -t babelouest/taliesin --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg TALIESIN_VERSION=$(TALIESIN_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) taliesin/build/deb/
 	docker run --rm -v $(shell pwd)/taliesin/:/share babelouest/taliesin
@@ -1847,12 +1856,11 @@ taliesin-install-dependencies:
 		sudo apt-get install -y libconfig-dev libjansson-dev libsystemd-dev libgnutls28-dev libssl-dev libmicrohttpd-dev libmariadbclient-dev libsqlite3-dev libtool libavfilter-dev libavcodec-dev libavformat-dev libswresample-dev libavutil-dev pkg-config; \
 	fi
 
-taliesin-local-deb: taliesin-install-dependencies
+taliesin-local-deb: orcania-source yder-source hoel-source ulfius-source taliesin-source taliesin-install-dependencies
+	mkdir -p build/orcania build/yder build/ulfius build/hoel build/rhonabwy build/iddawc build/taliesin
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
-	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
-	rm -f build/v$(ORCANIA_VERSION).tar.gz
-	( cd build/orcania-$(ORCANIA_VERSION) && \
+	tar xf orcania/orcania.tar.gz -C build/orcania/ --strip 1
+	( cd build/orcania && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -1865,10 +1873,8 @@ taliesin-local-deb: taliesin-install-dependencies
 	cp liborcania_*.deb ../../../taliesin/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
-	tar xf build/v$(YDER_VERSION).tar.gz -C build/
-	rm -f build/v$(YDER_VERSION).tar.gz
-	( cd build/yder-$(YDER_VERSION) && \
+	tar xf yder/yder.tar.gz -C build/yder/ --strip 1
+	( cd build/yder && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -1881,10 +1887,8 @@ taliesin-local-deb: taliesin-install-dependencies
 	cp libyder_*.deb ../../../taliesin/libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package ulfius
-	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
-	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
-	rm -f build/v$(ULFIUS_VERSION).tar.gz
-	( cd build/ulfius-$(ULFIUS_VERSION) && \
+	tar xf ulfius/ulfius.tar.gz -C build/ulfius/ --strip 1
+	( cd build/ulfius && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -1897,10 +1901,8 @@ taliesin-local-deb: taliesin-install-dependencies
 	cp libulfius_*.deb ../../../taliesin/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	
 	# package hoel
-	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
-	tar xf build/v$(HOEL_VERSION).tar.gz -C build/
-	rm -f build/v$(HOEL_VERSION).tar.gz
-	( cd build/hoel-$(HOEL_VERSION) && \
+	tar xf hoel/hoel.tar.gz -C build/hoel/ --strip 1
+	( cd build/hoel && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_PGSQL=off .. && \
@@ -1912,10 +1914,8 @@ taliesin-local-deb: taliesin-install-dependencies
 	cp libhoel_*.deb ../../../taliesin/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package taliesin
-	wget https://github.com/babelouest/taliesin/archive/v$(TALIESIN_VERSION).tar.gz -O build/v$(TALIESIN_VERSION).tar.gz
-	tar xf build/v$(TALIESIN_VERSION).tar.gz -C build/
-	rm -f build/v$(TALIESIN_VERSION).tar.gz
-	( cd build/taliesin-$(TALIESIN_VERSION) && \
+	tar xf taliesin/taliesin.tar.gz -C build/taliesin/ --strip 1
+	( cd build/taliesin && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -2094,6 +2094,18 @@ hutch-clean: clean-base
 	rm -f hutch/*.tar.gz hutch/*.deb hutch/packages hutch/*.sig
 	-docker rmi -f babelouest/hutch
 
+angharad-source: angharad/angharad.tar.gz
+
+angharad/angharad.tar.gz:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O angharad/angharad.tar.gz https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).tar.gz; \
+		wget -O benoic/benoic.tar.gz https://github.com/babelouest/benoic/archive/v$(BENOIC_VERSION).tar.gz; \
+		wget -O carleon/carleon.tar.gz https://github.com/babelouest/carleon/archive/v$(CARLEON_VERSION).tar.gz; \
+		wget -O gareth/gareth.tar.gz https://github.com/babelouest/gareth/archive/v$(GARETH_VERSION).tar.gz; \
+	else \
+		tar --exclude='angharad/webapp-src/node_modules*' --exclude 'angharad/.git/*' --exclude 'angharad/src/benoic/.git/*' --exclude 'angharad/src/carleon/.git/*' --exclude 'angharad/src/gareth/.git/*' -cvzf angharad/angharad.tar.gz $(ANGHARAD_SRC); \
+	fi
+
 angharad-deb:
 	docker build -t babelouest/angharad --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg ANGHARAD_VERSION=$(ANGHARAD_VERSION) --build-arg BENOIC_VERSION=$(BENOIC_VERSION) --build-arg CARLEON_VERSION=$(CARLEON_VERSION) --build-arg GARETH_VERSION=$(GARETH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) angharad/build/deb/
 	docker run --rm -v $(shell pwd)/angharad/:/share babelouest/angharad
@@ -2137,12 +2149,11 @@ angharad-install-dependencies:
 		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libopenzwave1.5-dev libmpdclient-dev libcurl4-gnutls-dev g++ pkg-config; \
 	fi
 
-angharad-local-deb: angharad-install-dependencies
+angharad-local-deb: orcania-source yder-source hoel-source ulfius-source angharad-source angharad-install-dependencies
+	mkdir -p build/orcania build/yder build/ulfius build/hoel build/rhonabwy build/iddawc build/angharad
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
-	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
-	rm -f build/v$(ORCANIA_VERSION).tar.gz
-	( cd build/orcania-$(ORCANIA_VERSION) && \
+	tar xf orcania/orcania.tar.gz -C build/orcania/ --strip 1
+	( cd build/orcania && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -2155,10 +2166,8 @@ angharad-local-deb: angharad-install-dependencies
 	cp liborcania_*.deb ../../../angharad/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
-	tar xf build/v$(YDER_VERSION).tar.gz -C build/
-	rm -f build/v$(YDER_VERSION).tar.gz
-	( cd build/yder-$(YDER_VERSION) && \
+	tar xf yder/yder.tar.gz -C build/yder/ --strip 1
+	( cd build/yder && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -2171,10 +2180,8 @@ angharad-local-deb: angharad-install-dependencies
 	cp libyder_*.deb ../../../angharad/libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package ulfius
-	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
-	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
-	rm -f build/v$(ULFIUS_VERSION).tar.gz
-	( cd build/ulfius-$(ULFIUS_VERSION) && \
+	tar xf ulfius/ulfius.tar.gz -C build/ulfius/ --strip 1
+	( cd build/ulfius && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_WEBSOCKET=off .. && \
@@ -2187,10 +2194,8 @@ angharad-local-deb: angharad-install-dependencies
 	cp libulfius_*.deb ../../../angharad/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	
 	# package hoel
-	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
-	tar xf build/v$(HOEL_VERSION).tar.gz -C build/
-	rm -f build/v$(HOEL_VERSION).tar.gz
-	( cd build/hoel-$(HOEL_VERSION) && \
+	tar xf hoel/hoel.tar.gz -C build/hoel/ --strip 1
+	( cd build/hoel && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_PGSQL=off .. && \
@@ -2202,22 +2207,14 @@ angharad-local-deb: angharad-install-dependencies
 	cp libhoel_*.deb ../../../angharad/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package angharad
-	wget https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).tar.gz -O build/v$(ANGHARAD_VERSION).tar.gz
-	tar -xvf build/v$(ANGHARAD_VERSION).tar.gz -C build/
-	rm build/v$(ANGHARAD_VERSION).tar.gz
-	wget https://github.com/babelouest/benoic/archive/v$(BENOIC_VERSION).tar.gz -O build/v$(BENOIC_VERSION).tar.gz
-	tar -xvf build/v$(BENOIC_VERSION).tar.gz -C build/
-	rm build/v$(BENOIC_VERSION).tar.gz
-	wget https://github.com/babelouest/carleon/archive/v$(CARLEON_VERSION).tar.gz -O build/v$(CARLEON_VERSION).tar.gz
-	tar -xvf build/v$(CARLEON_VERSION).tar.gz -C build/
-	rm build/v$(CARLEON_VERSION).tar.gz
-	wget https://github.com/babelouest/gareth/archive/v$(GARETH_VERSION).tar.gz -O build/v$(GARETH_VERSION).tar.gz
-	tar -xvf build/v$(GARETH_VERSION).tar.gz -C build/
-	rm build/v$(GARETH_VERSION).tar.gz
-	mv build/benoic-$(BENOIC_VERSION)/* build/angharad-$(ANGHARAD_VERSION)/src/benoic/
-	mv build/carleon-$(CARLEON_VERSION)/* build/angharad-$(ANGHARAD_VERSION)/src/carleon/
-	mv build/gareth-$(GARETH_VERSION)/* build/angharad-$(ANGHARAD_VERSION)/src/gareth/
-	(cd build/angharad-$(ANGHARAD_VERSION) && \
+	tar xf angharad/angharad.tar.gz -C build/angharad/ --strip 1
+	@if [ "$(REMOTE)" = "1" ]; then \
+		mkdir -p angharad/src/benoic angharad/src/carleon angharad/src/gareth; \
+		tar xf benoic/benoic.tar.gz -C build/angharad/src/benoic/ --strip 1; \
+		tar xf carleon/carleon.tar.gz -C build/angharad/src/carleon/ --strip 1; \
+		tar xf gareth/gareth.tar.gz -C build/angharad/src/gareth/ --strip 1; \
+	fi
+	(cd build/angharad && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
