@@ -1173,7 +1173,7 @@ rhonabwy-build:
 	$(MAKE) rhonabwy-alpine
 	$(MAKE) rhonabwy-fedora
 	#$(MAKE) rhonabwy-opensuse-tumbleweed
-	$(MAKE) rhonabwy-opensuse-leap
+	#$(MAKE) rhonabwy-opensuse-leap
 
 rhonabwy-test:
 	$(MAKE) rhonabwy-debian-oldstable-test
@@ -1184,7 +1184,7 @@ rhonabwy-test:
 	$(MAKE) rhonabwy-alpine-test
 	$(MAKE) rhonabwy-fedora-test
 	#$(MAKE) rhonabwy-opensuse-tumbleweed-test
-	$(MAKE) rhonabwy-opensuse-leap-test
+	#$(MAKE) rhonabwy-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#            RHONABWY TESTS COMPLETE        #"
 	@echo "#############################################"
@@ -1396,7 +1396,7 @@ iddawc-build:
 	$(MAKE) iddawc-alpine
 	$(MAKE) iddawc-fedora
 	#$(MAKE) iddawc-opensuse-tumbleweed
-	$(MAKE) iddawc-opensuse-leap
+	#$(MAKE) iddawc-opensuse-leap
 
 iddawc-test:
 	$(MAKE) iddawc-debian-oldstable-test
@@ -1407,7 +1407,7 @@ iddawc-test:
 	$(MAKE) iddawc-alpine-test
 	$(MAKE) iddawc-fedora-test
 	#$(MAKE) iddawc-opensuse-tumbleweed-test
-	$(MAKE) iddawc-opensuse-leap-test
+	#$(MAKE) iddawc-opensuse-leap-test
 	@echo "#############################################"
 	@echo "#            IDDAWC TESTS COMPLETE        #"
 	@echo "#############################################"
@@ -1770,13 +1770,13 @@ glewlwyd-build:
 	#-$(MAKE) glewlwyd-opensuse-leap
 
 glewlwyd-test:
-	$(MAKE) glewlwyd-debian-oldstable-test
-	$(MAKE) glewlwyd-debian-stable-test
-	$(MAKE) glewlwyd-debian-testing-test
-	$(MAKE) glewlwyd-ubuntu-latest-test
-	$(MAKE) glewlwyd-ubuntu-lts-test
-	$(MAKE) glewlwyd-alpine-test
-	$(MAKE) glewlwyd-fedora-test
+	-$(MAKE) glewlwyd-debian-oldstable-test
+	-$(MAKE) glewlwyd-debian-stable-test
+	-$(MAKE) glewlwyd-debian-testing-test
+	-$(MAKE) glewlwyd-ubuntu-latest-test
+	-$(MAKE) glewlwyd-ubuntu-lts-test
+	-$(MAKE) glewlwyd-alpine-test
+	-$(MAKE) glewlwyd-fedora-test
 	#$(MAKE) glewlwyd-opensuse-tumbleweed-test
 	#$(MAKE) glewlwyd-opensuse-leap-test
 	@echo "#############################################"
