@@ -149,7 +149,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/iddawc/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DBUILD_IDWCC=OFF -DBUILD_RPM=on ..
 
   make install
 
@@ -159,7 +159,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DBUILD_RPM=on -DINSTALL_HEADER=off ..
+  cmake -DBUILD_IDWCC=OFF -DBUILD_RPM=on -DINSTALL_HEADER=off ..
 
   make package
 

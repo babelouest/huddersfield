@@ -149,7 +149,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/iddawc/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DBUILD_IDWCC=OFF -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make install
 
@@ -159,7 +159,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
+  cmake -DBUILD_IDWCC=OFF -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
 
   make package
 
