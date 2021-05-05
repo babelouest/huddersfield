@@ -17,6 +17,9 @@ RUN echo ${ULFIUS_VERSION} > /opt/ULFIUS_VERSION
 RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-devel openldap2-devel gnutls || \
     ${RPMI} install -y jansson-devel mariadb-devel libpq-devel openldap-devel gnutls-utils
 
+RUN ${RPMI} install -y libmicrohttpd-devel || \
+    ${RPMI} install --enablerepo=PowerTools -y libmicrohttpd-devel
+
 # Install required packages
 RUN ${RPMI} install -y \
     systemd-devel \
@@ -24,7 +27,6 @@ RUN ${RPMI} install -y \
     systemd-devel \
     libcurl-devel \
     gnutls-devel \
-    libmicrohttpd-devel \
     sqlite-devel \
     liboath-devel \
     libtool \
