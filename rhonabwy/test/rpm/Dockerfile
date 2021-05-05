@@ -26,11 +26,13 @@ RUN ${RPMI} install -y \
     gnutls-devel \
     libtool \
     autoconf\
-    zlib-devel \
-    libmicrohttpd-devel
+    zlib-devel
 
 RUN ${RPMI} install -y libjansson-devel gnutls || \
     ${RPMI} install -y jansson-devel gnutls-utils
+
+RUN ${RPMI} install -y libmicrohttpd-devel || \
+    ${RPMI} install --enablerepo=PowerTools -y libmicrohttpd-devel
 
 COPY ["entrypoint.sh", "/"]
 

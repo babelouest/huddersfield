@@ -7,11 +7,13 @@ RUN ${RPMI} install -y \
     systemd-devel \
     libcurl-devel \
     gnutls-devel \
-    libmicrohttpd-devel \
     zlib-devel
 
 RUN ${RPMI} install -y libjansson-devel || \
     ${RPMI} install -y jansson-devel
+
+RUN ${RPMI} install -y libmicrohttpd-devel || \
+    ${RPMI} install --enablerepo=PowerTools -y libmicrohttpd-devel
 
 ARG ORCANIA_VERSION
 ARG YDER_VERSION

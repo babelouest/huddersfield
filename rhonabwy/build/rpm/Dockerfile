@@ -15,11 +15,13 @@ RUN ${RPMI} install -y \
     systemd-devel \
     libcurl-devel \
     gnutls-devel \
-    zlib-devel \
-    libmicrohttpd-devel
+    zlib-devel
 
 RUN ${RPMI} install -y libjansson-devel || \
     ${RPMI} install -y jansson-devel
+
+RUN ${RPMI} install -y libmicrohttpd-devel || \
+    ${RPMI} install --enablerepo=PowerTools -y libmicrohttpd-devel
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
 RUN echo ${YDER_VERSION} > /opt/YDER_VERSION

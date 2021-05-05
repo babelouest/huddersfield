@@ -28,8 +28,7 @@ RUN ${RPMI} install -y \
     check-devel \
     zlib-devel \
     libtool \
-    autoconf\
-    libmicrohttpd-devel
+    autoconf
 
 # Install jansson from github on Opensuse Leap
 RUN if [[ $(lsb_release -sd|tr -d \"|sed 's/[)(]//g') == *"openSUSE Leap"* ]]; then \
@@ -38,6 +37,9 @@ RUN if [[ $(lsb_release -sd|tr -d \"|sed 's/[)(]//g') == *"openSUSE Leap"* ]]; t
     else \
     ${RPMI} install -y libjansson-devel || ${RPMI} install -y jansson-devel; \
     fi
+
+RUN ${RPMI} install -y libmicrohttpd-devel || \
+    ${RPMI} install --enablerepo=PowerTools -y libmicrohttpd-devel
 
 COPY ["entrypoint.sh", "/"]
 

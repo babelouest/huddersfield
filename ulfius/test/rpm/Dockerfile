@@ -19,11 +19,13 @@ RUN ${RPMI} install -y \
     systemd-devel \
     libcurl-devel \
     gnutls-devel \
-    libmicrohttpd-devel \
     zlib-devel
 
 RUN ${RPMI} install -y libjansson-devel gnutls || \
     ${RPMI} install -y jansson-devel gnutls-utils
+
+RUN ${RPMI} install -y libmicrohttpd-devel || \
+    ${RPMI} install --enablerepo=PowerTools -y libmicrohttpd-devel
 
 COPY ["entrypoint.sh", "/"]
 

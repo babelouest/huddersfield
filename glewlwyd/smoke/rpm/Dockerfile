@@ -20,12 +20,14 @@ RUN echo ${ULFIUS_VERSION} > /opt/ULFIUS_VERSION
 RUN ${RPMI} install -y libjansson mariadb-connector-c libpq openldap-clients gnutls || \
     ${RPMI} install -y jansson mariadb libpq openldap gnutls-utils
 
+RUN ${RPMI} install -y libmicrohttpd || \
+    ${RPMI} install --enablerepo=PowerTools -y libmicrohttpd
+
 # Install required packages
 RUN ${RPMI} install -y \
     libcurl \
     systemd-devel \
     gnutls \
-    libmicrohttpd \
     sqlite \
     liboath \
     libtool \
