@@ -207,11 +207,30 @@ shell-centos:
 
 orcania-source: orcania/orcania.tar.gz
 
+orcania-source-signed: orcania/orcania.tar.gz orcania/orcania.zip
+	@if [ "$(SIGN_ASSET)" = "1" ]; then \
+		gpg --detach-sign --yes orcania/orcania.tar.gz || true; \
+		gpg --detach-sign --yes orcania/orcania.zip || true; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f orcania/orcania.tar.gz.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=orcania tag=v$(ORCANIA_VERSION) filename=orcania/orcania.tar.gz.sig; \
+			fi; \
+			if [ -f orcania/orcania.zip.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=orcania tag=v$(ORCANIA_VERSION) filename=orcania/orcania.zip.sig; \
+			fi; \
+		fi \
+	fi;
+
 orcania/orcania.tar.gz:
 	@if [ "$(REMOTE)" = "1" ]; then \
 		wget -O orcania/orcania.tar.gz https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz; \
 	else \
 		tar --exclude 'orcania/.git/*' -cvzf orcania/orcania.tar.gz $(ORCANIA_SRC); \
+	fi
+
+orcania/orcania.zip:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O orcania/orcania.zip https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).zip; \
 	fi
 
 orcania-deb:
@@ -363,6 +382,7 @@ orcania-local-deb: orcania-install-dependencies orcania-source
 	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
 
 orcania-build:
+	$(MAKE) orcania-source-signed
 	$(MAKE) orcania-debian-oldstable
 	$(MAKE) orcania-debian-stable
 	$(MAKE) orcania-debian-testing
@@ -390,17 +410,36 @@ orcania-test:
 	@echo "#############################################"
 
 orcania-clean: clean-base
-	rm -f orcania/*.tar.gz orcania/*.deb orcania/*.rpm orcania/packages orcania/*.sig
+	rm -f orcania/*.tar.gz orcania/*.zip orcania/*.deb orcania/*.rpm orcania/packages orcania/*.sig
 	-docker rmi -f babelouest/orcania
 	-docker rmi -f babelouest/orcania-test
 
 yder-source: yder/yder.tar.gz
+
+yder-source-signed: yder/yder.tar.gz yder/yder.zip
+	@if [ "$(SIGN_ASSET)" = "1" ]; then \
+		gpg --detach-sign --yes yder/yder.tar.gz || true; \
+		gpg --detach-sign --yes yder/yder.zip || true; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f yder/yder.tar.gz.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=yder tag=v$(YDER_VERSION) filename=yder/yder.tar.gz.sig; \
+			fi; \
+			if [ -f yder/yder.zip.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=yder tag=v$(YDER_VERSION) filename=yder/yder.zip.sig; \
+			fi; \
+		fi \
+	fi;
 
 yder/yder.tar.gz:
 	@if [ "$(REMOTE)" = "1" ]; then \
 		wget -O yder/yder.tar.gz https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz; \
 	else \
 		tar --exclude 'yder/.git/*' -cvzf yder/yder.tar.gz $(YDER_SRC); \
+	fi
+
+yder/yder.zip:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O yder/yder.zip https://github.com/babelouest/yder/archive/v$(YDER_VERSION).zip; \
 	fi
 
 yder-deb:
@@ -565,6 +604,7 @@ yder-local-deb: yder-install-dependencies
 	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
 
 yder-build:
+	$(MAKE) yder-source-signed
 	$(MAKE) yder-debian-oldstable
 	$(MAKE) yder-debian-stable
 	$(MAKE) yder-debian-testing
@@ -592,17 +632,38 @@ yder-test:
 	@echo "#############################################"
 
 yder-clean: clean-base
-	rm -f yder/*.tar.gz yder/*.deb yder/*.rpm yder/packages yder/*.sig
+	rm -f yder/*.tar.gz yder/*.zip yder/*.deb yder/*.rpm yder/packages yder/*.sig
 	-docker rmi -f babelouest/yder
 	-docker rmi -f babelouest/yder-test
 
 ulfius-source: ulfius/ulfius.tar.gz
+
+ulfius-source-signed: ulfius/ulfius.tar.gz ulfius/ulfius.zip
+	@if [ "$(SIGN_ASSET)" = "1" ]; then \
+		gpg --detach-sign --yes ulfius/ulfius.tar.gz || true; \
+		gpg --detach-sign --yes ulfius/ulfius.zip || true; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f ulfius/ulfius.tar.gz.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=ulfius tag=v$(ULFIUS_VERSION) filename=ulfius/ulfius.tar.gz.sig; \
+			fi; \
+			if [ -f ulfius/ulfius.zip.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=ulfius tag=v$(ULFIUS_VERSION) filename=ulfius/ulfius.zip.sig; \
+			fi; \
+		fi \
+	fi;
 
 ulfius/ulfius.tar.gz:
 	@if [ "$(REMOTE)" = "1" ]; then \
 		wget -O ulfius/ulfius.tar.gz https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz; \
 	else \
 		tar --exclude 'ulfius/.git/*' -cvzf ulfius/ulfius.tar.gz $(ULFIUS_SRC); \
+	fi
+
+ulfius/ulfius.zip:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O ulfius/ulfius.zip https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).zip; \
+	else \
+		tar --exclude 'ulfius/.git/*' -cvzf ulfius/ulfius.zip $(ULFIUS_SRC); \
 	fi
 
 ulfius-deb:
@@ -781,6 +842,7 @@ ulfius-local-deb:
 	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
 
 ulfius-build:
+	$(MAKE) ulfius-source-signed
 	$(MAKE) ulfius-debian-oldstable
 	$(MAKE) ulfius-debian-stable
 	$(MAKE) ulfius-debian-testing
@@ -808,17 +870,36 @@ ulfius-test:
 	@echo "#############################################"
 
 ulfius-clean: clean-base
-	rm -f ulfius/*.tar.gz ulfius/*.deb ulfius/*.rpm ulfius/packages ulfius/*.sig
+	rm -f ulfius/*.tar.gz ulfius/*.zip ulfius/*.deb ulfius/*.rpm ulfius/packages ulfius/*.sig
 	-docker rmi -f babelouest/ulfius
 	-docker rmi -f babelouest/ulfius-test
 
 hoel-source: hoel/hoel.tar.gz
+
+hoel-source-signed: hoel/hoel.tar.gz hoel/hoel.zip
+	@if [ "$(SIGN_ASSET)" = "1" ]; then \
+		gpg --detach-sign --yes hoel/hoel.tar.gz || true; \
+		gpg --detach-sign --yes hoel/hoel.zip || true; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f hoel/hoel.tar.gz.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=hoel tag=v$(HOEL_VERSION) filename=hoel/hoel.tar.gz.sig; \
+			fi; \
+			if [ -f hoel/hoel.zip.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=hoel tag=v$(HOEL_VERSION) filename=hoel/hoel.zip.sig; \
+			fi; \
+		fi \
+	fi;
 
 hoel/hoel.tar.gz:
 	@if [ "$(REMOTE)" = "1" ]; then \
 		wget -O hoel/hoel.tar.gz https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz; \
 	else \
 		tar --exclude 'hoel/.git/*' -cvzf hoel/hoel.tar.gz $(HOEL_SRC); \
+	fi
+
+hoel/hoel.zip:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O hoel/hoel.zip https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).zip; \
 	fi
 
 hoel-deb:
@@ -999,6 +1080,7 @@ hoel-local-deb: hoel-install-dependencies
 	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
 
 hoel-build:
+	$(MAKE) hoel-source-signed
 	$(MAKE) hoel-debian-oldstable
 	$(MAKE) hoel-debian-stable
 	$(MAKE) hoel-debian-testing
@@ -1026,17 +1108,36 @@ hoel-test:
 	@echo "#############################################"
 
 hoel-clean: clean-base
-	rm -f hoel/*.tar.gz hoel/*.deb hoel/*.rpm hoel/packages hoel/*.sig
+	rm -f hoel/*.tar.gz hoel/*.zip hoel/*.deb hoel/*.rpm hoel/packages hoel/*.sig
 	-docker rmi -f babelouest/hoel
 	-docker rmi -f babelouest/hoel-test
 
 rhonabwy-source: rhonabwy/rhonabwy.tar.gz
+
+rhonabwy-source-signed: rhonabwy/rhonabwy.tar.gz rhonabwy/rhonabwy.zip
+	@if [ "$(SIGN_ASSET)" = "1" ]; then \
+		gpg --detach-sign --yes rhonabwy/rhonabwy.tar.gz || true; \
+		gpg --detach-sign --yes rhonabwy/rhonabwy.zip || true; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f rhonabwy/rhonabwy.tar.gz.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=rhonabwy tag=v$(RHONABWY_VERSION) filename=rhonabwy/rhonabwy.tar.gz.sig; \
+			fi; \
+			if [ -f rhonabwy/rhonabwy.zip.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=rhonabwy tag=v$(RHONABWY_VERSION) filename=rhonabwy/rhonabwy.zip.sig; \
+			fi; \
+		fi \
+	fi;
 
 rhonabwy/rhonabwy.tar.gz:
 	@if [ "$(REMOTE)" = "1" ]; then \
 		wget -O rhonabwy/rhonabwy.tar.gz https://github.com/babelouest/rhonabwy/archive/v$(RHONABWY_VERSION).tar.gz; \
 	else \
 		tar --exclude 'rhonabwy/.git/*' -cvzf rhonabwy/rhonabwy.tar.gz $(RHONABWY_SRC); \
+	fi
+
+rhonabwy/rhonabwy.zip:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O rhonabwy/rhonabwy.zip https://github.com/babelouest/rhonabwy/archive/v$(RHONABWY_VERSION).zip; \
 	fi
 
 rhonabwy-deb:
@@ -1233,6 +1334,7 @@ rhonabwy-local-deb: rhonabwy-install-dependencies
 	xargs -a ./rhonabwy/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=rhonabwy TAG=$(RHONABWY_VERSION) PATTERN=./rhonabwy/%
 
 rhonabwy-build:
+	$(MAKE) rhonabwy-source-signed
 	$(MAKE) rhonabwy-debian-oldstable
 	$(MAKE) rhonabwy-debian-stable
 	$(MAKE) rhonabwy-debian-testing
@@ -1260,17 +1362,36 @@ rhonabwy-test:
 	@echo "#############################################"
 
 rhonabwy-clean: clean-base
-	rm -f rhonabwy/*.tar.gz rhonabwy/*.deb rhonabwy/*.rpm rhonabwy/packages rhonabwy/*.sig
+	rm -f rhonabwy/*.tar.gz rhonabwy/*.zip rhonabwy/*.deb rhonabwy/*.rpm rhonabwy/packages rhonabwy/*.sig
 	-docker rmi -f babelouest/rhonabwy
 	-docker rmi -f babelouest/rhonabwy-test
 
 iddawc-source: iddawc/iddawc.tar.gz
+
+iddawc-source-signed: iddawc/iddawc.tar.gz iddawc/iddawc.zip
+	@if [ "$(SIGN_ASSET)" = "1" ]; then \
+		gpg --detach-sign --yes iddawc/iddawc.tar.gz || true; \
+		gpg --detach-sign --yes iddawc/iddawc.zip || true; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f iddawc/iddawc.tar.gz.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=iddawc tag=v$(IDDAWC_VERSION) filename=iddawc/iddawc.tar.gz.sig; \
+			fi; \
+			if [ -f iddawc/iddawc.zip.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=iddawc tag=v$(IDDAWC_VERSION) filename=iddawc/iddawc.zip.sig; \
+			fi; \
+		fi \
+	fi;
 
 iddawc/iddawc.tar.gz:
 	@if [ "$(REMOTE)" = "1" ]; then \
 		wget -O iddawc/iddawc.tar.gz https://github.com/babelouest/iddawc/archive/v$(IDDAWC_VERSION).tar.gz; \
 	else \
 		tar --exclude 'iddawc/.git/*' -cvzf iddawc/iddawc.tar.gz $(IDDAWC_SRC); \
+	fi
+
+iddawc/iddawc.zip:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O iddawc/iddawc.zip https://github.com/babelouest/iddawc/archive/v$(IDDAWC_VERSION).zip; \
 	fi
 
 iddawc-deb:
@@ -1467,6 +1588,7 @@ iddawc-local-deb: iddawc-install-dependencies
 	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
 
 iddawc-build:
+	$(MAKE) iddawc-source-signed
 	$(MAKE) iddawc-debian-oldstable
 	$(MAKE) iddawc-debian-stable
 	$(MAKE) iddawc-debian-testing
@@ -1494,17 +1616,36 @@ iddawc-test:
 	@echo "#############################################"
 
 iddawc-clean: clean-base
-	rm -f iddawc/*.tar.gz iddawc/*.deb iddawc/*.rpm iddawc/packages iddawc/*.sig
+	rm -f iddawc/*.tar.gz iddawc/*.zip iddawc/*.deb iddawc/*.rpm iddawc/packages iddawc/*.sig
 	-docker rmi -f babelouest/iddawc
 	-docker rmi -f babelouest/iddawc-test
 
 glewlwyd-source: glewlwyd/glewlwyd.tar.gz
+
+glewlwyd-source-signed: glewlwyd/glewlwyd.tar.gz glewlwyd/glewlwyd.zip
+	@if [ "$(SIGN_ASSET)" = "1" ]; then \
+		gpg --detach-sign --yes glewlwyd/glewlwyd.tar.gz || true; \
+		gpg --detach-sign --yes glewlwyd/glewlwyd.zip || true; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f glewlwyd/glewlwyd.tar.gz.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=glewlwyd tag=v$(GLEWLWYD_VERSION) filename=glewlwyd/glewlwyd.tar.gz.sig; \
+			fi; \
+			if [ -f glewlwyd/glewlwyd.zip.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=glewlwyd tag=v$(GLEWLWYD_VERSION) filename=glewlwyd/glewlwyd.zip.sig; \
+			fi; \
+		fi \
+	fi;
 
 glewlwyd/glewlwyd.tar.gz:
 	@if [ "$(REMOTE)" = "1" ]; then \
 		wget -O glewlwyd/glewlwyd.tar.gz https://github.com/babelouest/glewlwyd/archive/v$(GLEWLWYD_VERSION).tar.gz; \
 	else \
 		tar --exclude='glewlwyd/webapp-src/node_modules*' --exclude 'glewlwyd/.git/*' -cvzf glewlwyd/glewlwyd.tar.gz $(GLEWLWYD_SRC); \
+	fi
+
+glewlwyd/glewlwyd.zip:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O glewlwyd/glewlwyd.zip https://github.com/babelouest/glewlwyd/archive/v$(GLEWLWYD_VERSION).zip; \
 	fi
 
 glewlwyd-deb:
@@ -1857,6 +1998,7 @@ glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source rhonabwy-sourc
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-build:
+	-$(MAKE) glewlwyd-source-signed
 	-$(MAKE) glewlwyd-debian-oldstable
 	-$(MAKE) glewlwyd-debian-stable
 	-$(MAKE) glewlwyd-debian-testing
@@ -1896,7 +2038,7 @@ glewlwyd-memcheck:
 	@echo "#############################################"
 
 glewlwyd-clean: clean-base
-	rm -f glewlwyd/*.tar.gz glewlwyd/*.deb glewlwyd/*.rpm glewlwyd/packages glewlwyd/valgrind* glewlwyd/*.sig
+	rm -f glewlwyd/*.tar.gz glewlwyd/*.zip glewlwyd/*.deb glewlwyd/*.rpm glewlwyd/packages glewlwyd/valgrind* glewlwyd/*.sig
 	-docker rmi -f babelouest/glewlwyd
 	-docker rmi -f babelouest/glewlwyd-test
 	-docker rmi -f babelouest/glewlwyd-smoke
@@ -1904,11 +2046,30 @@ glewlwyd-clean: clean-base
 
 taliesin-source: taliesin/taliesin.tar.gz
 
+taliesin-source-signed: taliesin/taliesin.tar.gz taliesin/taliesin.zip
+	@if [ "$(SIGN_ASSET)" = "1" ]; then \
+		gpg --detach-sign --yes taliesin/taliesin.tar.gz || true; \
+		gpg --detach-sign --yes taliesin/taliesin.zip || true; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f taliesin/taliesin.tar.gz.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=taliesin tag=v$(TALIESIN_VERSION) filename=taliesin/taliesin.tar.gz.sig; \
+			fi; \
+			if [ -f taliesin/taliesin.zip.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=taliesin tag=v$(TALIESIN_VERSION) filename=taliesin/taliesin.zip.sig; \
+			fi; \
+		fi \
+	fi;
+
 taliesin/taliesin.tar.gz:
 	@if [ "$(REMOTE)" = "1" ]; then \
 		wget -O taliesin/taliesin.tar.gz https://github.com/babelouest/taliesin/archive/v$(TALIESIN_VERSION).tar.gz; \
 	else \
 		tar --exclude='taliesin/webapp-src/node_modules*' --exclude 'taliesin/.git/*' --exclude 'taliesin/test/media/*' -cvzf taliesin/taliesin.tar.gz $(TALIESIN_SRC); \
+	fi
+
+taliesin/taliesin.zip:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O taliesin/taliesin.zip https://github.com/babelouest/taliesin/archive/v$(TALIESIN_VERSION).zip; \
 	fi
 
 taliesin-deb:
@@ -2054,6 +2215,7 @@ taliesin-local-deb: orcania-source yder-source hoel-source ulfius-source rhonabw
 	xargs -a ./taliesin/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=taliesin TAG=$(TALIESIN_VERSION) PATTERN=./taliesin/%
 
 taliesin-build:
+	$(MAKE) taliesin-source-signed
 	$(MAKE) taliesin-debian-stable
 	$(MAKE) taliesin-debian-testing
 	$(MAKE) taliesin-ubuntu-latest
@@ -2061,7 +2223,7 @@ taliesin-build:
 	$(MAKE) taliesin-alpine
 
 taliesin-clean: clean-base
-	rm -f taliesin/*.tar.gz taliesin/*.deb taliesin/packages taliesin/*.sig
+	rm -f taliesin/*.tar.gz taliesin/*.zip taliesin/*.deb taliesin/packages taliesin/*.sig
 	-docker rmi -f babelouest/taliesin
 
 taliesin-quickstart-src:
@@ -2074,6 +2236,25 @@ taliesin-quickstart-sqlite-noauth:
 	cd taliesin/quickstart && $(MAKE) build-quickstart-x86_64_sqlite_noauth TALIESIN_VERSION=$(TALIESIN_VERSION)
 
 hutch-source: hutch/hutch.tar.gz
+
+hutch-source-signed: hutch/hutch.tar.gz hutch/hutch.zip
+	@if [ "$(SIGN_ASSET)" = "1" ]; then \
+		gpg --detach-sign --yes hutch/hutch.tar.gz || true; \
+		gpg --detach-sign --yes hutch/hutch.zip || true; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f hutch/hutch.tar.gz.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=hutch tag=v$(HUTCH_VERSION) filename=hutch/hutch.tar.gz.sig; \
+			fi; \
+			if [ -f hutch/hutch.zip.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=hutch tag=v$(HUTCH_VERSION) filename=hutch/hutch.zip.sig; \
+			fi; \
+		fi \
+	fi;
+
+hutch/hutch.zip:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O hutch/hutch.zip https://github.com/babelouest/hutch/archive/v$(HUTCH_VERSION).zip; \
+	fi
 
 hutch/hutch.tar.gz:
 	@if [ "$(REMOTE)" = "1" ]; then \
@@ -2208,6 +2389,7 @@ hutch-local-deb: hutch-install-dependencies
 	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
 hutch-build:
+	$(MAKE) hutch-source-signed
 	$(MAKE) hutch-debian-stable
 	$(MAKE) hutch-debian-testing
 	$(MAKE) hutch-ubuntu-latest
@@ -2215,19 +2397,35 @@ hutch-build:
 	$(MAKE) hutch-alpine
 
 hutch-clean: clean-base
-	rm -f hutch/*.tar.gz hutch/*.deb hutch/packages hutch/*.sig
+	rm -f hutch/*.tar.gz hutch/*.zip hutch/*.deb hutch/packages hutch/*.sig
 	-docker rmi -f babelouest/hutch
 
 angharad-source: angharad/angharad.tar.gz
 
+angharad-source-signed: angharad/angharad.tar.gz angharad/angharad.zip
+	@if [ "$(SIGN_ASSET)" = "1" ]; then \
+		gpg --detach-sign --yes angharad/angharad.tar.gz || true; \
+		gpg --detach-sign --yes angharad/angharad.zip || true; \
+		if [ "$(GITHUB_UPLOAD)" = "1" ]; then \
+			if [ -f angharad/angharad.tar.gz.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=angharad tag=v$(ANGHARAD_VERSION) filename=angharad/angharad.tar.gz.sig; \
+			fi; \
+			if [ -f angharad/angharad.zip.sig ]; then \
+				./upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=$(GITHUB_USER) repo=angharad tag=v$(ANGHARAD_VERSION) filename=angharad/angharad.zip.sig; \
+			fi; \
+		fi \
+	fi;
+
 angharad/angharad.tar.gz:
 	@if [ "$(REMOTE)" = "1" ]; then \
 		wget -O angharad/angharad.tar.gz https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).tar.gz; \
-		wget -O benoic/benoic.tar.gz https://github.com/babelouest/benoic/archive/v$(BENOIC_VERSION).tar.gz; \
-		wget -O carleon/carleon.tar.gz https://github.com/babelouest/carleon/archive/v$(CARLEON_VERSION).tar.gz; \
-		wget -O gareth/gareth.tar.gz https://github.com/babelouest/gareth/archive/v$(GARETH_VERSION).tar.gz; \
 	else \
 		tar --exclude='angharad/webapp-src/node_modules*' --exclude 'angharad/.git/*' --exclude 'angharad/src/benoic/.git/*' --exclude 'angharad/src/carleon/.git/*' --exclude 'angharad/src/gareth/.git/*' -cvzf angharad/angharad.tar.gz $(ANGHARAD_SRC); \
+	fi
+
+angharad/angharad.zip:
+	@if [ "$(REMOTE)" = "1" ]; then \
+		wget -O angharad/angharad.zip https://github.com/babelouest/angharad/archive/v$(ANGHARAD_VERSION).zip; \
 	fi
 
 angharad-deb:
@@ -2379,6 +2577,7 @@ angharad-local-deb: orcania-source yder-source hoel-source ulfius-source rhonabw
 	xargs -a ./angharad/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=angharad TAG=$(ANGHARAD_VERSION) PATTERN=./angharad/%
 
 angharad-build:
+	$(MAKE) angharad-source-signed
 	$(MAKE) angharad-debian-stable
 	$(MAKE) angharad-debian-testing
 	$(MAKE) angharad-ubuntu-latest
@@ -2386,5 +2585,5 @@ angharad-build:
 	$(MAKE) angharad-alpine
 
 angharad-clean: clean-base
-	rm -f angharad/*.tar.gz angharad/*.deb angharad/packages angharad/*.sig
+	rm -f angharad/*.tar.gz angharad/*.zip angharad/*.deb angharad/packages angharad/*.sig
 	-docker rmi -f babelouest/angharad
