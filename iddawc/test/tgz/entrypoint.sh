@@ -24,13 +24,20 @@ if [ -f $IDDAWC_ARCHIVE ]; then
 
   cd /opt/iddawc/test
 
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 core.c -o core -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 implicit.c -o implicit -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 id_token.c -o id_token -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 token.c -o token -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 load_config.c -o load_config -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 load_userinfo.c -o load_userinfo -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius
-  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 flow.c -o flow -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 core.c -o core -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 implicit.c -o implicit -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 id_token.c -o id_token -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 token.c -o token -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 load_config.c -o load_config -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 load_userinfo.c -o load_userinfo -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 flow.c -o flow -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 introspection.c -o introspection -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 revocation.c -o revocation -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 registration.c -o registration -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 dpop.c -o dpop -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 api_request.c -o api_request -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 device.c -o device -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 par.c -o par -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
   
   ./core
   ./implicit
@@ -39,6 +46,13 @@ if [ -f $IDDAWC_ARCHIVE ]; then
   ./load_config
   ./load_userinfo
   ./flow
+  ./introspection
+  ./revocation
+  ./registration
+  ./dpop
+  ./api_request
+  ./device
+  ./par
   
   echo "$(date -R) iddawc-dev-full_${IDDAWC_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
 else
