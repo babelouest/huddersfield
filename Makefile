@@ -164,15 +164,15 @@ centos:
 
 deb-shell:
 	$(DOCKER_BUILD) -t babelouest/deb-shell --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) shell/deb/
-	$(DOCKER_RUN) --rm -it -p 4593:4593 -v $(shell dirname "$$(pwd)")/:/share babelouest/deb-shell bash
+	$(DOCKER_RUN) --rm -it -v $(shell dirname "$$(pwd)")/:/share babelouest/deb-shell bash
 
 tgz-shell:
 	$(DOCKER_BUILD) -t babelouest/tgz-shell --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) shell/tgz/
-	$(DOCKER_RUN) --rm -it -p 4593:4593 -v $(shell dirname "$$(pwd)")/:/share babelouest/tgz-shell bash
+	$(DOCKER_RUN) --rm -it -v $(shell dirname "$$(pwd)")/:/share babelouest/tgz-shell bash
 
 rpm-shell:
 	$(DOCKER_BUILD) -t babelouest/rpm-shell --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) shell/rpm/
-	$(DOCKER_RUN) --rm -it -p 4593:4593 -v $(shell dirname "$$(pwd)")/:/share babelouest/rpm-shell
+	$(DOCKER_RUN) --rm -it -v $(shell dirname "$$(pwd)")/:/share babelouest/rpm-shell
 
 shell-debian-oldstable:
 	$(MAKE) debian-oldstable
@@ -196,6 +196,10 @@ shell-ubuntu-lts: orcania-source
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
 		$(MAKE) deb-shell; \
 	fi
+
+shell-alpine:
+	$(MAKE) alpine
+	$(MAKE) tgz-shell
 
 shell-fedora:
 	$(MAKE) fedora
@@ -410,7 +414,7 @@ orcania-test:
 	@echo "#############################################"
 
 orcania-clean: clean-base
-	rm -f orcania/*.tar.gz orcania/*.zip orcania/*.deb orcania/*.rpm orcania/packages orcania/*.sig
+	rm -f orcania/*.tar.gz orcania/*.zip orcania/*.deb orcania/*.rpm orcania/packages orcania/*.sig orcania/*.gpg
 	-docker rmi -f babelouest/orcania
 	-docker rmi -f babelouest/orcania-test
 
@@ -632,7 +636,7 @@ yder-test:
 	@echo "#############################################"
 
 yder-clean: clean-base
-	rm -f yder/*.tar.gz yder/*.zip yder/*.deb yder/*.rpm yder/packages yder/*.sig
+	rm -f yder/*.tar.gz yder/*.zip yder/*.deb yder/*.rpm yder/packages yder/*.sig yder/*.gpg
 	-docker rmi -f babelouest/yder
 	-docker rmi -f babelouest/yder-test
 
@@ -870,7 +874,7 @@ ulfius-test:
 	@echo "#############################################"
 
 ulfius-clean: clean-base
-	rm -f ulfius/*.tar.gz ulfius/*.zip ulfius/*.deb ulfius/*.rpm ulfius/packages ulfius/*.sig
+	rm -f ulfius/*.tar.gz ulfius/*.zip ulfius/*.deb ulfius/*.rpm ulfius/packages ulfius/*.sig ulfius/*.gpg
 	-docker rmi -f babelouest/ulfius
 	-docker rmi -f babelouest/ulfius-test
 
@@ -1108,7 +1112,7 @@ hoel-test:
 	@echo "#############################################"
 
 hoel-clean: clean-base
-	rm -f hoel/*.tar.gz hoel/*.zip hoel/*.deb hoel/*.rpm hoel/packages hoel/*.sig
+	rm -f hoel/*.tar.gz hoel/*.zip hoel/*.deb hoel/*.rpm hoel/packages hoel/*.sig hoel/*.gpg
 	-docker rmi -f babelouest/hoel
 	-docker rmi -f babelouest/hoel-test
 
@@ -1300,22 +1304,6 @@ rhonabwy-local-deb: rhonabwy-install-dependencies
 	sudo make install && \
 	cp libyder-dev_*.deb ../../../rhonabwy/libyder-dev_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
-	# package ulfius
-	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
-	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
-	rm -f build/v$(ULFIUS_VERSION).tar.gz
-	( cd build/ulfius-$(ULFIUS_VERSION) && \
-	mkdir build && \
-	cd build && \
-	cmake -DWITH_WEBSOCKET=off .. && \
-	make && \
-	sudo make install && \
-	rm -rf * && \
-	cmake -DWITH_WEBSOCKET=off -DINSTALL_HEADER=off .. && \
-	make && \
-	make package; \
-	cp libulfius_*.deb ../../../glewlwyd/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
-	
 	# package rhonabwy
 	wget https://github.com/babelouest/rhonabwy/archive/v$(RHONABWY_VERSION).tar.gz -O build/v$(RHONABWY_VERSION).tar.gz
 	tar xf build/v$(RHONABWY_VERSION).tar.gz -C build/
@@ -1362,7 +1350,7 @@ rhonabwy-test:
 	@echo "#############################################"
 
 rhonabwy-clean: clean-base
-	rm -f rhonabwy/*.tar.gz rhonabwy/*.zip rhonabwy/*.deb rhonabwy/*.rpm rhonabwy/packages rhonabwy/*.sig
+	rm -f rhonabwy/*.tar.gz rhonabwy/*.zip rhonabwy/*.deb rhonabwy/*.rpm rhonabwy/packages rhonabwy/*.sig rhonabwy/*.gpg
 	-docker rmi -f babelouest/rhonabwy
 	-docker rmi -f babelouest/rhonabwy-test
 
@@ -1616,7 +1604,7 @@ iddawc-test:
 	@echo "#############################################"
 
 iddawc-clean: clean-base
-	rm -f iddawc/*.tar.gz iddawc/*.zip iddawc/*.deb iddawc/*.rpm iddawc/packages iddawc/*.sig
+	rm -f iddawc/*.tar.gz iddawc/*.zip iddawc/*.deb iddawc/*.rpm iddawc/packages iddawc/*.sig iddawc/*.gpg
 	-docker rmi -f babelouest/iddawc
 	-docker rmi -f babelouest/iddawc-test
 
@@ -1998,25 +1986,26 @@ glewlwyd-local-deb: glewlwyd-install-dependencies glewlwyd-source rhonabwy-sourc
 	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
 
 glewlwyd-build:
-	-$(MAKE) glewlwyd-source-signed
-	-$(MAKE) glewlwyd-debian-oldstable
-	-$(MAKE) glewlwyd-debian-stable
-	-$(MAKE) glewlwyd-debian-testing
-	-$(MAKE) glewlwyd-ubuntu-latest
-	-$(MAKE) glewlwyd-ubuntu-lts
-	-$(MAKE) glewlwyd-alpine
-	-$(MAKE) glewlwyd-fedora
+	$(MAKE) glewlwyd-source-signed
+	$(MAKE) glewlwyd-debian-oldstable
+	$(MAKE) glewlwyd-debian-stable
+	$(MAKE) glewlwyd-debian-testing
+	$(MAKE) glewlwyd-ubuntu-latest
+	$(MAKE) glewlwyd-ubuntu-lts
+	$(MAKE) glewlwyd-alpine
+	$(MAKE) glewlwyd-fedora
 	#-$(MAKE) glewlwyd-opensuse-tumbleweed
 	#-$(MAKE) glewlwyd-opensuse-leap
 
 glewlwyd-test:
-	-$(MAKE) glewlwyd-debian-oldstable-test
-	-$(MAKE) glewlwyd-debian-stable-test
-	-$(MAKE) glewlwyd-debian-testing-test
-	-$(MAKE) glewlwyd-ubuntu-latest-test
-	-$(MAKE) glewlwyd-ubuntu-lts-test
+	$(MAKE) glewlwyd-debian-oldstable-test
+	$(MAKE) glewlwyd-debian-stable-test
+	$(MAKE) glewlwyd-debian-testing-test
+	$(MAKE) glewlwyd-ubuntu-latest-test
+	$(MAKE) glewlwyd-ubuntu-lts-test
+	# fails but why?
 	-$(MAKE) glewlwyd-alpine-test
-	-$(MAKE) glewlwyd-fedora-test
+	$(MAKE) glewlwyd-fedora-test
 	#$(MAKE) glewlwyd-opensuse-tumbleweed-test
 	#$(MAKE) glewlwyd-opensuse-leap-test
 	@echo "#############################################"
@@ -2024,13 +2013,13 @@ glewlwyd-test:
 	@echo "#############################################"
 
 glewlwyd-memcheck:
-	-$(MAKE) glewlwyd-debian-oldstable-memcheck
-	-$(MAKE) glewlwyd-debian-stable-memcheck
-	-$(MAKE) glewlwyd-debian-testing-memcheck
-	-$(MAKE) glewlwyd-ubuntu-latest-memcheck
-	-$(MAKE) glewlwyd-ubuntu-lts-memcheck
-	-$(MAKE) glewlwyd-alpine-memcheck
-	-$(MAKE) glewlwyd-fedora-memcheck
+	$(MAKE) glewlwyd-debian-oldstable-memcheck
+	$(MAKE) glewlwyd-debian-stable-memcheck
+	$(MAKE) glewlwyd-debian-testing-memcheck
+	$(MAKE) glewlwyd-ubuntu-latest-memcheck
+	$(MAKE) glewlwyd-ubuntu-lts-memcheck
+	$(MAKE) glewlwyd-alpine-memcheck
+	$(MAKE) glewlwyd-fedora-memcheck
 	#-$(MAKE) glewlwyd-opensuse-tumbleweed-memcheck
 	#-$(MAKE) glewlwyd-opensuse-leap-memcheck
 	@echo "#############################################"
@@ -2038,7 +2027,7 @@ glewlwyd-memcheck:
 	@echo "#############################################"
 
 glewlwyd-clean: clean-base
-	rm -f glewlwyd/*.tar.gz glewlwyd/*.zip glewlwyd/*.deb glewlwyd/*.rpm glewlwyd/packages glewlwyd/valgrind* glewlwyd/*.sig
+	rm -f glewlwyd/*.tar.gz glewlwyd/*.zip glewlwyd/*.deb glewlwyd/*.rpm glewlwyd/packages glewlwyd/valgrind* glewlwyd/*.sig glewlwyd/*.gpg
 	-docker rmi -f babelouest/glewlwyd
 	-docker rmi -f babelouest/glewlwyd-test
 	-docker rmi -f babelouest/glewlwyd-smoke
@@ -2183,7 +2172,7 @@ taliesin-local-deb: orcania-source yder-source hoel-source ulfius-source rhonabw
 	rm -rf * && \
 	cmake -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp librhonabwy_*.deb ../../../glewlwyd/librhonabwy_$(RHONABWY_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+	cp librhonabwy_*.deb ../../../taliesin/librhonabwy_$(RHONABWY_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package iddawc
 	tar xf iddawc/iddawc.tar.gz -C build/iddawc/ --strip 1
@@ -2196,7 +2185,7 @@ taliesin-local-deb: orcania-source yder-source hoel-source ulfius-source rhonabw
 	rm -rf * && \
 	cmake -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp libiddawc_*.deb ../../../glewlwyd/libiddawc_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+	cp libiddawc_*.deb ../../../taliesin/libiddawc_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package taliesin
 	tar xf taliesin/taliesin.tar.gz -C build/taliesin/ --strip 1
@@ -2208,7 +2197,7 @@ taliesin-local-deb: orcania-source yder-source hoel-source ulfius-source rhonabw
 	make package; \
 	cp taliesin_*.deb ../../../taliesin/taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
-	( cd taliesin && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f taliesin-full_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
+	( cd taliesin && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb librhonabwy_$(RHONABWY_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libiddawc_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f taliesin-full_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
 	echo taliesin_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./taliesin/packages
 	echo taliesin-full_$(TALIESIN_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz >> ./taliesin/packages
@@ -2223,7 +2212,7 @@ taliesin-build:
 	$(MAKE) taliesin-alpine
 
 taliesin-clean: clean-base
-	rm -f taliesin/*.tar.gz taliesin/*.zip taliesin/*.deb taliesin/packages taliesin/*.sig
+	rm -f taliesin/*.tar.gz taliesin/*.zip taliesin/*.deb taliesin/packages taliesin/*.sig taliesin/*.gpg
 	-docker rmi -f babelouest/taliesin
 
 taliesin-quickstart-src:
@@ -2397,7 +2386,7 @@ hutch-build:
 	$(MAKE) hutch-alpine
 
 hutch-clean: clean-base
-	rm -f hutch/*.tar.gz hutch/*.zip hutch/*.deb hutch/packages hutch/*.sig
+	rm -f hutch/*.tar.gz hutch/*.zip hutch/*.deb hutch/packages hutch/*.sig hutch/*.gpg
 	-docker rmi -f babelouest/hutch
 
 angharad-source: angharad/angharad.tar.gz
@@ -2539,7 +2528,7 @@ angharad-local-deb: orcania-source yder-source hoel-source ulfius-source rhonabw
 	rm -rf * && \
 	cmake -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp librhonabwy_*.deb ../../../glewlwyd/librhonabwy_$(RHONABWY_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+	cp librhonabwy_*.deb ../../../angharad/librhonabwy_$(RHONABWY_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package iddawc
 	tar xf iddawc/iddawc.tar.gz -C build/iddawc/ --strip 1
@@ -2552,7 +2541,7 @@ angharad-local-deb: orcania-source yder-source hoel-source ulfius-source rhonabw
 	rm -rf * && \
 	cmake -DINSTALL_HEADER=off .. && \
 	make package; \
-	cp libiddawc_*.deb ../../../glewlwyd/libiddawc_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+	cp libiddawc_*.deb ../../../angharad/libiddawc_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package angharad
 	tar xf angharad/angharad.tar.gz -C build/angharad/ --strip 1
@@ -2570,7 +2559,7 @@ angharad-local-deb: orcania-source yder-source hoel-source ulfius-source rhonabw
 	make package; \
 	cp angharad_*.deb ../../../angharad/angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
-	( cd angharad && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f angharad-full_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
+	( cd angharad && tar cvz liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb librhonabwy_$(RHONABWY_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb libiddawc_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb -f angharad-full_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz )
 	rm -rf build/*
 	echo angharad_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb > ./angharad/packages
 	echo angharad-full_$(ANGHARAD_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.tar.gz >> ./angharad/packages
@@ -2585,5 +2574,5 @@ angharad-build:
 	$(MAKE) angharad-alpine
 
 angharad-clean: clean-base
-	rm -f angharad/*.tar.gz angharad/*.zip angharad/*.deb angharad/packages angharad/*.sig
+	rm -f angharad/*.tar.gz angharad/*.zip angharad/*.deb angharad/packages angharad/*.sig angharad/*.gpg
 	-docker rmi -f babelouest/angharad
