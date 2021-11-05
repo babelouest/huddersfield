@@ -35,13 +35,8 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   sqlite3 /tmp/glewlwyd.db < /opt/glewlwyd/test/glewlwyd-test.sql
 
-  if grep -q "1" "/opt/MEMCHECK"; then
-    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=/opt/glewlwyd/test/glewlwyd-ci.conf 2>/share/glewlwyd/valgrind_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
-    export G_PID=$!
-  else
-    glewlwyd --config-file=/opt/glewlwyd/test/glewlwyd-ci.conf &
-    export G_PID=$!
-  fi
+  glewlwyd --config-file=/opt/glewlwyd/test/glewlwyd-ci.conf &
+  export G_PID=$!
 
   ../test/cert/create-cert.sh
 
@@ -57,13 +52,8 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
   
   make glewlwyd_scheme_certificate glewlwyd_oidc_client_certificate
   
-  if grep -q "1" "/opt/MEMCHECK"; then
-    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=cert/glewlwyd-cert-ci.conf 2>/share/glewlwyd/valgrind_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
-    export G_PID=$!
-  else
-    glewlwyd --config-file=cert/glewlwyd-cert-ci.conf &
-    export G_PID=$!
-  fi
+  glewlwyd --config-file=cert/glewlwyd-cert-ci.conf &
+  export G_PID=$!
 
   sleep 2
   
@@ -73,13 +63,8 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   sleep 2
   
-  if grep -q "1" "/opt/MEMCHECK"; then
-    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=test/glewlwyd-profile-delete-disable.conf 2>/share/glewlwyd/valgrind-profile-delete-disable_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
-    export G_PID=$!
-  else
-    glewlwyd --config-file=test/glewlwyd-profile-delete-disable.conf &
-    export G_PID=$!
-  fi
+  glewlwyd --config-file=test/glewlwyd-profile-delete-disable.conf &
+  export G_PID=$!
 
   sleep 2
 
@@ -89,13 +74,8 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   sleep 2
   
-  if grep -q "1" "/opt/MEMCHECK"; then
-    valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes glewlwyd --config-file=test/glewlwyd-profile-delete-yes.conf 2>/share/glewlwyd/valgrind-profile-delete-yes_${GLEWLWYD_VERSION}_$(grep -e "^ID=" /etc/os-release |cut -c 4-)_$(lsb_release -c -s)_$(uname -m).txt &
-    export G_PID=$!
-  else
-    glewlwyd --config-file=test/glewlwyd-profile-delete-yes.conf &
-    export G_PID=$!
-  fi
+  glewlwyd --config-file=test/glewlwyd-profile-delete-yes.conf &
+  export G_PID=$!
 
   sleep 2
 
