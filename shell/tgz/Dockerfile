@@ -25,6 +25,9 @@ RUN apk add --no-cache \
 		cmake \
 		bash \
 		zlib-dev \
+    gnutls-utils \
+    sqlite \
+    check-dev \
 		oath-toolkit-dev && \
 		(cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
 		tar xf libcbor.tar.gz && cd libcbor-${LIBCBOR_VERSION} && mkdir build && cd build && \
