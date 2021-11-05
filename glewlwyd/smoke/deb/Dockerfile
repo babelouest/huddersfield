@@ -26,7 +26,6 @@ RUN apt-get update && \
 	libconfig9 \
 	libjansson4 \
 	libcurl3-gnutls \
-	libldap-2.4-2 \
 	libmicrohttpd12 \
 	libsqlite3-0 \
 	libpq5 \
@@ -34,6 +33,8 @@ RUN apt-get update && \
 	default-libmysqlclient-dev \
 	zlib1g \
 	pkg-config
+
+RUN apt-get install -y libldap-2.4-2 || apt-get install -y libldap-2.5-0
 
 RUN apt-get install -y libcbor0 || apt-get install -y libcbor0.6 || (apt-get install -y wget cmake && \
 	cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
