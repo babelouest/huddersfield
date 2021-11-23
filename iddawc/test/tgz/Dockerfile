@@ -24,6 +24,7 @@ RUN apk add --no-cache \
 		automake \
 		zlib-dev \
 		libtool \
+		gnutls-utils \
 		bash
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION

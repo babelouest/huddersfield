@@ -25,6 +25,7 @@ RUN apt-get update && \
 		libtool \
 		autoconf \
 		zlib1g-dev \
+		gnutls-bin \
 		libsubunit-dev
 
 # Install jansson from github on Debian stretch
