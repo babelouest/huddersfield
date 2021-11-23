@@ -35,7 +35,7 @@ DOCKER_RUN=docker run
 
 LIBJWT_VERSION=1.12.0
 LIBJANSSON_VERSION=2.13.1
-LIBCBOR_VERSION=0.7.0
+LIBCBOR_VERSION=0.9.0
 
 ORCANIA_SRC=../orcania
 YDER_SRC=../yder
@@ -1556,8 +1556,23 @@ iddawc-local-deb: iddawc-install-dependencies
 	cmake -DWITH_WEBSOCKET=off -DINSTALL_HEADER=off .. && \
 	make && \
 	make package; \
-	cp libulfius_*.deb ../../../glewlwyd/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+	cp libulfius_*.deb ../../../iddawc/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	
+	# package rhonabwy
+	wget https://github.com/babelouest/rhonabwy/archive/v$(RHONABWY_VERSION).tar.gz -O build/v$(RHONABWY_VERSION).tar.gz
+	tar xf build/v$(RHONABWY_VERSION).tar.gz -C build/
+	rm -f build/v$(RHONABWY_VERSION).tar.gz
+	( cd build/rhonabwy-$(RHONABWY_VERSION) && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	sudo make install && \
+	rm -rf * && \
+	cmake -DINSTALL_HEADER=off .. && \
+	make package; \
+	cp librhonabwy_*.deb ../../../iddawc/librhonabwy_$(RHONABWY_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+
 	# package iddawc
 	wget https://github.com/babelouest/iddawc/archive/v$(IDDAWC_VERSION).tar.gz -O build/v$(IDDAWC_VERSION).tar.gz
 	tar xf build/v$(IDDAWC_VERSION).tar.gz -C build/
@@ -1994,6 +2009,7 @@ glewlwyd-build:
 	$(MAKE) glewlwyd-ubuntu-lts
 	$(MAKE) glewlwyd-alpine
 	$(MAKE) glewlwyd-fedora
+	#$(MAKE) glewlwyd-centos
 	#-$(MAKE) glewlwyd-opensuse-tumbleweed
 	#-$(MAKE) glewlwyd-opensuse-leap
 
@@ -2006,6 +2022,7 @@ glewlwyd-test:
 	# fails but why?
 	-$(MAKE) glewlwyd-alpine-test
 	$(MAKE) glewlwyd-fedora-test
+	#$(MAKE) glewlwyd-centos-test
 	#$(MAKE) glewlwyd-opensuse-tumbleweed-test
 	#$(MAKE) glewlwyd-opensuse-leap-test
 	@echo "#############################################"
@@ -2253,29 +2270,100 @@ hutch/hutch.tar.gz:
 	fi
 
 hutch-deb:
-	$(DOCKER_BUILD) -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) hutch/build/deb/
+	$(DOCKER_BUILD) -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) hutch/build/deb/
 	$(DOCKER_RUN) --rm -v $(shell pwd)/:/share babelouest/hutch
 
 hutch-tgz:
-	$(DOCKER_BUILD) -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg LIBJWT_VERSION=$(LIBJWT_VERSION) hutch/build/tgz/
+	$(DOCKER_BUILD) -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) hutch/build/tgz/
 	$(DOCKER_RUN) --rm -v $(shell pwd)/:/share babelouest/hutch
 
-hutch-debian-stable: yder-source orcania-source hoel-source ulfius-source hutch-source
+hutch-rpm:
+	$(DOCKER_BUILD) -t babelouest/hutch --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg RPMI=$(RPMI) hutch/build/rpm/
+	$(DOCKER_RUN) --rm -v $(shell pwd)/:/share babelouest/hutch
+
+hutch-deb-test:
+	$(DOCKER_BUILD) -t babelouest/hutch-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) hutch/test/deb/
+	$(DOCKER_RUN) --rm -v $(shell pwd)/:/share babelouest/hutch-test
+
+hutch-tgz-test:
+	$(DOCKER_BUILD) -t babelouest/hutch-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) hutch/test/tgz/
+	$(DOCKER_RUN) --rm -v $(shell pwd)/:/share babelouest/hutch-test
+
+hutch-rpm-test:
+	$(DOCKER_BUILD) -t babelouest/hutch-test --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) hutch/test/rpm/
+	$(DOCKER_RUN) --rm -v $(shell pwd)/:/share babelouest/hutch-test
+
+hutch-deb-smoke:
+	cp hutch/hutch-full_*.tar.gz hutch/smoke/deb/
+	$(DOCKER_BUILD) -t babelouest/hutch-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) hutch/smoke/deb/
+	rm -f hutch/smoke/deb/hutch-full_*.tar.gz
+	$(DOCKER_RUN) --rm -it -p 4884:4884 babelouest/hutch-smoke
+
+hutch-tgz-smoke:
+	cp hutch/hutch-full_*.tar.gz hutch/smoke/tgz/
+	$(DOCKER_BUILD) -t babelouest/hutch-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) hutch/smoke/tgz/
+	rm -f hutch/smoke/tgz/hutch-full_*.tar.gz
+	$(DOCKER_RUN) --rm -it -p 4884:4884 babelouest/hutch-smoke
+
+hutch-rpm-smoke:
+	cp hutch/hutch-full_*.tar.gz hutch/smoke/rpm/
+	$(DOCKER_BUILD) -t babelouest/hutch-smoke --build-arg ORCANIA_VERSION=$(ORCANIA_VERSION) --build-arg YDER_VERSION=$(YDER_VERSION) --build-arg HOEL_VERSION=$(HOEL_VERSION) --build-arg ULFIUS_VERSION=$(ULFIUS_VERSION) --build-arg RHONABWY_VERSION=$(RHONABWY_VERSION) --build-arg IDDAWC_VERSION=$(IDDAWC_VERSION) --build-arg HUTCH_VERSION=$(HUTCH_VERSION) --build-arg RPMI=$(RPMI) hutch/smoke/rpm/
+	rm -f hutch/smoke/rpm/hutch-full_*.tar.gz
+	$(DOCKER_RUN) --rm -it -p 4884:4884 babelouest/hutch-smoke
+
+hutch-debian-oldstable: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source hutch-source
+	$(MAKE) debian-oldstable
+	$(MAKE) hutch-deb
+	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
+
+hutch-debian-oldstable-test: hutch-debian-oldstable
+	$(MAKE) debian-oldstable
+	$(MAKE) hutch-deb-test
+
+hutch-debian-oldstable-smoke: hutch-debian-oldstable
+	$(MAKE) debian-oldstable
+	$(MAKE) hutch-deb-smoke
+
+hutch-debian-stable: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source hutch-source
 	$(MAKE) debian-stable
 	$(MAKE) hutch-deb
 	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
-hutch-debian-testing: yder-source orcania-source hoel-source ulfius-source hutch-source
+hutch-debian-stable-test: hutch-debian-stable
+	$(MAKE) debian-stable
+	$(MAKE) hutch-deb-test
+
+hutch-debian-stable-smoke: hutch-debian-stable
+	$(MAKE) debian-stable
+	$(MAKE) hutch-deb-smoke
+
+hutch-debian-testing: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source hutch-source
 	$(MAKE) debian-testing
 	$(MAKE) hutch-deb
 	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
-hutch-ubuntu-latest: yder-source orcania-source hoel-source ulfius-source hutch-source
+hutch-debian-testing-test: hutch-debian-testing
+	$(MAKE) debian-testing
+	$(MAKE) hutch-deb-test
+
+hutch-debian-testing-smoke: hutch-debian-testing
+	$(MAKE) debian-testing
+	$(MAKE) hutch-deb-smoke
+
+hutch-ubuntu-latest: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source hutch-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) hutch-deb
 	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
 
-hutch-ubuntu-lts: yder-source orcania-source hoel-source ulfius-source hutch-source
+hutch-ubuntu-latest-test: hutch-ubuntu-latest
+	$(MAKE) ubuntu-latest
+	$(MAKE) hutch-deb-test
+
+hutch-ubuntu-latest-smoke: hutch-ubuntu-latest
+	$(MAKE) ubuntu-latest
+	$(MAKE) hutch-deb-smoke
+
+hutch-ubuntu-lts: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source hutch-source
 	$(MAKE) ubuntu-latest
 	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
@@ -2283,10 +2371,58 @@ hutch-ubuntu-lts: yder-source orcania-source hoel-source ulfius-source hutch-sou
 		xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%; \
 	fi
 
-hutch-alpine: yder-source orcania-source hoel-source ulfius-source hutch-source
+hutch-ubuntu-lts-test: hutch-ubuntu-lts
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) hutch-deb-test; \
+	fi
+
+hutch-ubuntu-lts-smoke: hutch-ubuntu-lts
+	$(MAKE) ubuntu-latest
+	$(MAKE) ubuntu-lts
+	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
+		$(MAKE) hutch-deb-smoke; \
+	fi
+
+hutch-alpine: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source hutch-source
 	$(MAKE) alpine
 	$(MAKE) hutch-tgz
 	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
+
+hutch-alpine-test: hutch-alpine
+	$(MAKE) alpine
+	$(MAKE) hutch-tgz-test
+
+hutch-alpine-smoke: hutch-alpine
+	$(MAKE) alpine
+	$(MAKE) hutch-tgz-smoke
+
+hutch-fedora: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source hutch-source
+	$(MAKE) fedora
+	$(MAKE) hutch-rpm RPMI=yum
+	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
+
+hutch-fedora-test: hutch-fedora
+	$(MAKE) fedora
+	$(MAKE) hutch-rpm-test RPMI=yum
+
+hutch-fedora-smoke: hutch-fedora
+	$(MAKE) fedora
+	$(MAKE) hutch-rpm-smoke RPMI=yum
+
+hutch-centos: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source hutch-source
+	$(MAKE) centos
+	$(MAKE) hutch-rpm RPMI=yum
+	xargs -a ./hutch/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hutch TAG=$(HUTCH_VERSION) PATTERN=./hutch/%
+
+hutch-centos-test: hutch-centos
+	$(MAKE) centos
+	$(MAKE) hutch-rpm-test RPMI=yum
+
+hutch-centos-smoke: hutch-centos
+	$(MAKE) centos
+	$(MAKE) hutch-rpm-smoke RPMI=yum
 
 hutch-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
@@ -2297,8 +2433,8 @@ hutch-install-dependencies:
 
 hutch-local-deb: hutch-install-dependencies
 	# package orcania
-	wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
-	tar xf build/v$(ORCANIA_VERSION).tar.gz -C build/
+	#wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
+	tar xf orcania/orcania.tar.gz -C build/orcania/ --strip 1
 	rm -f build/v$(ORCANIA_VERSION).tar.gz
 	( cd build/orcania-$(ORCANIA_VERSION) && \
 	mkdir build && \
@@ -2313,8 +2449,8 @@ hutch-local-deb: hutch-install-dependencies
 	cp liborcania_*.deb ../../../hutch/liborcania_$(ORCANIA_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package yder
-	wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
-	tar xf build/v$(YDER_VERSION).tar.gz -C build/
+	#wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
+	tar xf yder/yder.tar.gz -C build/yder/ --strip 1
 	rm -f build/v$(YDER_VERSION).tar.gz
 	( cd build/yder-$(YDER_VERSION) && \
 	mkdir build && \
@@ -2329,8 +2465,8 @@ hutch-local-deb: hutch-install-dependencies
 	cp libyder_*.deb ../../../hutch/libyder_$(YDER_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
 	# package ulfius
-	wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
-	tar xf build/v$(ULFIUS_VERSION).tar.gz -C build/
+	#wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
+	tar xf ulfius/ulfius.tar.gz -C build/ulfius/ --strip 1
 	rm -f build/v$(ULFIUS_VERSION).tar.gz
 	( cd build/ulfius-$(ULFIUS_VERSION) && \
 	mkdir build && \
@@ -2345,8 +2481,8 @@ hutch-local-deb: hutch-install-dependencies
 	cp libulfius_*.deb ../../../hutch/libulfius_$(ULFIUS_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 	
 	# package hoel
-	wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
-	tar xf build/v$(HOEL_VERSION).tar.gz -C build/
+	#wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
+	tar xf hoel/hoel.tar.gz -C build/hoel/ --strip 1
 	rm -f build/v$(HOEL_VERSION).tar.gz
 	( cd build/hoel-$(HOEL_VERSION) && \
 	mkdir build && \
@@ -2359,8 +2495,36 @@ hutch-local-deb: hutch-install-dependencies
 	make package; \
 	cp libhoel_*.deb ../../../hutch/libhoel_$(HOEL_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
 
+	# package rhonabwy
+	#wget https://github.com/babelouest/rhonabwy/archive/v$(RHONABWY_VERSION).tar.gz -O build/v$(RHONABWY_VERSION).tar.gz
+	tar xf rhonabwy/rhonabwy.tar.gz -C build/rhonabwy/ --strip 1
+	( cd build/rhonabwy && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	sudo make install && \
+	rm -rf * && \
+	cmake -DINSTALL_HEADER=off .. && \
+	make package; \
+	cp librhonabwy_*.deb ../../../glewlwyd/librhonabwy_$(RHONABWY_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+
+	# package iddawc
+	#wget https://github.com/babelouest/iddawc/archive/v$(IDDAWC_VERSION).tar.gz -O build/v$(IDDAWC_VERSION).tar.gz
+	tar xf iddawc/iddawc.tar.gz -C build/iddawc/ --strip 1
+	( cd build/iddawc && \
+	mkdir build && \
+	cd build && \
+	cmake .. && \
+	make && \
+	sudo make install && \
+	rm -rf * && \
+	cmake -DINSTALL_HEADER=off .. && \
+	make package; \
+	cp libiddawc_*.deb ../../../glewlwyd/libiddawc_$(IDDAWC_VERSION)_$(LOCAL_ID)_$(LOCAL_RELEASE)_`uname -m`.deb )
+
 	# package hutch
-	wget https://github.com/babelouest/hutch/archive/v$(HUTCH_VERSION).tar.gz -O build/v$(HUTCH_VERSION).tar.gz
+	#wget https://github.com/babelouest/hutch/archive/v$(HUTCH_VERSION).tar.gz -O build/v$(HUTCH_VERSION).tar.gz
 	tar xf build/v$(HUTCH_VERSION).tar.gz -C build/
 	rm -f build/v$(HUTCH_VERSION).tar.gz
 	( cd build/hutch-$(HUTCH_VERSION) && \
@@ -2379,14 +2543,27 @@ hutch-local-deb: hutch-install-dependencies
 
 hutch-build:
 	$(MAKE) hutch-source-signed
+	$(MAKE) hutch-debian-oldstable
 	$(MAKE) hutch-debian-stable
 	$(MAKE) hutch-debian-testing
 	$(MAKE) hutch-ubuntu-latest
 	$(MAKE) hutch-ubuntu-lts
 	$(MAKE) hutch-alpine
+	$(MAKE) hutch-fedora
+	$(MAKE) hutch-centos
+
+hutch-test:
+	$(MAKE) hutch-debian-oldstable-test
+	$(MAKE) hutch-debian-stable-test
+	$(MAKE) hutch-debian-testing-test
+	$(MAKE) hutch-ubuntu-latest-test
+	$(MAKE) hutch-ubuntu-lts-test
+	$(MAKE) hutch-alpine-test
+	$(MAKE) hutch-fedora-test
+	$(MAKE) hutch-centos-test
 
 hutch-clean: clean-base
-	rm -f hutch/*.tar.gz hutch/*.zip hutch/*.deb hutch/packages hutch/*.sig hutch/*.gpg
+	rm -f hutch/*.tar.gz hutch/*.zip hutch/*.deb hutch/*.rpm hutch/packages hutch/*.sig hutch/*.gpg
 	-docker rmi -f babelouest/hutch
 
 angharad-source: angharad/angharad.tar.gz
