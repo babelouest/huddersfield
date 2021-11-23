@@ -49,7 +49,7 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
   
   kill $G_PID
 
-  make glewlwyd_scheme_certificate glewlwyd_oidc_client_certificate
+  make glewlwyd_scheme_certificate glewlwyd_oidc_client_certificate glewlwyd_prometheus
   
   glewlwyd --config-file=cert/glewlwyd-cert-ci.conf &
 
@@ -81,6 +81,16 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   kill $G_PID
 
+  glewlwyd --config-file=test/glewlwyd-prometheus.conf &
+  
+  sleep 2
+  
+  export G_PID=$!
+  
+  ./glewlwyd_prometheus || (cat /tmp/glewlwyd-prometheus.log && false)
+  
+  kill $G_PID
+  
   echo "$(date -R) glewlwyd-dev_${GLEWLWYD_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
 
 else

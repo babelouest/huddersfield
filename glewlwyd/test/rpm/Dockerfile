@@ -7,15 +7,11 @@ ARG HOEL_VERSION
 ARG RHONABWY_VERSION
 ARG IDDAWC_VERSION
 ARG GLEWLWYD_VERSION
-ARG MEMCHECK
+ARG LIBCBOR_VERSION
 
 ARG RPMI=yum
 
-RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
-RUN echo ${YDER_VERSION} > /opt/YDER_VERSION
-RUN echo ${ULFIUS_VERSION} > /opt/ULFIUS_VERSION
-
-RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-devel openldap2-devel gnutls || \
+RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-devel openldap2-devel gnutls subunit-devel || \
     ${RPMI} install -y jansson-devel mariadb-devel libpq-devel openldap-devel gnutls-utils
 
 RUN ${RPMI} install -y libmicrohttpd-devel || \
@@ -25,6 +21,7 @@ RUN ${RPMI} install -y libmicrohttpd-devel || \
 RUN ${RPMI} install -y \
     systemd-devel \
     check-devel \
+    gcc \
     libcurl-devel \
     gnutls-devel \
     sqlite-devel \
@@ -32,9 +29,10 @@ RUN ${RPMI} install -y \
     libtool \
     autoconf\
     libconfig-devel \
-    zlib-devel \
-    valgrind \
-    libcbor-devel
+    zlib-devel && \
+    ${RPMI} install -y libcbor-devel || \
+		(cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
+		tar xf libcbor.tar.gz && cd libcbor-${LIBCBOR_VERSION} && mkdir build && cd build && cmake .. && make && make install && ldconfig)
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
 RUN echo ${YDER_VERSION} > /opt/YDER_VERSION

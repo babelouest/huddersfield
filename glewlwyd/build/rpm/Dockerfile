@@ -7,6 +7,7 @@ ARG HOEL_VERSION
 ARG RHONABWY_VERSION
 ARG IDDAWC_VERSION
 ARG GLEWLWYD_VERSION
+ARG LIBCBOR_VERSION
 
 ARG RPMI=yum
 
@@ -26,8 +27,10 @@ RUN ${RPMI} install -y \
     libtool \
     autoconf\
     libconfig-devel \
-    zlib-devel \
-    libcbor-devel
+    zlib-devel && \
+    ${RPMI} install -y libcbor-devel || \
+		(cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
+		tar xf libcbor.tar.gz && cd libcbor-${LIBCBOR_VERSION} && mkdir build && cd build && cmake .. && make && make install && ldconfig)
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
 RUN echo ${YDER_VERSION} > /opt/YDER_VERSION
