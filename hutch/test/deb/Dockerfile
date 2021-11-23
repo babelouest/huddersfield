@@ -22,6 +22,9 @@ RUN apt-get update && \
 		zlib1g-dev \
 		make \
 		wget \
+    check \
+    libsubunit-dev \
+    sqlite3 \
 		default-libmysqlclient-dev
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
@@ -32,6 +35,4 @@ RUN echo ${RHONABWY_VERSION} > /opt/RHONABWY_VERSION
 RUN echo ${IDDAWC_VERSION} > /opt/IDDAWC_VERSION
 RUN echo ${HUTCH_VERSION} > /opt/HUTCH_VERSION
 
-COPY ["entrypoint.sh", "/"]
-
-CMD ["/entrypoint.sh"]
+CMD ["/share/hutch/test/deb/entrypoint.sh"]

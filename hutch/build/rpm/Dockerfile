@@ -1,4 +1,4 @@
-FROM babelouest/deb
+FROM babelouest/rpm
 
 ARG ORCANIA_VERSION
 ARG YDER_VERSION
@@ -8,21 +8,22 @@ ARG RHONABWY_VERSION
 ARG IDDAWC_VERSION
 ARG HUTCH_VERSION
 
+ARG RPMI=yum
+
+RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-server-devel || \
+    ${RPMI} install -y jansson-devel mariadb-devel libpq-devel
+
+RUN ${RPMI} install -y libmicrohttpd-devel || \
+    ${RPMI} install --enablerepo=PowerTools -y libmicrohttpd-devel
+
 # Install required packages
-RUN apt-get update && \
-		apt-get install -y \
-		libconfig-dev \
-		libsystemd-dev \
-		libjansson-dev \
-		libcurl4-gnutls-dev \
-		libmicrohttpd-dev \
-		libsqlite3-dev \
-		libpq-dev \
-		libtool \
-		zlib1g-dev \
-		make \
-		wget \
-		default-libmysqlclient-dev
+RUN ${RPMI} install -y \
+    systemd-devel \
+    libcurl-devel \
+    gnutls-devel \
+    sqlite-devel \
+    libconfig-devel \
+    zlib-devel
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
 RUN echo ${YDER_VERSION} > /opt/YDER_VERSION
