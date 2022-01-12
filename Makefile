@@ -33,7 +33,6 @@ LOCAL_RELEASE=$(shell lsb_release -c -s)
 DOCKER_BUILD=docker build
 DOCKER_RUN=docker run
 
-LIBJWT_VERSION=1.12.0
 LIBJANSSON_VERSION=2.13.1
 LIBCBOR_VERSION=0.9.0
 
@@ -106,6 +105,8 @@ fedora-build: orcania-fedora yder-fedora ulfius-fedora hoel-fedora rhonabwy-fedo
 
 centos-build: orcania-centos yder-centos ulfius-centos hoel-centos rhonabwy-centos iddawc-centos glewlwyd-centos
 
+rocky-build: orcania-rocky yder-rocky ulfius-rocky hoel-rocky rhonabwy-rocky iddawc-rocky glewlwyd-rocky
+
 local-build-deb: orcania-local-deb yder-local-deb ulfius-local-deb hoel-local-deb rhonabwy-local-deb iddawc-local-deb glewlwyd-local-deb taliesin-local-deb hutch-local-deb angharad-local-deb
 
 upload-asset:
@@ -162,17 +163,20 @@ opensuse-leap:
 centos:
 	$(DOCKER_BUILD) -t babelouest/rpm docker-base/centos-latest/
 
+rocky:
+	$(DOCKER_BUILD) -t babelouest/rpm docker-base/rocky-latest/
+
 deb-shell:
 	$(DOCKER_BUILD) -t babelouest/deb-shell --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) shell/deb/
-	$(DOCKER_RUN) --rm -it -v $(shell dirname "$$(pwd)")/:/share babelouest/deb-shell bash
+	$(DOCKER_RUN) -p 8080:8080 --rm -it -v $(shell dirname "$$(pwd)")/:/share -v /media/:/media/ babelouest/deb-shell bash
 
 tgz-shell:
 	$(DOCKER_BUILD) -t babelouest/tgz-shell --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) shell/tgz/
-	$(DOCKER_RUN) --rm -it -v $(shell dirname "$$(pwd)")/:/share babelouest/tgz-shell bash
+	$(DOCKER_RUN) -p 8080:8080 --rm -it -v $(shell dirname "$$(pwd)")/:/share babelouest/tgz-shell bash
 
 rpm-shell:
 	$(DOCKER_BUILD) -t babelouest/rpm-shell --build-arg LIBCBOR_VERSION=$(LIBCBOR_VERSION) --build-arg LIBJANSSON_VERSION=$(LIBJANSSON_VERSION) --build-arg RPMI=$(RPMI) shell/rpm/
-	$(DOCKER_RUN) --rm -it -v $(shell dirname "$$(pwd)")/:/share babelouest/rpm-shell
+	$(DOCKER_RUN) -p 8080:8080 --rm -it -v $(shell dirname "$$(pwd)")/:/share babelouest/rpm-shell
 
 shell-debian-oldstable:
 	$(MAKE) debian-oldstable
@@ -190,7 +194,7 @@ shell-ubuntu-latest:
 	$(MAKE) ubuntu-latest
 	$(MAKE) deb-shell
 
-shell-ubuntu-lts: orcania-source
+shell-ubuntu-lts:
 	$(MAKE) ubuntu-latest
 	$(MAKE) ubuntu-lts
 	@if [ "$(shell docker images -q ubuntu:latest)" != "$(shell docker images -q ubuntu:rolling)" ]; then \
@@ -207,6 +211,10 @@ shell-fedora:
 
 shell-centos:
 	$(MAKE) centos
+	$(MAKE) rpm-shell RPMI=yum
+
+shell-rocky:
+	$(MAKE) rocky
 	$(MAKE) rpm-shell RPMI=yum
 
 orcania-source: orcania/orcania.tar.gz
@@ -363,6 +371,15 @@ orcania-centos-test: orcania-centos
 	$(MAKE) centos
 	$(MAKE) orcania-rpm-test RPMI=yum
 
+orcania-rocky: orcania-source
+	$(MAKE) rocky
+	$(MAKE) orcania-rpm
+	xargs -a ./orcania/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=orcania TAG=$(ORCANIA_VERSION) PATTERN=./orcania/%
+
+orcania-rocky-test: orcania-rocky
+	$(MAKE) rocky
+	$(MAKE) orcania-rpm-test RPMI=yum
+
 orcania-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
@@ -395,6 +412,7 @@ orcania-build:
 	$(MAKE) orcania-alpine
 	$(MAKE) orcania-fedora
 	$(MAKE) orcania-centos
+	$(MAKE) orcania-rocky
 	#$(MAKE) orcania-opensuse-tumbleweed
 	#$(MAKE) orcania-opensuse-leap
 
@@ -407,6 +425,7 @@ orcania-test:
 	$(MAKE) orcania-alpine-test
 	$(MAKE) orcania-fedora-test
 	$(MAKE) orcania-centos-test
+	$(MAKE) orcania-rocky-test
 	#$(MAKE) orcania-opensuse-tumbleweed-test
 	#$(MAKE) orcania-opensuse-leap-test
 	@echo "#############################################"
@@ -572,6 +591,15 @@ yder-centos-test: yder-centos
 	$(MAKE) centos
 	$(MAKE) yder-rpm-test RPMI=yum
 
+yder-rocky: yder-source orcania-source
+	$(MAKE) rocky
+	$(MAKE) yder-rpm RPMI=yum
+	xargs -a ./yder/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=yder TAG=$(YDER_VERSION) PATTERN=./yder/%
+
+yder-rocky-test: yder-rocky
+	$(MAKE) rocky
+	$(MAKE) yder-rpm-test RPMI=yum
+
 yder-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
@@ -617,6 +645,7 @@ yder-build:
 	$(MAKE) yder-alpine
 	$(MAKE) yder-fedora
 	$(MAKE) yder-centos
+	$(MAKE) yder-rocky
 	#$(MAKE) yder-opensuse-tumbleweed
 	#$(MAKE) yder-opensuse-leap
 
@@ -629,6 +658,7 @@ yder-test:
 	#$(MAKE) yder-alpine-test # Sometimes alpine is weird
 	$(MAKE) yder-fedora-test
 	$(MAKE) yder-centos-test
+	$(MAKE) yder-rocky-test
 	#$(MAKE) yder-opensuse-tumbleweed-test
 	#$(MAKE) yder-opensuse-leap-test
 	@echo "#############################################"
@@ -794,6 +824,15 @@ ulfius-centos-test: ulfius-centos
 	$(MAKE) centos
 	$(MAKE) ulfius-rpm-test RPMI=yum
 
+ulfius-rocky: yder-source orcania-source ulfius-source
+	$(MAKE) rocky
+	$(MAKE) ulfius-rpm RPMI=yum
+	xargs -a ./ulfius/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=ulfius TAG=$(ULFIUS_VERSION) PATTERN=./ulfius/%
+
+ulfius-rocky-test: ulfius-rocky
+	$(MAKE) rocky
+	$(MAKE) ulfius-rpm-test RPMI=yum
+
 ulfius-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
@@ -855,6 +894,7 @@ ulfius-build:
 	$(MAKE) ulfius-alpine
 	$(MAKE) ulfius-fedora
 	$(MAKE) ulfius-centos
+	$(MAKE) ulfius-rocky
 	#$(MAKE) ulfius-opensuse-tumbleweed
 	#$(MAKE) ulfius-opensuse-leap
 
@@ -867,6 +907,7 @@ ulfius-test:
 	$(MAKE) ulfius-alpine-test
 	$(MAKE) ulfius-fedora-test
 	$(MAKE) ulfius-centos-test
+	$(MAKE) ulfius-rocky-test
 	#$(MAKE) ulfius-opensuse-tumbleweed-test
 	#$(MAKE) ulfius-opensuse-leap-test
 	@echo "#############################################"
@@ -1032,6 +1073,15 @@ hoel-centos-test: hoel-centos
 	$(MAKE) centos
 	$(MAKE) hoel-rpm-test RPMI=yum
 
+hoel-rocky: yder-source orcania-source hoel-source
+	$(MAKE) rocky
+	$(MAKE) hoel-rpm RPMI=yum
+	xargs -a ./hoel/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=hoel TAG=$(HOEL_VERSION) PATTERN=./hoel/%
+
+hoel-rocky-test: hoel-rocky
+	$(MAKE) rocky
+	$(MAKE) hoel-rpm-test RPMI=yum
+
 hoel-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
@@ -1093,6 +1143,7 @@ hoel-build:
 	$(MAKE) hoel-alpine
 	$(MAKE) hoel-fedora
 	$(MAKE) hoel-centos
+	$(MAKE) hoel-rocky
 	#$(MAKE) hoel-opensuse-tumbleweed
 	#$(MAKE) hoel-opensuse-leap
 
@@ -1105,6 +1156,7 @@ hoel-test:
 	$(MAKE) hoel-alpine-test
 	$(MAKE) hoel-fedora-test
 	$(MAKE) hoel-centos-test
+	$(MAKE) hoel-rocky-test
 	#$(MAKE) hoel-opensuse-tumbleweed-test
 	#$(MAKE) hoel-opensuse-leap-test
 	@echo "#############################################"
@@ -1270,6 +1322,15 @@ rhonabwy-centos-test: rhonabwy-centos
 	$(MAKE) centos
 	$(MAKE) rhonabwy-rpm-test RPMI=yum
 
+rhonabwy-rocky: yder-source orcania-source ulfius-source rhonabwy-source
+	$(MAKE) rocky
+	$(MAKE) rhonabwy-rpm RPMI=yum
+	xargs -a ./rhonabwy/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=rhonabwy TAG=$(RHONABWY_VERSION) PATTERN=./rhonabwy/%
+
+rhonabwy-rocky-test: rhonabwy-rocky
+	$(MAKE) rocky
+	$(MAKE) rhonabwy-rpm-test RPMI=yum
+
 rhonabwy-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
@@ -1331,6 +1392,7 @@ rhonabwy-build:
 	$(MAKE) rhonabwy-alpine
 	$(MAKE) rhonabwy-fedora
 	$(MAKE) rhonabwy-centos
+	$(MAKE) rhonabwy-rocky
 	#$(MAKE) rhonabwy-opensuse-tumbleweed
 	#$(MAKE) rhonabwy-opensuse-leap
 
@@ -1343,6 +1405,7 @@ rhonabwy-test:
 	$(MAKE) rhonabwy-alpine-test
 	$(MAKE) rhonabwy-fedora-test
 	$(MAKE) rhonabwy-centos-test
+	$(MAKE) rhonabwy-rocky-test
 	#$(MAKE) rhonabwy-opensuse-tumbleweed-test
 	#$(MAKE) rhonabwy-opensuse-leap-test
 	@echo "#############################################"
@@ -1508,6 +1571,15 @@ iddawc-centos-test: iddawc-centos
 	$(MAKE) centos
 	$(MAKE) iddawc-rpm-test RPMI=yum
 
+iddawc-rocky: yder-source orcania-source ulfius-source rhonabwy-source iddawc-source
+	$(MAKE) rocky
+	$(MAKE) iddawc-rpm RPMI=yum
+	xargs -a ./iddawc/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=iddawc TAG=$(IDDAWC_VERSION) PATTERN=./iddawc/%
+
+iddawc-rocky-test: iddawc-rocky
+	$(MAKE) rocky
+	$(MAKE) iddawc-rpm-test RPMI=yum
+
 iddawc-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
@@ -1600,6 +1672,7 @@ iddawc-build:
 	$(MAKE) iddawc-alpine
 	$(MAKE) iddawc-fedora
 	$(MAKE) iddawc-centos
+	$(MAKE) iddawc-rocky
 	#$(MAKE) iddawc-opensuse-tumbleweed
 	#$(MAKE) iddawc-opensuse-leap
 
@@ -1612,6 +1685,7 @@ iddawc-test:
 	$(MAKE) iddawc-alpine-test
 	$(MAKE) iddawc-fedora-test
 	$(MAKE) iddawc-centos-test
+	$(MAKE) iddawc-rocky-test
 	#$(MAKE) iddawc-opensuse-tumbleweed-test
 	#$(MAKE) iddawc-opensuse-leap-test
 	@echo "#############################################"
@@ -1887,6 +1961,23 @@ glewlwyd-centos-smoke: glewlwyd-centos
 	$(MAKE) centos
 	$(MAKE) glewlwyd-rpm-smoke RPMI=yum
 
+glewlwyd-rocky: yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source glewlwyd-source
+	$(MAKE) rocky
+	$(MAKE) glewlwyd-rpm RPMI=yum
+	xargs -a ./glewlwyd/packages -I% $(MAKE) upload-asset GITHUB_UPLOAD=$(GITHUB_UPLOAD) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_USER=$(GITHUB_USER) REPO=glewlwyd TAG=$(GLEWLWYD_VERSION) PATTERN=./glewlwyd/%
+
+glewlwyd-rocky-test: glewlwyd-rocky
+	$(MAKE) rocky
+	$(MAKE) glewlwyd-rpm-test RPMI=yum
+
+glewlwyd-rocky-memcheck:
+	$(MAKE) rocky
+	$(MAKE) glewlwyd-rpm-memcheck RPMI=yum
+
+glewlwyd-rocky-smoke: glewlwyd-rocky
+	$(MAKE) rocky
+	$(MAKE) glewlwyd-rpm-smoke RPMI=yum
+
 glewlwyd-install-dependencies:
 	@if [ "$(LOCAL_UPDATE_SYSTEM)" = "1" ]; then \
 		# install dependencies \
@@ -2009,6 +2100,7 @@ glewlwyd-build:
 	$(MAKE) glewlwyd-ubuntu-lts
 	$(MAKE) glewlwyd-alpine
 	$(MAKE) glewlwyd-fedora
+	#$(MAKE) glewlwyd-rocky
 	#$(MAKE) glewlwyd-centos
 	#-$(MAKE) glewlwyd-opensuse-tumbleweed
 	#-$(MAKE) glewlwyd-opensuse-leap
@@ -2019,9 +2111,9 @@ glewlwyd-test:
 	$(MAKE) glewlwyd-debian-testing-test
 	$(MAKE) glewlwyd-ubuntu-latest-test
 	$(MAKE) glewlwyd-ubuntu-lts-test
-	# fails but why?
-	-$(MAKE) glewlwyd-alpine-test
+	$(MAKE) glewlwyd-alpine-test
 	$(MAKE) glewlwyd-fedora-test
+	#$(MAKE) glewlwyd-rocky-test
 	#$(MAKE) glewlwyd-centos-test
 	#$(MAKE) glewlwyd-opensuse-tumbleweed-test
 	#$(MAKE) glewlwyd-opensuse-leap-test
@@ -2232,15 +2324,6 @@ taliesin-clean: clean-base
 	rm -f taliesin/*.tar.gz taliesin/*.zip taliesin/*.deb taliesin/packages taliesin/*.sig taliesin/*.gpg
 	-docker rmi -f babelouest/taliesin
 
-taliesin-quickstart-src:
-	cd taliesin/quickstart && $(MAKE) build-quickstart-src TALIESIN_VERSION=$(TALIESIN_VERSION)
-
-taliesin-quickstart-custom:
-	cd taliesin/quickstart && $(MAKE) build-quickstart-x86_64_custom TALIESIN_VERSION=$(TALIESIN_VERSION)
-
-taliesin-quickstart-sqlite-noauth:
-	cd taliesin/quickstart && $(MAKE) build-quickstart-x86_64_sqlite_noauth TALIESIN_VERSION=$(TALIESIN_VERSION)
-
 hutch-source: hutch/hutch.tar.gz
 
 hutch-source-signed: hutch/hutch.tar.gz hutch/hutch.zip
@@ -2431,12 +2514,13 @@ hutch-install-dependencies:
 		sudo apt-get install -y libmicrohttpd-dev libjansson-dev libsystemd-dev libmariadbclient-dev libsqlite3-dev libconfig-dev libgnutls28-dev pkg-config; \
 	fi
 
-hutch-local-deb: hutch-install-dependencies
+hutch-local-deb: hutch-install-dependencies yder-source orcania-source hoel-source ulfius-source rhonabwy-source iddawc-source hutch-source
+	mkdir -p build/orcania build/yder build/ulfius build/hoel build/rhonabwy build/iddawc build/hutch
 	# package orcania
 	#wget https://github.com/babelouest/orcania/archive/v$(ORCANIA_VERSION).tar.gz -O build/v$(ORCANIA_VERSION).tar.gz
 	tar xf orcania/orcania.tar.gz -C build/orcania/ --strip 1
 	rm -f build/v$(ORCANIA_VERSION).tar.gz
-	( cd build/orcania-$(ORCANIA_VERSION) && \
+	( cd build/orcania && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -2452,7 +2536,7 @@ hutch-local-deb: hutch-install-dependencies
 	#wget https://github.com/babelouest/yder/archive/v$(YDER_VERSION).tar.gz -O build/v$(YDER_VERSION).tar.gz
 	tar xf yder/yder.tar.gz -C build/yder/ --strip 1
 	rm -f build/v$(YDER_VERSION).tar.gz
-	( cd build/yder-$(YDER_VERSION) && \
+	( cd build/yder && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
@@ -2468,7 +2552,7 @@ hutch-local-deb: hutch-install-dependencies
 	#wget https://github.com/babelouest/ulfius/archive/v$(ULFIUS_VERSION).tar.gz -O build/v$(ULFIUS_VERSION).tar.gz
 	tar xf ulfius/ulfius.tar.gz -C build/ulfius/ --strip 1
 	rm -f build/v$(ULFIUS_VERSION).tar.gz
-	( cd build/ulfius-$(ULFIUS_VERSION) && \
+	( cd build/ulfius && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_WEBSOCKET=off -DWITH_CURL=off .. && \
@@ -2484,7 +2568,7 @@ hutch-local-deb: hutch-install-dependencies
 	#wget https://github.com/babelouest/hoel/archive/v$(HOEL_VERSION).tar.gz -O build/v$(HOEL_VERSION).tar.gz
 	tar xf hoel/hoel.tar.gz -C build/hoel/ --strip 1
 	rm -f build/v$(HOEL_VERSION).tar.gz
-	( cd build/hoel-$(HOEL_VERSION) && \
+	( cd build/hoel && \
 	mkdir build && \
 	cd build && \
 	cmake -DWITH_PGSQL=off .. && \
@@ -2525,9 +2609,8 @@ hutch-local-deb: hutch-install-dependencies
 
 	# package hutch
 	#wget https://github.com/babelouest/hutch/archive/v$(HUTCH_VERSION).tar.gz -O build/v$(HUTCH_VERSION).tar.gz
-	tar xf build/v$(HUTCH_VERSION).tar.gz -C build/
-	rm -f build/v$(HUTCH_VERSION).tar.gz
-	( cd build/hutch-$(HUTCH_VERSION) && \
+	tar xf hutch/v$(HUTCH_VERSION).tar.gz -C build/hutch
+	( cd build/hutch && \
 	mkdir build && \
 	cd build && \
 	cmake .. && \
