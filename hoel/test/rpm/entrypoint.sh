@@ -20,11 +20,12 @@ if [ -f $HOEL_ARCHIVE ]; then
 
   cd /opt/hoel/test
 
-  make core LIBS="-lc -lorcania -lhoel -lyder -ljansson -pthread $(pkg-config --libs check)"
+  make core multi LIBS="-lc -lorcania -lhoel -lyder -ljansson -pthread $(pkg-config --libs check)"
   
   sqlite3 /tmp/test.db < test.sqlite3.sql
 
   ./core
+  ./multi
   
   echo "$(date -R) libhoel-dev_${HOEL_VERSION}_$(lsb_release -si)_$(lsb_release -sd|tr -d \"|sed 's/ /_/g'|sed 's/[)(]//g')_$(uname -m).rpm test complete success" >> /share/summary.log
 else

@@ -11,7 +11,7 @@ ARG LIBCBOR_VERSION
 
 ARG RPMI=yum
 
-RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-devel openldap2-devel gnutls subunit-devel || \
+RUN ${RPMI} install -y libjansson-devel libmariadb-devel postgresql-server-devel openldap2-devel gnutls || \
     ${RPMI} install -y jansson-devel mariadb-devel libpq-devel openldap-devel gnutls-utils
 
 RUN ${RPMI} install -y libmicrohttpd-devel || \

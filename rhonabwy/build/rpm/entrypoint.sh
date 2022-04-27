@@ -21,7 +21,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/orcania/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make package
 
@@ -38,7 +38,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/yder/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make package
 
@@ -54,7 +54,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/ulfius/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make package
 
@@ -70,7 +70,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/rhonabwy/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make package
 

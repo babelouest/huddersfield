@@ -15,7 +15,7 @@ if [ -f $ORCANIA_ARCHIVE ]; then
 
   cd /opt/orcania/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make
 

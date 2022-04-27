@@ -27,7 +27,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/orcania/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make install
 
@@ -37,7 +37,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DBUILD_RPM=on -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on -DINSTALL_HEADER=off ..
 
   make package
 
@@ -51,7 +51,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/yder/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make install
 
@@ -61,7 +61,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DBUILD_RPM=on -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on -DINSTALL_HEADER=off ..
 
   make package
 
@@ -75,7 +75,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/ulfius/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make install
 
@@ -85,7 +85,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DBUILD_RPM=on -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on -DINSTALL_HEADER=off ..
 
   make package
 
@@ -99,7 +99,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/hoel/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make install
 
@@ -109,7 +109,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DBUILD_RPM=on -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on -DINSTALL_HEADER=off ..
 
   make package
 
@@ -124,7 +124,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/rhonabwy/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make install
 
@@ -134,7 +134,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DBUILD_RPM=on -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on -DINSTALL_HEADER=off ..
 
   make package
 
@@ -149,7 +149,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/iddawc/build
 
-  cmake -DBUILD_IDWCC=OFF -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_IDWCC=OFF -DBUILD_RPM=on ..
 
   make install
 
@@ -159,7 +159,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DBUILD_IDWCC=OFF -DBUILD_RPM=on -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_IDWCC=OFF -DBUILD_RPM=on -DINSTALL_HEADER=off ..
 
   make package
 
@@ -173,7 +173,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
   
   cd /opt/hutch/build
   
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_RPM=on ..
   
   make package 
   
@@ -183,7 +183,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
   
   rm -rf *
   
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_RPM=on ..
   
   make package 
   

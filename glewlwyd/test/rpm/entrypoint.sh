@@ -27,11 +27,7 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   tar -xf $GLEWLWYD_ARCHIVE -C /opt/glewlwyd --strip 1
 
-  mkdir /opt/glewlwyd/build
-
-  cd /opt/glewlwyd/build
-
-  cmake -DBUILD_GLEWLWYD_TESTING=on ..
+  cd /opt/glewlwyd/test
 
   sqlite3 /tmp/glewlwyd.db < /opt/glewlwyd/docs/database/init.sqlite3.sql
 
@@ -41,13 +37,9 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   export G_PID=$!
   
-  ../test/cert/create-cert.sh
+  ./cert/create-cert.sh
 
-  ln -s ../test/cert/ .
-
-  ln -s ../test/ .
-  
-  make test || (cat Testing/Temporary/LastTest.log && cat /tmp/glewlwyd.log && false)
+  make test || (cat *.log && cat /tmp/glewlwyd.log && false)
   
   kill $G_PID
 
@@ -63,7 +55,7 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
   
   kill $G_PID
 
-  glewlwyd --config-file=test/glewlwyd-profile-delete-disable.conf &
+  glewlwyd --config-file=glewlwyd-profile-delete-disable.conf &
 
   export G_PID=$!
 
@@ -73,7 +65,7 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   kill $G_PID
 
-  glewlwyd --config-file=test/glewlwyd-profile-delete-yes.conf &
+  glewlwyd --config-file=glewlwyd-profile-delete-yes.conf &
 
   export G_PID=$!
 
@@ -83,7 +75,7 @@ if [ -f $GLEWLWYD_ARCHIVE ]; then
 
   kill $G_PID
 
-  glewlwyd --config-file=test/glewlwyd-prometheus.conf &
+  glewlwyd --config-file=glewlwyd-prometheus.conf &
   
   sleep 2
   

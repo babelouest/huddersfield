@@ -17,7 +17,7 @@ if [ -f $YDER_ARCHIVE ]; then
   
   cd /opt/yder/test
   
-  make yder_test
+  make yder_test Y_DISABLE_JOURNALD=1
   
   ./yder_test
   

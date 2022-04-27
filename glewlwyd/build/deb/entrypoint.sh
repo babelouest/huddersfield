@@ -28,7 +28,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/orcania/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make install
 
@@ -38,7 +38,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DINSTALL_HEADER=off ..
 
   make package
 
@@ -53,7 +53,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/yder/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make install
 
@@ -63,7 +63,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DINSTALL_HEADER=off ..
 
   make package
 
@@ -78,7 +78,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/ulfius/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make install
 
@@ -88,7 +88,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DINSTALL_HEADER=off ..
 
   make package
 
@@ -103,7 +103,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/hoel/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make install
 
@@ -113,7 +113,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DINSTALL_HEADER=off ..
 
   make package
 
@@ -128,7 +128,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/rhonabwy/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make install
 
@@ -138,7 +138,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DINSTALL_HEADER=off ..
 
   make package
 
@@ -153,7 +153,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/iddawc/build
 
-  cmake -DBUILD_IDWCC=OFF ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_IDWCC=OFF ..
 
   make install
 
@@ -163,7 +163,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DBUILD_IDWCC=OFF -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_IDWCC=OFF -DINSTALL_HEADER=off ..
 
   make package
 
@@ -178,7 +178,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
   
   cd /opt/glewlwyd/build
   
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
   
   make package 
   
@@ -188,7 +188,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
   
   rm -rf *
   
-  cmake -DWITH_MOCK=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DWITH_MOCK=on ..
   
   make package 
   

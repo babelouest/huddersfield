@@ -40,6 +40,8 @@ if [ -f $IDDAWC_ARCHIVE ]; then
   gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 api_request.c -o api_request -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
   gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 device.c -o device -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
   gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 par.c -o par -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 session.c -o session -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
+  gcc -Wall -D_REENTRANT -I../include -DDEBUG -g -O0 rar.c -o rar -lc -lorcania -liddawc -lrhonabwy -ljansson -lyder $(pkg-config --libs check) -lulfius -lgnutls
   
   ./core
   ./implicit
@@ -55,6 +57,8 @@ if [ -f $IDDAWC_ARCHIVE ]; then
   ./api_request
   ./device
   ./par
+  ./session
+  ./rar
   
   echo "$(date -R) iddawc-dev-full_${IDDAWC_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
 else

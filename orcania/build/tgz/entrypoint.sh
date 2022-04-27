@@ -15,7 +15,7 @@ if [ -f $ORCANIA_ARCHIVE ]; then
 
   cd /opt/orcania/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make
 

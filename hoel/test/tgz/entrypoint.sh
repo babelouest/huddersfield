@@ -20,11 +20,12 @@ if [ -f $HOEL_ARCHIVE ]; then
 
   cd /opt/hoel/test
 
-  make core
+  make core multi
   
   sqlite3 /tmp/test.db < test.sqlite3.sql
 
   ./core
+  ./multi
   
   echo "$(date -R) hoel-dev-full_${HOEL_VERSION}_`grep -e "^ID=" /etc/os-release |cut -c 4-`_`grep -e "^VERSION_ID=" /etc/os-release |cut -c 12-`_`uname -m`.tar.gz test complete success" >> /share/summary.log
 else

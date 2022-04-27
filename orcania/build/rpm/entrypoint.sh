@@ -15,7 +15,7 @@ if [ -f $ORCANIA_ARCHIVE ]; then
 
   cd /opt/orcania/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make
 

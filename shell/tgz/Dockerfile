@@ -28,7 +28,5 @@ RUN apk add --no-cache \
     gnutls-utils \
     sqlite \
     check-dev \
-		oath-toolkit-dev && \
-		(cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
-		tar xf libcbor.tar.gz && cd libcbor-${LIBCBOR_VERSION} && mkdir build && cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib .. && make && make install)
+		oath-toolkit-dev \
+    libcbor-dev

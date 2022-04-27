@@ -7,7 +7,6 @@ ARG HOEL_VERSION
 ARG RHONABWY_VERSION
 ARG IDDAWC_VERSION
 ARG GLEWLWYD_VERSION
-ARG LIBCBOR_VERSION
 ARG MEMCHECK
 
 # Install required packages
@@ -40,10 +39,8 @@ RUN apk add --no-cache \
     valgrind \
     zlib-dev \
 		libmicrohttpd-dev \
-    oath-toolkit-dev && \
-    (cd /opt && wget https://github.com/PJK/libcbor/archive/v${LIBCBOR_VERSION}.tar.gz -O libcbor.tar.gz && \
-    tar xf libcbor.tar.gz && cd libcbor-${LIBCBOR_VERSION} && mkdir build && cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib .. && make && make install)
+    oath-toolkit-dev \
+    libcbor-dev
 
 RUN echo ${ORCANIA_VERSION} > /opt/ORCANIA_VERSION
 RUN echo ${YDER_VERSION} > /opt/YDER_VERSION

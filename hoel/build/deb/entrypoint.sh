@@ -19,7 +19,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $HOEL_ARCHIVE ]; then
 
   cd /opt/orcania/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make package
 
@@ -35,7 +35,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $HOEL_ARCHIVE ]; then
 
   cd /opt/yder/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make package
 
@@ -51,7 +51,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $HOEL_ARCHIVE ]; then
 
   cd /opt/hoel/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make package
 

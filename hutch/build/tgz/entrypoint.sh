@@ -27,7 +27,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/orcania/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make install
 
@@ -37,7 +37,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
 
   make package
 
@@ -51,7 +51,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/yder/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DWITH_JOURNALD=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DWITH_JOURNALD=off ..
 
   make install
 
@@ -61,7 +61,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DWITH_JOURNALD=off -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DWITH_JOURNALD=off -DINSTALL_HEADER=off ..
 
   make package
 
@@ -75,7 +75,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/ulfius/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make install
 
@@ -85,7 +85,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
 
   make package
 
@@ -99,7 +99,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/hoel/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make install
 
@@ -109,7 +109,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
 
   make package
 
@@ -123,7 +123,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/rhonabwy/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make install
 
@@ -133,7 +133,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
 
   make package
 
@@ -147,7 +147,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/iddawc/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make install
 
@@ -157,7 +157,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   rm -rf *
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DINSTALL_HEADER=off ..
 
   make package
 
@@ -171,7 +171,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
   
   cd /opt/hutch/build
   
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib ..
   
   make package 
   
@@ -181,7 +181,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
   
   rm -rf *
   
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib ..
   
   make package 
   

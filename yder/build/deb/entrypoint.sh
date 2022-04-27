@@ -17,7 +17,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ]; then
 
   cd /opt/orcania/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make package
 
@@ -33,7 +33,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ]; then
 
   cd /opt/yder/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make package
 

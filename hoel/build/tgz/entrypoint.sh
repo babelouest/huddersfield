@@ -19,7 +19,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $HOEL_ARCHIVE ]; then
 
   cd /opt/orcania/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make package
 
@@ -35,7 +35,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $HOEL_ARCHIVE ]; then
 
   cd /opt/yder/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib -DWITH_JOURNALD=off ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DWITH_JOURNALD=off ..
 
   make package
 
@@ -51,7 +51,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $HOEL_ARCHIVE ]; then
 
   cd /opt/hoel/build
 
-  cmake -DCMAKE_INSTALL_LIBDIR=lib ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib ..
 
   make package
 

@@ -17,7 +17,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ]; then
 
   cd /opt/orcania/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make package
 
@@ -33,7 +33,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ]; then
 
   cd /opt/yder/build
 
-  cmake -DBUILD_RPM=on ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_RPM=on ..
 
   make package
 

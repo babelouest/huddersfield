@@ -21,7 +21,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/orcania/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make package
 
@@ -37,7 +37,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/yder/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make package
 
@@ -53,7 +53,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/ulfius/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make package
 
@@ -69,7 +69,7 @@ if [ -f $ORCANIA_ARCHIVE ] && [ -f $YDER_ARCHIVE ] && [ -f $ULFIUS_ARCHIVE ] && 
 
   cd /opt/rhonabwy/build
 
-  cmake ..
+  cmake -DCMAKE_BUILD_TYPE=Release ..
 
   make package
 

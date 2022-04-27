@@ -23,7 +23,6 @@ RUN ${RPMI} install -y \
     libcurl-devel \
     gnutls-devel \
     check-devel \
-    subunit-devel \
     zlib-devel \
     libtool \
     autoconf
