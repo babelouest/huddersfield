@@ -411,7 +411,7 @@ orcania-build:
 	$(MAKE) orcania-ubuntu-lts
 	$(MAKE) orcania-alpine
 	$(MAKE) orcania-fedora
-	$(MAKE) orcania-centos
+	#$(MAKE) orcania-centos
 	$(MAKE) orcania-rocky
 	#$(MAKE) orcania-opensuse-tumbleweed
 	#$(MAKE) orcania-opensuse-leap
@@ -424,7 +424,7 @@ orcania-test:
 	$(MAKE) orcania-ubuntu-lts-test
 	$(MAKE) orcania-alpine-test
 	$(MAKE) orcania-fedora-test
-	$(MAKE) orcania-centos-test
+	#$(MAKE) orcania-centos-test
 	$(MAKE) orcania-rocky-test
 	#$(MAKE) orcania-opensuse-tumbleweed-test
 	#$(MAKE) orcania-opensuse-leap-test
@@ -644,7 +644,7 @@ yder-build:
 	$(MAKE) yder-ubuntu-lts
 	$(MAKE) yder-alpine
 	$(MAKE) yder-fedora
-	$(MAKE) yder-centos
+	#$(MAKE) yder-centos
 	$(MAKE) yder-rocky
 	#$(MAKE) yder-opensuse-tumbleweed
 	#$(MAKE) yder-opensuse-leap
@@ -655,9 +655,9 @@ yder-test:
 	$(MAKE) yder-debian-testing-test
 	$(MAKE) yder-ubuntu-latest-test
 	$(MAKE) yder-ubuntu-lts-test
-	#$(MAKE) yder-alpine-test # Sometimes alpine is weird
+	$(MAKE) yder-alpine-test # Sometimes alpine is weird
 	$(MAKE) yder-fedora-test
-	$(MAKE) yder-centos-test
+	#$(MAKE) yder-centos-test
 	$(MAKE) yder-rocky-test
 	#$(MAKE) yder-opensuse-tumbleweed-test
 	#$(MAKE) yder-opensuse-leap-test
@@ -893,7 +893,7 @@ ulfius-build:
 	$(MAKE) ulfius-ubuntu-lts
 	$(MAKE) ulfius-alpine
 	$(MAKE) ulfius-fedora
-	$(MAKE) ulfius-centos
+	#$(MAKE) ulfius-centos
 	$(MAKE) ulfius-rocky
 	#$(MAKE) ulfius-opensuse-tumbleweed
 	#$(MAKE) ulfius-opensuse-leap
@@ -906,7 +906,7 @@ ulfius-test:
 	$(MAKE) ulfius-ubuntu-lts-test
 	$(MAKE) ulfius-alpine-test
 	$(MAKE) ulfius-fedora-test
-	$(MAKE) ulfius-centos-test
+	#$(MAKE) ulfius-centos-test
 	$(MAKE) ulfius-rocky-test
 	#$(MAKE) ulfius-opensuse-tumbleweed-test
 	#$(MAKE) ulfius-opensuse-leap-test
@@ -1142,7 +1142,7 @@ hoel-build:
 	$(MAKE) hoel-ubuntu-lts
 	$(MAKE) hoel-alpine
 	$(MAKE) hoel-fedora
-	$(MAKE) hoel-centos
+	#$(MAKE) hoel-centos
 	$(MAKE) hoel-rocky
 	#$(MAKE) hoel-opensuse-tumbleweed
 	#$(MAKE) hoel-opensuse-leap
@@ -1155,7 +1155,7 @@ hoel-test:
 	$(MAKE) hoel-ubuntu-lts-test
 	$(MAKE) hoel-alpine-test
 	$(MAKE) hoel-fedora-test
-	$(MAKE) hoel-centos-test
+	#$(MAKE) hoel-centos-test
 	$(MAKE) hoel-rocky-test
 	#$(MAKE) hoel-opensuse-tumbleweed-test
 	#$(MAKE) hoel-opensuse-leap-test
@@ -1391,7 +1391,7 @@ rhonabwy-build:
 	$(MAKE) rhonabwy-ubuntu-lts
 	$(MAKE) rhonabwy-alpine
 	$(MAKE) rhonabwy-fedora
-	$(MAKE) rhonabwy-centos
+	#$(MAKE) rhonabwy-centos
 	$(MAKE) rhonabwy-rocky
 	#$(MAKE) rhonabwy-opensuse-tumbleweed
 	#$(MAKE) rhonabwy-opensuse-leap
@@ -1404,7 +1404,7 @@ rhonabwy-test:
 	$(MAKE) rhonabwy-ubuntu-lts-test
 	$(MAKE) rhonabwy-alpine-test
 	$(MAKE) rhonabwy-fedora-test
-	$(MAKE) rhonabwy-centos-test
+	#$(MAKE) rhonabwy-centos-test
 	$(MAKE) rhonabwy-rocky-test
 	#$(MAKE) rhonabwy-opensuse-tumbleweed-test
 	#$(MAKE) rhonabwy-opensuse-leap-test
@@ -1671,7 +1671,7 @@ iddawc-build:
 	$(MAKE) iddawc-ubuntu-lts
 	$(MAKE) iddawc-alpine
 	$(MAKE) iddawc-fedora
-	$(MAKE) iddawc-centos
+	#$(MAKE) iddawc-centos
 	$(MAKE) iddawc-rocky
 	#$(MAKE) iddawc-opensuse-tumbleweed
 	#$(MAKE) iddawc-opensuse-leap
@@ -1684,12 +1684,12 @@ iddawc-test:
 	$(MAKE) iddawc-ubuntu-lts-test
 	$(MAKE) iddawc-alpine-test
 	$(MAKE) iddawc-fedora-test
-	$(MAKE) iddawc-centos-test
+	#$(MAKE) iddawc-centos-test
 	$(MAKE) iddawc-rocky-test
 	#$(MAKE) iddawc-opensuse-tumbleweed-test
 	#$(MAKE) iddawc-opensuse-leap-test
 	@echo "#############################################"
-	@echo "#            IDDAWC TESTS COMPLETE        #"
+	@echo "#             IDDAWC TESTS COMPLETE         #"
 	@echo "#############################################"
 
 iddawc-clean: clean-base
@@ -2113,7 +2113,7 @@ glewlwyd-test:
 	$(MAKE) glewlwyd-ubuntu-lts-test
 	$(MAKE) glewlwyd-alpine-test
 	$(MAKE) glewlwyd-fedora-test
-	#$(MAKE) glewlwyd-rocky-test
+	$(MAKE) glewlwyd-rocky-test
 	#$(MAKE) glewlwyd-centos-test
 	#$(MAKE) glewlwyd-opensuse-tumbleweed-test
 	#$(MAKE) glewlwyd-opensuse-leap-test
@@ -2633,7 +2633,7 @@ hutch-build:
 	$(MAKE) hutch-ubuntu-lts
 	$(MAKE) hutch-alpine
 	$(MAKE) hutch-fedora
-	$(MAKE) hutch-centos
+	#$(MAKE) hutch-centos
 
 hutch-test:
 	$(MAKE) hutch-debian-oldstable-test
@@ -2643,7 +2643,7 @@ hutch-test:
 	$(MAKE) hutch-ubuntu-lts-test
 	$(MAKE) hutch-alpine-test
 	$(MAKE) hutch-fedora-test
-	$(MAKE) hutch-centos-test
+	#$(MAKE) hutch-centos-test
 
 hutch-clean: clean-base
 	rm -f hutch/*.tar.gz hutch/*.zip hutch/*.deb hutch/*.rpm hutch/packages hutch/*.sig hutch/*.gpg
