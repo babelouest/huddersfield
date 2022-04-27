@@ -1,7 +1,7 @@
 FROM ubuntu:rolling
 
-COPY ["sources.list", "/etc/apt/"]
-COPY ["99own", "/etc/apt/apt.conf.d/"]
+#COPY ["sources.list", "/etc/apt/"]
+#COPY ["99own", "/etc/apt/apt.conf.d/"]
 
 # Install required packages
 RUN apt-get update && \
